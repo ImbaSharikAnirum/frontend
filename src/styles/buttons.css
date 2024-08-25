@@ -1,0 +1,151 @@
+.button_tertiary {
+    padding: 8px 24px;
+    border-radius: 30px;
+    border: 2px solid #E6E6E6;
+    background-color: white;
+    color: #757575;
+    font-size: 16px;
+    text-align: center;
+    
+
+}
+
+.button_tertiary:hover {
+    border: 2px solid #C2C2C2;
+}
+.button_white {
+    padding: 8px 24px;
+    border-radius: 30px;
+    border: none;
+    background-color: white;
+    color: black;
+    font-size: 16px;
+    text-align: center;
+}
+
+.button_white:hover {
+    background-color: #F7F7F7;
+}
+
+.button {
+    padding: 8px 24px;
+    border-radius: 30px;
+    background-color: #E60023;
+    color: white;
+    font-size: 16px;
+    border: none;
+    height: 40px;
+}
+
+.button:hover {
+    background-color: #B60000;
+}
+
+.button_secondary {
+    padding: 8px 24px;
+    border-radius: 30px;
+    background-color: #E9E9E9;
+    color: black;
+    font-size: 16px;
+    border: none;
+    height: 40px;
+}
+
+.button_secondary:hover {
+    background-color: #DDDDDD;
+}
+
+.button_only_icon {
+    padding: 0px 8px;
+    border-radius: 30px;
+    border: 2px solid #E6E6E6;
+    background-color: white;
+    color: #757575;
+    display: "flex";
+    width: 36px;
+    justify-content: center;
+}
+
+.button_only_icon:hover {
+    border: 2px solid #C2C2C2;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px; /* Space between buttons */
+    flex-wrap: wrap;
+  }
+
+ 
+  
+  .button-group button {
+    padding: 10px 20px; /* Padding for the "Неважно" button */
+    border: 1px solid #DDDDDD; /* Default border color */
+    background-color: white; /* Default background color */
+    color: black; /* Default text color */
+    border-radius: 25px; /* Rounded corners for the "Неважно" button */
+    font-size: 14px; /* Font size */
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .button-group button:hover {
+    /* background-color: #F0F0F0; */
+    border-color: black; 
+  }
+  
+  .button-group button.selected {
+    background-color: black; /* Background color when selected */
+    color: white; /* Text color when selected */
+    border-color: black; /* Border color when selected */
+  }
+  
+  /* Specific styling for the number buttons */
+  .button-group button.number-button {
+    width: 40px; /* Set width to make the button round */
+    height: 40px; /* Set height to make the button round */
+    padding: 0; /* Remove padding */
+    border-radius: 50%; /* Make the buttons perfectly round */
+    display: flex; /* Center the content */
+    align-items: center; /* Center the content vertically */
+    justify-content: center; /* Center the content horizontally */
+  }
+
+  /* Добавьте эти стили в ваш CSS-файл */
+
+.button_filter_clear{
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 2px solid white;
+    background-color: white;
+    color: black;
+    font-size: 16px;
+    text-align: center;
+}
+
+.button_filter_clear:hover {
+    /* background-color: #F0F0F0; */
+    background-color: #E9E9E9;
+  }
+
+.button_filter_clear:active {
+    transform: scale(0.95); /* Slightly reduce size */
+    background-color: #DDDDDD; /* Optional: change color on click */
+}
+
+.button_filter_group{
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: none;
+    font-size: 16px;
+    text-align: center;
+    background-color: #222222; /* Background color when selected */
+    color: white; /* Text color when selected */
+}
+
+.button_filter_group:hover {
+    background-color: black; /* Optional: change color on click */
+}
+.button_filter_group:active {
+    transform: scale(0.95); /* Slightly reduce size */
+}

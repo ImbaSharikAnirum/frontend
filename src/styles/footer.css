@@ -1,0 +1,15 @@
+.footer {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px 32px;
+    background-color: #f5f4f4;
+}
+
+@media (max-width: 600px) {
+    .footer {
+        flex-direction: column;
+        padding: 20px 24px;
+        padding-bottom: 90px;
+        
+    }
+}
