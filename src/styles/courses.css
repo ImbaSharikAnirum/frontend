@@ -1,0 +1,117 @@
+.filters {
+    display: flex; 
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@media (max-width: 600px) {
+    .desktop {
+        display: none;
+    }
+    .filters_mobile_placeholder {
+      height: 20px;
+    }
+    
+}
+.filters_mobile {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: white; 
+  border-bottom: 1px solid #EBEBEB;
+  z-index: 1000; /* Ensure it stays on top */
+  padding: 10px 0; /* Padding for better appearance */
+}
+
+/* Add a placeholder to prevent content from being hidden behind the fixed element */
+
+/* Show the filters_mobile on screens smaller than 600px */
+@media (max-width: 600px) {
+  .filters_mobile {
+    display: flex;
+  }
+}
+
+
+.courses_filters {
+    position: relative;
+    /* display: inline-block; */
+    z-index: 10000;
+  }
+  
+  
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 8px); /* Отступ 8 пикселей от кнопки */
+    left: 0;
+    background: white;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 340px; /* Увеличение ширины */
+    padding: 20px; /* Добавление отступов */
+    border-radius: 32px; /* Скругление углов */
+    transition: all 0.3s ease-in-out;
+    
+   
+  }
+  .box {
+    background: white;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E6E6E6;
+    max-width: 300px;
+    z-index: 1000;
+    padding: 20px; /* Добавление отступов */
+    border-radius: 12px; /* Скругление углов */
+    
+   
+  }
+  
+  .dropdown-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    margin-top: 8px;
+    font-weight: bold;
+  }
+  
+
+  
+  .dropdown-content {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+   
+  }
+  
+  .direction {
+    text-align: center;
+    padding: 16px;
+    border-radius: 24px;
+  }
+  .direction:hover{
+    background-color: #E9E9E9;
+  }
+  
+  .direction img {
+    width: 120px;
+    height: 150px;
+    border-radius: 24px;
+    object-fit: cover;
+    border: 1px solid #E6E6E6;
+  }
+  
+  .direction div {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+ .no-courses {
+  text-align: start;
+  padding-left: 20px;
+  padding-right: 20px;
+}

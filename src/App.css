@@ -1,38 +1,152 @@
+@font-face {
+  font-family: NunitoSans_Regular;
+  src: url(./assets/Nunito_Sans/static/NunitoSans_10pt-Regular.ttf);
+}
+.Body-1 {
+  font-family: NunitoSans_Regular;
+  
+}
+@font-face {
+  font-family: NunitoSans_ExtraLight;
+  src: url(./assets/Nunito_Sans/NunitoSans-VariableFont_YTLC\,opsz\,wdth\,wght.ttf);
+}
+.Body-2 {
+  font-family: NunitoSans_ExtraLight;
+
+}
+
+@font-face {
+  font-family: NunitoSans_SemiBold;
+  src: url(./assets/Nunito_Sans/static/NunitoSans_10pt-SemiBold.ttf);
+}
+@font-face {
+  font-family: NunitoSans_Bold;
+  src: url(./assets/Nunito_Sans/static/NunitoSans_10pt-Bold.ttf);
+}
+
+.Body-3 {
+  font-family: NunitoSans_SemiBold;
+}
+.h5 {
+  font-family: NunitoSans_SemiBold;
+  font-size: 18px;
+}
+.h4 {
+  font-family: NunitoSans_Bold;
+  font-size: 24px;
+}
+
+
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+margin: 0;
+padding: 0;
+border: 0;
+font-size: 100%;
+font: inherit;
+vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+display: block;
+}
+body {
+line-height: 1;
+}
+ol, ul {
+list-style: none;
+}
+blockquote, q {
+quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+content: '';
+content: none;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+
+
+/* Переопределяем цвет трека ползунка */
+.css-ttgsjq-MuiSlider-track {
+  color: black;
+}
+
+/* Убираем стрелки для input type="number" в Chrome, Safari и Edge */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+
+/* Убираем стрелки для input type="number" в Firefox */
+input[type="number"] {
+  -moz-appearance: textfield; /* Для Firefox */
+  -webkit-appearance: textfield; /* Для Chrome, Safari, и Edge (кроме нового Edge) */
+  appearance: textfield; /* Стандартное свойство для всех поддерживающих браузеров */
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  min-height: 100vh;
 }
 
-.App-link {
-  color: #61dafb;
+main {
+  flex: 1;
+  padding: 32px 40px;
+}
+@media (max-width: 600px) {
+  main {
+    padding: 32px 24px;
+  }
+}
+/* 
+.padding {
+  padding: 32px 40px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 600px) {
+  .padding {
+    padding: 32px 24px;
   }
-  to {
-    transform: rotate(360deg);
+} */
+footer {
+  margin-top: auto; /* Футер всегда будет снизу */
+}
+
+.link {
+  text-decoration: none;
+  color: black;
+  margin: 0px 12px; 
+}
+
+
+@media (max-width: 600px) {
+  .link {
+      margin: 0px 0px; 
   }
 }
+
