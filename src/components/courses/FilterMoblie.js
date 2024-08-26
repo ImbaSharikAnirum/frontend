@@ -777,7 +777,7 @@ export default function FilterMobile() {
                         flexDirection: ageFilter && "column",
                         alignItems: ageFilter ? "start" : "center",
                         position: "relative",
-                        width: "130px",
+                        width: "140px",
                       }}
                       onClick={handleAgeClick}
                     >
@@ -790,6 +790,7 @@ export default function FilterMobile() {
                         style={{
                           paddingRight: ageFilter ? "12px" : "0px",
                           boxSizing: "border-box",
+                          width: "100px",
                         }}
                         ref={ageInputRef}
                       />

@@ -326,7 +326,7 @@ export default function FilterGroup({ loading }) {
             style={
               isMobile
                 ? {
-                    height: "100vh",
+                    height: "100%",
                     width: "100%",
                     maxHeight: "100vh",
                     borderRadius: "0px",
@@ -418,7 +418,7 @@ export default function FilterGroup({ loading }) {
                 >
                   <div
                     className="Body-2 input_filter_price_min"
-                    style={{ fontSize: "14px" }}
+                    style={{ fontSize: "14px", height: "50px" }}
                   >
                     <div style={{ fontSize: 12, color: "#757575" }}>
                       Минимум
@@ -450,7 +450,7 @@ export default function FilterGroup({ loading }) {
                   />
                   <div
                     className="Body-2 input_filter_price_min"
-                    style={{ fontSize: "14px" }}
+                    style={{ fontSize: "14px", height: "50px" }}
                   >
                     <div style={{ fontSize: 12, color: "#757575" }}>
                       Максимум
