@@ -317,7 +317,7 @@ export default function FilterGroup({ loading }) {
       {filterGroupMobile && (
         <div
           className="modal-overlay"
-          style={isMobile ? { height: "100vh", width: "100vw" } : {}}
+          style={isMobile ? { height: "100%", width: "100vw" } : {}}
         >
           <div
             className="modal-content"
@@ -326,7 +326,7 @@ export default function FilterGroup({ loading }) {
             style={
               isMobile
                 ? {
-                    height: "100%",
+                    height: "100vh",
                     width: "100%",
                     maxHeight: "100vh",
                     borderRadius: "0px",
@@ -380,6 +380,7 @@ export default function FilterGroup({ loading }) {
                       height: "4px",
                     },
                     "& .MuiSlider-thumb": {
+                      color: "black !important",
                       backgroundColor: "#FFFFFF",
                       border: "1px solid #CDCDCD",
                       width: "24px",

@@ -256,8 +256,8 @@ export default function FilterMobile() {
     filterState.format ||
     filterState.city ||
     filterState.district ||
-    filterState.direction;
-
+    filterState.direction ||
+    filterState.age;
 
   return (
     <div style={{ width: "100vw", padding: "16px 24px" }}>
@@ -301,7 +301,7 @@ export default function FilterMobile() {
               justifyContent: "start",
             }}
           >
-            <Search />
+            <Search style={{ color: "#212121" }} />
             <div
               className="Body-3"
               style={{
@@ -777,24 +777,22 @@ export default function FilterMobile() {
                         flexDirection: ageFilter && "column",
                         alignItems: ageFilter ? "start" : "center",
                         position: "relative",
-                        width: "120px",
+                        width: "130px",
                       }}
                       onClick={handleAgeClick}
                     >
-                      <div>
-                        <input
-                          type="number"
-                          value={ageFilter}
-                          onChange={handleAgeChange}
-                          placeholder="Возраст"
-                          className="input-age Body-3"
-                          style={{
-                            paddingRight: ageFilter ? "12px" : "0px",
-                            boxSizing: "border-box",
-                          }}
-                          ref={ageInputRef}
-                        />
-                      </div>
+                      <input
+                        type="number"
+                        value={ageFilter}
+                        onChange={handleAgeChange}
+                        placeholder="Возраст"
+                        className="input-age Body-3"
+                        style={{
+                          paddingRight: ageFilter ? "12px" : "0px",
+                          boxSizing: "border-box",
+                        }}
+                        ref={ageInputRef}
+                      />
                       {ageFilter && (
                         <span
                           className="clear-icon"
