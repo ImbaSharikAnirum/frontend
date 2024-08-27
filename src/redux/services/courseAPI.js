@@ -10,7 +10,7 @@ export const courseAPI = createApi({
   endpoints: (builder) => ({
     fetchCourseById: builder.query({
       query: (id) => ({
-        url: `/groups/${id}?&populate[teacher][populate][photo]=*&populate[images]=*&populate[city]=*&populate[address]=*populate[district]=*`,
+        url: `/groups/${id}?&populate[teacher][populate][photo]=*&populate[images]=*&populate[city]=*&populate[address]=*&populate[district]=*`,
         method: "GET",
       }),
     }),

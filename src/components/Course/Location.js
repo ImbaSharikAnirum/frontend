@@ -1,44 +1,52 @@
-import React, { useState } from "react";
-import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import DiscordIcon from "../../images/DiscordIcon";
 import { Link } from "react-router-dom";
+import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 
 export default function Location() {
   const course = useSelector(selectCurrentCourse);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const containerStyle = {
     width: "100%",
     height: "400px",
   };
+  // Проверяем, есть ли данные для координат
+  const center =
+    course && course.location
+      ? {
+          lat: parseFloat(course.location.lat),
+          lng: parseFloat(course.location.lng),
+        }
+      : null;
 
-  const center = {
-    lat: -3.745,
-    lng: -38.523,
-  };
+  // Загружаем API Google Maps
   const { isLoaded } = useJsApiLoader({
     id: "anirum",
     googleMapsApiKey: "AIzaSyBG3-McnhGanJsLu8AzA2TyXmdA4Ea6sSc",
   });
 
-  const [map, setMap] = useState(null);
-  //   const center = info.google_maps;
-
-  const onLoad = React.useCallback(function callback(map) {
-    // This is just an example of getting and using the map instance!!! don't just blindly copy!
-    const bounds = new window.google.maps.LatLngBounds(center);
-    map.fitBounds(bounds);
-
-    setMap(map);
-  }, []);
+  const onLoad = React.useCallback(
+    function callback(map) {
+      if (center) {
+        const bounds = new window.google.maps.LatLngBounds(center);
+        map.fitBounds(bounds);
+        setMapLoaded(true);
+      }
+    },
+    [center]
+  );
 
   const onUnmount = React.useCallback(function callback(map) {
-    setMap(null);
+    setMapLoaded(false);
   }, []);
+
   const OPTIONS = {
     minZoom: 4,
     maxZoom: 20,
+    zoom: 11, // Добавьте этот параметр для установки начального уровня масштаба
   };
 
   return (
@@ -51,7 +59,7 @@ export default function Location() {
       >
         Где пройдут занятия
       </div>
-      {course.format === "Оффлайн" ? (
+      {course && course.format === "Оффлайн" ? (
         <div>
           <div
             className="Body-2"
@@ -63,26 +71,23 @@ export default function Location() {
             г. {course.city}, {course.district}, ул. {course.address}
           </div>
           <div style={{ marginTop: "16px" }}>
-            {" "}
-            {isLoaded ? (
+            {isLoaded && center ? (
               <GoogleMap
                 mapContainerStyle={containerStyle}
                 center={center}
-                // zoom={18}
                 options={OPTIONS}
                 onLoad={onLoad}
                 onUnmount={onUnmount}
               >
-                {/* Child components, such as markers, info windows, etc. */}
                 <Marker position={center} />
               </GoogleMap>
             ) : (
-              <></>
+              <div>Loading map...</div>
             )}
           </div>
         </div>
       ) : (
-        <div style={{}}>
+        <div>
           <div
             className="Body-2"
             style={{

@@ -42,6 +42,10 @@ export const selectCurrentCourse = createSelector(
 
     const cityData = attributes.city?.data?.attributes?.title || "";
     const addressData = attributes.address?.data?.attributes?.title || "";
+    const locationData = {
+      lat: attributes.address?.data?.attributes?.lat || "0",
+      lng: attributes.address?.data?.attributes?.lng || "0",
+    };
     const districtData = attributes.district?.data?.attributes?.title || "";
     const teacherData = {
       name:
@@ -63,6 +67,7 @@ export const selectCurrentCourse = createSelector(
       inventory: attributes.inventory || false,
       city: cityData,
       address: addressData,
+      location: locationData,
       district: districtData,
       monday: attributes.monday || false,
       tuesday: attributes.tuesday || false,

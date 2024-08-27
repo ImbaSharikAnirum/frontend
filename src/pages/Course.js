@@ -102,7 +102,7 @@ export default function Course() {
           <Form />
         </div>
 
-        <Location />
+        {course && <Location />}
         <Rules />
       </div>
     </div>

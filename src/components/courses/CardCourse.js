@@ -41,7 +41,7 @@ const CardCourse = ({ course }) => {
   const timeRange = `${userStartTime} - ${userEndTime}`;
   const location =
     course.format === "Оффлайн"
-      ? `${course.city}, ${course.address}`
+      ? `${course.city}, ${course.district}`
       : "Онлайн";
 
   // Функция для подсчета количества занятий в следующем месяце
@@ -99,13 +99,13 @@ const CardCourse = ({ course }) => {
       >
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <div style={{ display: "flex", gap: "8px" }}>
-            <div style={{ height: "35px", width: "35px" }}>
+            <div style={{ height: "35px", width: "40px" }}>
               <img
                 src={`${course.teacher.photo}`}
                 alt="Аватар"
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  width: "35px",
+                  height: "35px",
                   objectFit: "cover",
                   borderRadius: "90px",
                   border: "1px solid #DDDDDD",
@@ -121,7 +121,14 @@ const CardCourse = ({ course }) => {
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+              // marginTop: "26px",
+            }}
+          >
             <div className="Body-1" style={{ color: "#5F5F5F" }}>
               {courseDays || "Нет занятий"}
             </div>
