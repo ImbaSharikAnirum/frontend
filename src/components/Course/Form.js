@@ -275,7 +275,10 @@ export default function Form() {
               )}
             </div>
             <Link
-              to={`/booking/${id}/${linkMonth}`}
+              // to={`/booking/${id}/${linkMonth}`}
+              to={`https://api.whatsapp.com/send/?phone=77473628471&text=Здравствуйте,%20я%20хочу%20забронировать%20курс.%20ID%20группы:%20${course.id}&type=phone_number&app_absent=0`}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 textDecoration: "none",
                 // color: "black",

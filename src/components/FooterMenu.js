@@ -35,7 +35,6 @@ const FooterMenu = () => {
     // Открываем меню при изменении страницы
     dispatch(showFooterMenu());
   }, [location.pathname]);
-
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollTop = window.scrollY;
@@ -118,7 +117,9 @@ const FooterMenu = () => {
                 </div>
               </div>
               <Link
-                to="https://api.whatsapp.com/send/?phone=77473628471&text&type=phone_number&app_absent=0"
+                to={`https://api.whatsapp.com/send/?phone=77473628471&text=Здравствуйте,%20я%20хочу%20забронировать%20курс.%20ID%20группы:%20${course.id}&type=phone_number&app_absent=0`}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   textDecoration: "none",
                   // color: "black",

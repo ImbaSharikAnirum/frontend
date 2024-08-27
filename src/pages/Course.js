@@ -10,7 +10,7 @@ import {
   selectCourseStatus,
 } from "../redux/reducers/courseReducer";
 import Images from "../components/Course/Images";
-import { useMediaQuery, useTheme } from "@mui/material";
+import { useMediaQuery, useTheme, Skeleton } from "@mui/material";
 import Address from "../components/Course/Address";
 import Information from "../components/Course/Information";
 import Teacher from "../components/Course/Teacher";
@@ -39,7 +39,45 @@ export default function Course() {
     };
   }, [data, error, dispatch]);
 
-  if (isLoading || status === "loading") return <div>Loading...</div>;
+  if (isLoading || status === "loading") {
+    return (
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ width: isMobile ? "100%" : "1120px" }}>
+          {!isMobile && <Skeleton variant="rectangular" height={50} />}
+          <Skeleton
+            variant="rectangular"
+            height={400}
+            style={{ marginTop: 20 }}
+          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: 20,
+            }}
+          >
+            <Skeleton variant="rectangular" width="100%" height={300} />
+            <Skeleton
+              variant="rectangular"
+              width={300}
+              height={300}
+              style={{ marginLeft: 20 }}
+            />
+          </div>
+          <Skeleton
+            variant="rectangular"
+            height={100}
+            style={{ marginTop: 20 }}
+          />
+          <Skeleton
+            variant="rectangular"
+            height={200}
+            style={{ marginTop: 20 }}
+          />
+        </div>
+      </div>
+    );
+  }
   if (status === "failed") return <div>Error: {error}</div>;
   if (!course) return <div>Group not found</div>;
   return (
@@ -47,8 +85,8 @@ export default function Course() {
       <div style={{ width: isMobile ? "100%" : "1120px" }}>
         {!isMobile && <Address />}
         <Images />
-        <div style={{ display: "flex" }}>
-          <div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ width: "100%" }}>
             <Information />
             <div
               className="h4"

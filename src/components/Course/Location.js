@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import { useSelector } from "react-redux";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import DiscordIcon from "../../images/DiscordIcon";
+import { Link } from "react-router-dom";
 
 export default function Location() {
   const course = useSelector(selectCurrentCourse);
@@ -50,45 +52,72 @@ export default function Location() {
         Где пройдут занятия
       </div>
       {course.format === "Оффлайн" ? (
-        <div
-          className="Body-2"
-          style={{
-            display: "flex",
-            marginTop: "8px",
-          }}
-        >
-          г. {course.city}, {course.district}, ул. {course.address}
+        <div>
+          <div
+            className="Body-2"
+            style={{
+              display: "flex",
+              marginTop: "8px",
+            }}
+          >
+            г. {course.city}, {course.district}, ул. {course.address}
+          </div>
+          <div style={{ marginTop: "16px" }}>
+            {" "}
+            {isLoaded ? (
+              <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={center}
+                // zoom={18}
+                options={OPTIONS}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+              >
+                {/* Child components, such as markers, info windows, etc. */}
+                <Marker position={center} />
+              </GoogleMap>
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
       ) : (
-        <div
-          className="Body-2"
-          style={{
-            marginBottom: "16px",
-            alignItems: "center",
-            marginTop: "8px",
-          }}
-        >
-          {course.format}
+        <div style={{}}>
+          <div
+            className="Body-2"
+            style={{
+              marginBottom: "16px",
+              alignItems: "center",
+              marginTop: "8px",
+            }}
+          >
+            {course.format}, приложение Discord
+          </div>
+          <Link
+            to={`https://discord.com/`}
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#5865F2",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "90px",
+              }}
+            >
+              <DiscordIcon />
+            </div>
+          </Link>
         </div>
       )}
-      <div style={{ marginTop: "16px" }}>
-        {" "}
-        {isLoaded ? (
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            // zoom={18}
-            options={OPTIONS}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-          >
-            {/* Child components, such as markers, info windows, etc. */}
-            <Marker position={center} />
-          </GoogleMap>
-        ) : (
-          <></>
-        )}
-      </div>
     </div>
   );
 }

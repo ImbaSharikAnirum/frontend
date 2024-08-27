@@ -54,7 +54,6 @@ const CardCourse = ({ course }) => {
     // Преобразование строковых дат в объекты moment
     const courseStartDate = moment(course.start_day);
     const courseEndDate = moment(course.end_day);
-
     // Определяем дни недели, когда проходят занятия
     const activeDays = {
       monday: course.monday,
@@ -67,20 +66,19 @@ const CardCourse = ({ course }) => {
     };
 
     let lessonCount = 0;
-
     // Итерируем по каждому дню в следующем месяце
     for (
       let day = startOfNextMonth.clone();
-      day.isSameOrBefore(endOfNextMonth);
+      day.locale("en").isSameOrBefore(endOfNextMonth);
       day.add(1, "days")
     ) {
       // Получаем день недели в формате 'monday', 'tuesday', и т.д.
-      const dayOfWeek = day.format("dddd").toLowerCase(); // Например, "monday"
-
+      const dayOfWeek = day.locale("en").format("dddd").toLowerCase(); // Например, "monday"
+      console.log(dayOfWeek, "dayOfWeek");
       // Проверяем, попадает ли день в диапазон курса и совпадает ли он с активным днем недели
       if (
-        day.isSameOrAfter(courseStartDate, "day") &&
-        day.isSameOrBefore(courseEndDate, "day") &&
+        day.locale("en").isSameOrAfter(courseStartDate, "day") &&
+        day.locale("en").isSameOrBefore(courseEndDate, "day") &&
         activeDays[dayOfWeek]
       ) {
         lessonCount++;
