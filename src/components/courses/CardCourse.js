@@ -74,7 +74,6 @@ const CardCourse = ({ course }) => {
     ) {
       // Получаем день недели в формате 'monday', 'tuesday', и т.д.
       const dayOfWeek = day.locale("en").format("dddd").toLowerCase(); // Например, "monday"
-      console.log(dayOfWeek, "dayOfWeek");
       // Проверяем, попадает ли день в диапазон курса и совпадает ли он с активным днем недели
       if (
         day.locale("en").isSameOrAfter(courseStartDate, "day") &&
