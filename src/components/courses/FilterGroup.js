@@ -45,13 +45,13 @@ export default function FilterGroup({ loading }) {
   const [hoveredTeacherIndex, setHoveredTeacherIndex] = useState(null);
 
   const teachers = [
-    { id: 1, name: "Виктория", family: "Поезд" },
-    { id: 2, name: "Ксения", family: "Григорьева" },
-    { id: 3, name: "Яна", family: "Базарова" },
+    { id: 3, name: "Виктория", family: "Поезд" },
+    { id: 7, name: "Ксения", family: "Григорьева" },
+    { id: 1, name: "Яна", family: "Базарова" },
     { id: 4, name: "Полина", family: "Торганова" },
     { id: 5, name: "Сергей", family: "Сергеев" },
     { id: 6, name: "Алексей", family: "Алексеев" },
-    { id: 7, name: "Анастасия", family: "Чеснокова" },
+    { id: 2, name: "Анастасия", family: "Чеснокова" },
   ];
 
   const handleTeacherInputChange = (event) => {
