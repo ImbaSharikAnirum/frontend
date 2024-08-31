@@ -6,56 +6,16 @@ import { useParams } from "react-router-dom";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import { useSelector } from "react-redux";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { useFetchInvoicesByCourseIdQuery } from "../../redux/services/invoiceAPI";
+import {
+  selectCurrentInvoice,
+  selectInvoiceStatus,
+} from "../../redux/reducers/invoiceReducer";
+import { selectCurrentUser } from "../../redux/reducers/authReducer";
+import { Skeleton } from "@mui/material"; // Добавьте импорт
 
 // Переименуем компонент в StudentTable
 export default function StudentTable() {
-  const students = [
-    {
-      name: "Тест",
-      phone: "Тест",
-    },
-    {
-      name: "Тест1",
-      phone: "Тест1",
-    },
-    {
-      name: "Тест2",
-      phone: "Тест2",
-    },
-    {
-      name: "Тест3",
-      phone: "Тест3",
-    },
-    {
-      name: "Тест4",
-      phone: "Тест4",
-    },
-    {
-      name: "Тест5",
-      phone: "Тест5",
-    },
-    {
-      name: "Тест6",
-      phone: "Тест6",
-    },
-    {
-      name: "Тест7",
-      phone: "Тест7",
-    },
-    {
-      name: "Тест8",
-      phone: "Тест8",
-    },
-    {
-      name: "Тест9",
-      phone: "Тест9",
-    },
-    {
-      name: "Тест10",
-      phone: "Тест10",
-    },
-  ];
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [scrollTop, setScrollTop] = useState(0);
@@ -87,14 +47,11 @@ export default function StudentTable() {
   const [hoveredMonthIndex, setHoveredMonthIndex] = useState(null);
   const modalRef = useRef(null);
 
-  const startDay = moment(course.start_day);
-  const endDay = moment(course.end_day);
-
   const startDate = moment(course.start_day).startOf("month");
   const endDate = moment(course.end_day).endOf("month");
 
   // Начать с первого числа следующего месяца
-  let currentMonth = startDate.add(1, "month").startOf("month");
+  let currentMonth = startDate.startOf("month");
 
   const monthsArray = [];
 
@@ -115,8 +72,10 @@ export default function StudentTable() {
 
     // Вычисляем активные даты для выбранного месяца
     const dates = getActiveDatesForMonth(month);
+
     setActiveDates(dates);
   };
+
   const getActiveDatesForMonth = (month) => {
     const startOfMonth = moment(month, "MMMM YYYY").startOf("month");
     const endOfMonth = moment(month, "MMMM YYYY").endOf("month");
@@ -137,8 +96,35 @@ export default function StudentTable() {
   };
   const [sessionCount, setSessionCount] = useState(0);
 
+  useEffect(() => {
+    // Функция для подсчета активных дней текущего месяца
+    const calculateActiveDatesForCurrentMonth = () => {
+      const currentMonthString = moment().format("MMMM YYYY");
+      const startOfMonth = moment(currentMonthString, "MMMM YYYY").startOf(
+        "month"
+      );
+      const endOfMonth = moment(currentMonthString, "MMMM YYYY").endOf("month");
+      const dates = [];
+
+      for (
+        let date = startOfMonth.clone();
+        date.isSameOrBefore(endOfMonth);
+        date.add(1, "day")
+      ) {
+        const dayOfWeek = date.locale("en").format("dddd").toLowerCase();
+        if (activeDays[dayOfWeek]) {
+          dates.push(date.format("D MMM")); // Добавляем число и месяц
+        }
+      }
+
+      setActiveDates(dates);
+    };
+
+    calculateActiveDatesForCurrentMonth();
+  }, [course]);
+
   const handleModalToggle = () => {
-    if (!isModalOpen) {
+    if (!isModalOpen && !selectedMonth) {
       // Устанавливаем первый месяц в selectedMonth, если модальное окно открывается впервые
       const firstMonth = months[0];
       setSelectedMonth(firstMonth);
@@ -174,8 +160,8 @@ export default function StudentTable() {
   const calculateSessionsInMonth = (month) => {
     const startOfMonth = moment(month, "MMMM YYYY").startOf("month");
     const endOfMonth = moment(month, "MMMM YYYY").endOf("month");
-    // Считаем количество активных дней в выбранном месяце
     let sessionCount = 0;
+
     for (
       let date = startOfMonth.clone();
       date.isSameOrBefore(endOfMonth);
@@ -189,6 +175,37 @@ export default function StudentTable() {
 
     return sessionCount;
   };
+  const formattedMonth = selectedMonth
+    ? moment(selectedMonth, "MMMM YYYY")
+    : moment();
+
+  const {
+    data: invoices,
+    error,
+    isLoading,
+  } = useFetchInvoicesByCourseIdQuery({
+    courseId: id,
+    startDate: formattedMonth.startOf("month").format("YYYY-MM-DD"), // выбранный месяц или текущий
+    endDate: formattedMonth.endOf("month").format("YYYY-MM-DD"), // выбранный месяц или текущий
+  });
+
+  const [students, setStudents] = useState([]);
+  useEffect(() => {
+    if (invoices?.data) {
+      setStudents(
+        invoices.data.map((invoice) => ({
+          name: `${invoice.attributes.name} ${invoice.attributes.family}`,
+          phone: invoice.attributes.phone,
+          sum: invoice.attributes.sum,
+        }))
+      );
+    }
+  }, [invoices, error]);
+  const ManagerId = process.env.REACT_APP_MANAGER;
+  const TeacherId = process.env.REACT_APP_TEACHER;
+  const user = useSelector(selectCurrentUser);
+
+  console.log(selectedMonth, "selectedMonth");
   return (
     <div style={{ width: "100%" }}>
       <div
@@ -218,6 +235,7 @@ export default function StudentTable() {
               overflowY: "auto",
               overflowX: "auto",
               maxHeight: "350px",
+              minHeight: "240px",
             }}
           >
             <ul
@@ -228,25 +246,27 @@ export default function StudentTable() {
                 minWidth: "600px",
               }}
             >
-              {/* Header row */}
               <li
                 style={{
                   display: "flex",
                   borderBottom: "1px solid #CDCDCD",
                   position: "sticky",
-                  top: 0, // Stick the header to the top
-                  backgroundColor: "white", // Ensure background covers other elements
-                  zIndex: 2, // Ensure it stays above other rows
+                  top: 0,
+                  backgroundColor: "white",
+                  zIndex: 2,
                   minWidth: "100%",
+
                   height: "40px",
                 }}
               >
-                <div
-                  className="Body-3"
-                  style={{ flex: "1", padding: "8px", alignItems: "center" }}
-                >
-                  №
-                </div>
+                {user?.role?.id === Number(ManagerId) && (
+                  <div
+                    className="Body-3"
+                    style={{ flex: "1", padding: "8px", alignItems: "center" }}
+                  >
+                    №
+                  </div>
+                )}
                 <div
                   className="Body-3"
                   style={{
@@ -254,18 +274,22 @@ export default function StudentTable() {
                     padding: "8px",
                     position: "sticky",
                     left: 0,
-                    backgroundColor: "white", // Ensure background covers other elements
-                    zIndex: 1, // Ensure it stays above other columns
+                    backgroundColor: "white",
+                    zIndex: 1,
                   }}
                 >
                   Имя
                 </div>
-                <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
-                  Телефон
-                </div>
-                <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
-                  Оплата
-                </div>
+                {user?.role?.id === Number(ManagerId) && (
+                  <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
+                    Телефон
+                  </div>
+                )}
+                {user?.role?.id === Number(ManagerId) && (
+                  <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
+                    Оплата
+                  </div>
+                )}
                 {activeDates.map((date, index) => (
                   <div
                     key={index}
@@ -375,44 +399,66 @@ export default function StudentTable() {
                     alignItems: "center",
                   }}
                 >
-                  <div style={{ flex: "1", padding: "8px" }}>
-                    <input type="checkbox" />
-                  </div>
+                  {user?.role?.id === Number(ManagerId) && (
+                    <div style={{ flex: "1", padding: "8px" }}>
+                      <input type="checkbox" />
+                    </div>
+                  )}
                   <div
+                    className="Body-2"
                     style={{
                       flex: "2",
                       padding: "8px",
                       position: "sticky",
                       left: 0,
-                      backgroundColor: "white", // Ensure background covers other elements
-                      zIndex: 1, // Ensure it stays above other columns
+                      backgroundColor: "white",
+                      zIndex: 1,
                     }}
                   >
                     {student.name}
                   </div>
-                  <div style={{ flex: "2", padding: "8px" }}>
-                    {student.phone}
-                  </div>
-                  <div style={{ flex: "2", padding: "8px" }}>4500</div>
-                  <div style={{ flex: "1", padding: "8px" }}>Present</div>
-                  <div style={{ flex: "1", padding: "8px" }}>Absent</div>
-                  <div style={{ flex: "1", padding: "8px" }}>Present</div>
-                  <div style={{ flex: "1", padding: "8px" }}>Present</div>
-                  <div style={{ flex: "1", padding: "8px" }}>
-                    <button
-                      className="button_only_icon  button_white button-animate-filter"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        height: "36px",
-                        width: "36px",
-                        border: "none",
-                        cursor: "pointer",
-                        zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
-                      }}
+                  {user?.role?.id === Number(ManagerId) && (
+                    <div
+                      className="Body-2"
+                      style={{ flex: "2", padding: "8px" }}
                     >
-                      <More style={{ fill: "white" }} />
-                    </button>
+                      {student.phone}
+                    </div>
+                  )}
+                  {user?.role?.id === Number(ManagerId) && (
+                    <div
+                      className="Body-2"
+                      style={{ flex: "2", padding: "8px" }}
+                    >
+                      {student.sum}
+                    </div>
+                  )}
+                  {activeDates.map((date, index) => (
+                    <div
+                      key={index}
+                      className="Body-2"
+                      style={{ flex: "1", padding: "8px" }}
+                    >
+                      -
+                    </div>
+                  ))}
+                  <div style={{ flex: "1", padding: "8px" }}>
+                    {user?.role?.id === Number(ManagerId) && (
+                      <button
+                        className="button_only_icon  button_white button-animate-filter"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          height: "36px",
+                          width: "36px",
+                          border: "none",
+                          cursor: "pointer",
+                          zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
+                        }}
+                      >
+                        <More style={{ fill: "white" }} />
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}

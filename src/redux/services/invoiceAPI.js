@@ -15,7 +15,6 @@ export const invoiceAPI = createApi({
       return headers;
     },
   }),
-
   endpoints: (builder) => ({
     createInvoice: builder.mutation({
       query: (invoiceData) => ({
@@ -26,7 +25,21 @@ export const invoiceAPI = createApi({
         },
       }),
     }),
+    fetchInvoicesByCourseId: builder.query({
+      query: ({ courseId, startDate, endDate }) => {
+        const params = new URLSearchParams();
+
+        if (courseId) params.append("filters[group][id][$eq]", courseId);
+        if (startDate) params.append("filters[start_day][$gte]", startDate);
+        if (endDate) params.append("filters[end_day][$lte]", endDate);
+
+        return {
+          url: `/invoices?${params.toString()}`,
+        };
+      },
+    }),
   }),
 });
 
-export const { useCreateInvoiceMutation } = invoiceAPI;
+export const { useCreateInvoiceMutation, useFetchInvoicesByCourseIdQuery } =
+  invoiceAPI;
