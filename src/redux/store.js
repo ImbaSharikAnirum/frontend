@@ -6,8 +6,12 @@ import filterForCountReducer from "./filterForCountSlice";
 import footerMenuReducer from "./footerMenuSlice";
 import { authAPI } from "./services/authAPI";
 import { courseAPI } from "./services/courseAPI";
+import { studentAPI } from "./services/studentAPI";
+import { invoiceAPI } from "./services/invoiceAPI";
 import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
+import studentReducer from "./reducers/studentReducer";
+import invoiceReducer from "./reducers/invoiceReducer";
 
 export const store = configureStore({
   reducer: {
@@ -18,9 +22,18 @@ export const store = configureStore({
     coursesCount: coursesCountReducer,
     filterForCount: filterForCountReducer,
     footerMenu: footerMenuReducer,
+    student: studentReducer,
+    invoice: invoiceReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
+    [studentAPI.reducerPath]: studentAPI.reducer,
+    [invoiceAPI.reducerPath]: invoiceAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authAPI.middleware, courseAPI.middleware),
+    getDefaultMiddleware().concat(
+      authAPI.middleware,
+      courseAPI.middleware,
+      studentAPI.middleware,
+      invoiceAPI.middleware
+    ),
 });

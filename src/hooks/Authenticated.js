@@ -10,7 +10,7 @@ export default function Authenticated() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const API = process.env.REACT_APP_API;
-
+  
   const url = window.location.href;
   const urlParams = new URLSearchParams(window.location.search);
   const accessToken = urlParams.get("access_token");

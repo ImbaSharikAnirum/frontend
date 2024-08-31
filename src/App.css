@@ -153,3 +153,30 @@ footer {
 .css-d8mk3i {
   color: 'black'
 }
+
+.scroll {
+  /* padding: 20px; */
+  
+}
+.scroll::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  border-radius: 30px;
+  height: 8px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background color of the scrollbar track */
+  border-radius: 30px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: #c4c4c4; /* Color of the scrollbar thumb */
+  border-radius: 30px;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8; /* Color of the scrollbar thumb on hover */
+  border-radius: 30px;
+}
+    
+    

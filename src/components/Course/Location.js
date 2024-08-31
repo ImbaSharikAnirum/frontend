@@ -52,9 +52,16 @@ export default function Location() {
   return (
     <div>
       <div
+        style={{
+          width: "100%",
+          borderBottom: "1px solid #CDCDCD",
+          marginTop: "32px",
+        }}
+      ></div>
+      <div
         className="h4"
         style={{
-          marginTop: "12px",
+          marginTop: "32px",
         }}
       >
         Где пройдут занятия

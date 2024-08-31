@@ -40,6 +40,20 @@
 .button:hover {
     background-color: #B60000;
 }
+.button_save {
+    padding: 8px 24px;
+    border-radius: 30px;
+    
+    background-color: white;
+    color: black;
+    font-size: 16px;
+    border: 1px solid black;
+    height: 40px;
+}
+
+.button_save:hover {
+    background-color: #E9E9E9;
+}
 
 .button_secondary {
     padding: 8px 24px;
@@ -117,7 +131,7 @@
     padding: 8px 20px;
     border-radius: 30px;
     border: 2px solid white;
-    background-color: white;
+    background-color: #E9E9E9;
     color: black;
     font-size: 16px;
     text-align: center;
@@ -125,7 +139,7 @@
 
 .button_filter_clear:hover {
     /* background-color: #F0F0F0; */
-    background-color: #E9E9E9;
+    background-color: #dddddd;
   }
 
 .button_filter_clear:active {

@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentUser, logout } from "../../redux/reducers/authReducer";
 import { Button, Box, Avatar } from "@mui/material";
+import { clearStudents } from "../../redux/reducers/studentReducer";
 
 function UserProfile() {
   const dispatch = useDispatch();
@@ -10,6 +11,7 @@ function UserProfile() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    dispatch(clearStudents());
     dispatch(logout());
   };
 

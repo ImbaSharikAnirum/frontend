@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Courses from "./pages/Courses";
 import Team from "./pages/Team";
 import Finance from "./pages/Finance";
@@ -23,7 +23,11 @@ import SucsessCourse from "./pages/SucsessCourse";
 
 function App() {
   useInitializeUser();
+  const location = useLocation();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
   return (
     <div className="App">
       <Header />

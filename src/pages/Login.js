@@ -27,6 +27,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
+      console.log(email, password);
       const response = await login({ identifier: email, password }).unwrap();
 
       dispatch(
@@ -155,6 +156,7 @@ export default function Login() {
               style={{ marginLeft: "25px" }}
               type={showPassword ? "text" : "password"}
               value={password}
+              name="password"
               onChange={(e) => setPassword(e.target.value)}
               required
             />

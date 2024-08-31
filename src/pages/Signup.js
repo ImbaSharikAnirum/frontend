@@ -29,7 +29,6 @@ export default function Signup() {
       password: password,
     };
 
-    console.log("Submitting data:", data); // Логируем данные
     try {
       const response = await signup(data).unwrap();
       dispatch(setUser(response));

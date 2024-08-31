@@ -17,6 +17,8 @@ import Teacher from "../components/Course/Teacher";
 import Location from "../components/Course/Location";
 import Rules from "../components/Course/Rules";
 import Form from "../components/Course/Form";
+import { selectCurrentUser } from "../redux/reducers/authReducer";
+import StudentTable from "../components/Course/StudentTable";
 
 export default function Course() {
   const { id } = useParams();
@@ -24,6 +26,7 @@ export default function Course() {
   const { data, error, isLoading } = useFetchCourseByIdQuery(id);
   const course = useSelector(selectCurrentCourse);
   const status = useSelector(selectCourseStatus);
+  const user = useSelector(selectCurrentUser);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -80,6 +83,9 @@ export default function Course() {
   }
   if (status === "failed") return <div>Error: {error}</div>;
   if (!course) return <div>Group not found</div>;
+  const ManagerId = process.env.REACT_APP_MANAGER;
+  const TeacherId = process.env.REACT_APP_TEACHER;
+
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div style={{ width: isMobile ? "100%" : "1120px" }}>
@@ -101,6 +107,9 @@ export default function Course() {
 
           <Form />
         </div>
+        {course.id &&
+          (user?.role?.id === Number(ManagerId) ||
+            user?.role?.id === Number(TeacherId)) && <StudentTable />}
 
         {course && <Location />}
         <Rules />
