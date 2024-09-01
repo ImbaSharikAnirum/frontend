@@ -10,6 +10,7 @@ import { useFetchInvoicesByCourseIdQuery } from "../../redux/services/invoiceAPI
 import {
   selectCurrentInvoice,
   selectInvoiceStatus,
+  setLoading,
 } from "../../redux/reducers/invoiceReducer";
 import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { Skeleton } from "@mui/material"; // Добавьте импорт
@@ -28,7 +29,11 @@ export default function StudentTable() {
     };
 
     const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target) &&
+        !event.target.closest(".button_only_icon")
+      ) {
         setIsModalOpen(false);
       }
     };
@@ -133,6 +138,7 @@ export default function StudentTable() {
     }
     setIsModalOpen(!isModalOpen);
   };
+
   const activeDays = {
     monday: course.monday,
     tuesday: course.tuesday,
@@ -200,12 +206,12 @@ export default function StudentTable() {
         }))
       );
     }
+    setLoading();
   }, [invoices, error]);
   const ManagerId = process.env.REACT_APP_MANAGER;
   const TeacherId = process.env.REACT_APP_TEACHER;
   const user = useSelector(selectCurrentUser);
 
-  console.log(selectedMonth, "selectedMonth");
   return (
     <div style={{ width: "100%" }}>
       <div
@@ -215,197 +221,65 @@ export default function StudentTable() {
           marginTop: "32px",
         }}
       ></div>
-      <div
-        className="box"
-        style={{
-          marginTop: "32px",
-          padding: "0px",
-          width: "100%",
-          maxWidth: "100%",
-        }}
-      >
+      {!isLoading ? (
         <div
+          className="box"
           style={{
-            padding: "20px",
+            marginTop: "32px",
+            padding: "0px",
+            width: "100%",
+            maxWidth: "100%",
           }}
         >
           <div
-            className="scroll"
             style={{
-              overflowY: "auto",
-              overflowX: "auto",
-              maxHeight: "350px",
-              minHeight: "240px",
+              padding: "20px",
             }}
           >
-            <ul
+            <div
+              className="scroll"
               style={{
-                padding: "0",
-                marginRight: "20px",
-                listStyle: "none",
-                minWidth: "600px",
+                overflowY: "auto",
+                overflowX: "auto",
+                maxHeight: "350px",
+                minHeight: "240px",
               }}
             >
-              <li
+              <ul
                 style={{
-                  display: "flex",
-                  borderBottom: "1px solid #CDCDCD",
-                  position: "sticky",
-                  top: 0,
-                  backgroundColor: "white",
-                  zIndex: 2,
-                  minWidth: "100%",
-
-                  height: "40px",
+                  padding: "0",
+                  marginRight: "20px",
+                  listStyle: "none",
+                  minWidth: "600px",
                 }}
               >
-                {user?.role?.id === Number(ManagerId) && (
-                  <div
-                    className="Body-3"
-                    style={{ flex: "1", padding: "8px", alignItems: "center" }}
-                  >
-                    №
-                  </div>
-                )}
-                <div
-                  className="Body-3"
-                  style={{
-                    flex: "2",
-                    padding: "8px",
-                    position: "sticky",
-                    left: 0,
-                    backgroundColor: "white",
-                    zIndex: 1,
-                  }}
-                >
-                  Имя
-                </div>
-                {user?.role?.id === Number(ManagerId) && (
-                  <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
-                    Телефон
-                  </div>
-                )}
-                {user?.role?.id === Number(ManagerId) && (
-                  <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
-                    Оплата
-                  </div>
-                )}
-                {activeDates.map((date, index) => (
-                  <div
-                    key={index}
-                    className="Body-3"
-                    style={{ flex: "1", padding: "8px" }}
-                  >
-                    {date}
-                  </div>
-                ))}
-                <div
-                  style={{ flex: "1", paddingRight: "8px", paddingLeft: "8px" }}
-                >
-                  <button
-                    className="button_only_icon  button_white button-animate-filter"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      height: "36px",
-                      width: "36px",
-                      border: "none",
-                      cursor: "pointer",
-                      zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
-                    }}
-                    onClick={handleModalToggle}
-                  >
-                    <Calendar style={{ fill: "white" }} />
-                  </button>
-                  {isModalOpen && (
-                    <div
-                      className="modal"
-                      ref={modalRef}
-                      style={{
-                        position: "absolute",
-                        top: "50px",
-                        // left: "0",
-                        right: "0",
-                        zIndex: 1000,
-                        backgroundColor: "#fff",
-                        boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.2)",
-                        borderRadius: "12px",
-                        width: "150px",
-                        padding: "12px",
-                        overflowY: "auto",
-                      }}
-                    >
-                      <ul
-                        className="teacher-list Body-2"
-                        style={{
-                          listStyleType: "none",
-                          padding: 0,
-                          margin: 0,
-                          maxHeight: "150px",
-                        }}
-                      >
-                        {months.map((month, index) => (
-                          <li
-                            key={index}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleMonthSelect(month);
-                            }}
-                            onMouseEnter={() => setHoveredMonthIndex(index)}
-                            onMouseLeave={() => setHoveredMonthIndex(null)}
-                            className={`city-list-item  ${
-                              index === hoveredMonthIndex ? "hovered" : ""
-                            }`}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              padding: "8px 0",
-                              borderRadius: "8px",
-                              cursor: "pointer",
-                              marginRight: "8px",
-                              height: "20px",
-                              backgroundColor:
-                                index === hoveredMonthIndex
-                                  ? "#E9E9E9"
-                                  : "transparent",
-                            }}
-                          >
-                            <div
-                              className="Body-3"
-                              style={{
-                                marginLeft: "16px",
-                                fontSize: "16px",
-                                color: "#333",
-                              }}
-                            >
-                              {month}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </li>
-
-              {/* Data rows */}
-              {students.map((student, index) => (
                 <li
-                  key={index}
                   style={{
                     display: "flex",
                     borderBottom: "1px solid #CDCDCD",
-                    height: "50px",
-                    alignItems: "center",
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "white",
+                    zIndex: 2,
+                    minWidth: "100%",
+
+                    height: "40px",
                   }}
                 >
                   {user?.role?.id === Number(ManagerId) && (
-                    <div style={{ flex: "1", padding: "8px" }}>
-                      <input type="checkbox" />
+                    <div
+                      className="Body-3"
+                      style={{
+                        flex: "1",
+                        padding: "8px",
+                        alignItems: "center",
+                      }}
+                    >
+                      №
                     </div>
                   )}
                   <div
-                    className="Body-2"
+                    className="Body-3"
                     style={{
                       flex: "2",
                       padding: "8px",
@@ -413,60 +287,216 @@ export default function StudentTable() {
                       left: 0,
                       backgroundColor: "white",
                       zIndex: 1,
+                      minWidth: "130px",
                     }}
                   >
-                    {student.name}
+                    Имя
                   </div>
                   {user?.role?.id === Number(ManagerId) && (
                     <div
-                      className="Body-2"
+                      className="Body-3"
                       style={{ flex: "2", padding: "8px" }}
                     >
-                      {student.phone}
+                      Телефон
                     </div>
                   )}
                   {user?.role?.id === Number(ManagerId) && (
                     <div
-                      className="Body-2"
+                      className="Body-3"
                       style={{ flex: "2", padding: "8px" }}
                     >
-                      {student.sum}
+                      Оплата
                     </div>
                   )}
                   {activeDates.map((date, index) => (
                     <div
                       key={index}
-                      className="Body-2"
+                      className="Body-3"
                       style={{ flex: "1", padding: "8px" }}
                     >
-                      -
+                      {date}
                     </div>
                   ))}
-                  <div style={{ flex: "1", padding: "8px" }}>
-                    {user?.role?.id === Number(ManagerId) && (
-                      <button
-                        className="button_only_icon  button_white button-animate-filter"
+                  <div
+                    style={{
+                      flex: "1",
+                      paddingRight: "8px",
+                      paddingLeft: "8px",
+                    }}
+                  >
+                    <button
+                      className="button_only_icon  button_white button-animate-filter"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        height: "36px",
+                        width: "36px",
+                        border: "none",
+                        cursor: "pointer",
+                        zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
+                      }}
+                      onClick={handleModalToggle}
+                    >
+                      <Calendar style={{ fill: "white" }} />
+                    </button>
+                    {isModalOpen && (
+                      <div
+                        className="modal"
+                        ref={modalRef}
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          height: "36px",
-                          width: "36px",
-                          border: "none",
-                          cursor: "pointer",
-                          zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
+                          position: "absolute",
+                          top: "50px",
+                          // left: "0",
+                          right: "0",
+                          zIndex: 1000,
+                          backgroundColor: "#fff",
+                          boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.2)",
+                          borderRadius: "12px",
+                          width: "180px",
+                          padding: "12px",
+                          overflowY: "auto",
                         }}
                       >
-                        <More style={{ fill: "white" }} />
-                      </button>
+                        <ul
+                          className="teacher-list Body-2"
+                          style={{
+                            listStyleType: "none",
+                            padding: 0,
+                            margin: 0,
+                            maxHeight: "150px",
+                          }}
+                        >
+                          {months.map((month, index) => (
+                            <li
+                              key={index}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleMonthSelect(month);
+                              }}
+                              onMouseEnter={() => setHoveredMonthIndex(index)}
+                              onMouseLeave={() => setHoveredMonthIndex(null)}
+                              className={`city-list-item  ${
+                                index === hoveredMonthIndex ? "hovered" : ""
+                              }`}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "8px 0",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                marginRight: "8px",
+                                height: "20px",
+                                backgroundColor:
+                                  index === hoveredMonthIndex
+                                    ? "#E9E9E9"
+                                    : "transparent",
+                              }}
+                            >
+                              <div
+                                className="Body-3"
+                                style={{
+                                  marginLeft: "16px",
+                                  fontSize: "16px",
+                                  color: "#333",
+                                }}
+                              >
+                                {month}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                 </li>
-              ))}
-              {/* Добавьте дополнительные строки по необходимости */}
-            </ul>
+
+                {students.map((student, index) => (
+                  <li
+                    key={index}
+                    style={{
+                      display: "flex",
+                      borderBottom: "1px solid #CDCDCD",
+                      height: "50px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="Body-2"
+                      style={{ flex: "1", padding: "8px" }}
+                    >
+                      {index + 1}
+                    </div>
+                    <div
+                      className="Body-2"
+                      style={{
+                        flex: "2",
+                        padding: "8px",
+                        position: "sticky",
+                        left: 0,
+                        backgroundColor: "white",
+                        zIndex: 1,
+                        minWidth: "130px",
+                      }}
+                    >
+                      {student.name}
+                    </div>
+                    {user?.role?.id === Number(ManagerId) && (
+                      <div
+                        className="Body-2"
+                        style={{ flex: "2", padding: "8px" }}
+                      >
+                        {student.phone}
+                      </div>
+                    )}
+                    {user?.role?.id === Number(ManagerId) && (
+                      <div
+                        className="Body-2"
+                        style={{ flex: "2", padding: "8px" }}
+                      >
+                        {student.sum}
+                      </div>
+                    )}
+                    {activeDates.map((date, index) => (
+                      <div
+                        key={index}
+                        className="Body-2"
+                        style={{ flex: "1", padding: "8px" }}
+                      >
+                        -
+                      </div>
+                    ))}
+                    <div style={{ flex: "1", padding: "8px" }}>
+                      {user?.role?.id === Number(ManagerId) && (
+                        <button
+                          className="button_only_icon  button_white button-animate-filter"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            height: "36px",
+                            width: "36px",
+                            border: "none",
+                            cursor: "pointer",
+                            zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
+                          }}
+                        >
+                          <More style={{ fill: "white" }} />
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+                {/* Добавьте дополнительные строки по необходимости */}
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <Skeleton
+          variant="rectangular"
+          height={300}
+          width={"100%"}
+        />
+      )}
     </div>
   );
 }

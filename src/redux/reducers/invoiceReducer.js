@@ -13,6 +13,9 @@ const invoiceReducer = createSlice({
   name: "invoice",
   initialState,
   reducers: {
+    setLoading: (state) => {
+      state.status = "loading";
+    },
     setInvoice: (state, action) => {
       state.invoice = {
         ...state.invoice,
@@ -28,7 +31,7 @@ const invoiceReducer = createSlice({
 });
 
 // Export actions and reducer
-export const { setInvoice, setError } = invoiceReducer.actions;
+export const { setLoading, setInvoice, setError } = invoiceReducer.actions;
 
 // Simple selector for getting the invoice from the state
 const selectInvoiceData = (state) => state.invoice.invoice;
