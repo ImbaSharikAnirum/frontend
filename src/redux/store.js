@@ -12,6 +12,7 @@ import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
 import invoiceReducer from "./reducers/invoiceReducer";
+import courseTableReducer from "./reducers/courseTableReducer";
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     footerMenu: footerMenuReducer,
     student: studentReducer,
     invoice: invoiceReducer,
+    courseTable: courseTableReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,
