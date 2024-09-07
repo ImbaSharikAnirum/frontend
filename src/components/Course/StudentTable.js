@@ -1,5 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactComponent as More } from "../../images/more.svg";
+import { ReactComponent as Check } from "../../images/list/check.svg";
+import { ReactComponent as X } from "../../images/list/x.svg";
+import { ReactComponent as Empty } from "../../images/list/empty.svg";
 import moment from "moment";
 import { useParams } from "react-router-dom";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
@@ -21,6 +24,7 @@ import {
   selectStudents,
   setStudents,
 } from "../../redux/reducers/courseTableReducer";
+import ActiveDatesList from "./ActiveDatesList";
 
 // Переименуем компонент в StudentTable
 export default function StudentTable() {
@@ -48,7 +52,6 @@ export default function StudentTable() {
 
   const students = useSelector(selectStudents);
   const status = useSelector(selectInvoiceStatus);
-  console.log(status);
   useEffect(() => {
     dispatch(setLoading());
     if (invoices?.data) {
@@ -58,6 +61,8 @@ export default function StudentTable() {
             name: `${invoice.attributes.name} ${invoice.attributes.family}`,
             phone: invoice.attributes.phone,
             sum: invoice.attributes.sum,
+            activities: invoice.attributes.activities.data,
+            invoiceId: invoice.id,
           }))
         )
       );
@@ -67,9 +72,8 @@ export default function StudentTable() {
 
   const ManagerId = process.env.REACT_APP_MANAGER;
   const user = useSelector(selectCurrentUser);
-  console.log(students.length, "students");
 
-  const loadingItemsCount = 5; // Количество вариантов, которые вы хотите создать
+  const loadingItemsCount = 5;
 
   const renderSkeletons = () => {
     return Array.from({ length: loadingItemsCount }, (_, index) => (
@@ -124,6 +128,7 @@ export default function StudentTable() {
       </li>
     ));
   };
+
   return (
     <div style={{ width: "100%" }}>
       <div
@@ -161,7 +166,7 @@ export default function StudentTable() {
                 padding: "0",
                 marginRight: "20px",
                 listStyle: "none",
-                minWidth: "600px",
+                minWidth: "1000px",
               }}
             >
               <li
@@ -203,12 +208,18 @@ export default function StudentTable() {
                   Имя
                 </div>
                 {user?.role?.id === Number(ManagerId) && (
-                  <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
+                  <div
+                    className="Body-3"
+                    style={{ flex: "2", padding: "8px", minWidth: "130px" }}
+                  >
                     Телефон
                   </div>
                 )}
                 {user?.role?.id === Number(ManagerId) && (
-                  <div className="Body-3" style={{ flex: "2", padding: "8px" }}>
+                  <div
+                    className="Body-3"
+                    style={{ flex: "2", padding: "8px", minWidth: "40px" }}
+                  >
                     Оплата
                   </div>
                 )}
@@ -216,7 +227,13 @@ export default function StudentTable() {
                   <div
                     key={index}
                     className="Body-3"
-                    style={{ flex: "1", padding: "8px" }}
+                    style={{
+                      flex: "1",
+                      padding: "8px",
+                      justifyContent: "center",
+                      display: "flex",
+                      minWidth: "50px",
+                    }}
                   >
                     {date}
                   </div>
@@ -232,9 +249,9 @@ export default function StudentTable() {
                   <div></div>
                 </div>
               )}
-              {students.map((student, index) => (
+              {students.map((student, studentIndex) => (
                 <li
-                  key={index}
+                  key={studentIndex}
                   style={{
                     display: "flex",
                     borderBottom: "1px solid #CDCDCD",
@@ -243,7 +260,7 @@ export default function StudentTable() {
                   }}
                 >
                   <div className="Body-2" style={{ flex: "1", padding: "8px" }}>
-                    {index + 1}
+                    {studentIndex + 1}
                   </div>
                   <div
                     className="Body-2"
@@ -264,7 +281,7 @@ export default function StudentTable() {
                     {user?.role?.id === Number(ManagerId) && (
                       <div
                         className="Body-2"
-                        style={{ flex: "2", padding: "8px" }}
+                        style={{ flex: "2", padding: "8px", minWidth: "140px" }}
                       >
                         {student.phone}
                       </div>
@@ -274,20 +291,17 @@ export default function StudentTable() {
                   {user?.role?.id === Number(ManagerId) && (
                     <div
                       className="Body-2"
-                      style={{ flex: "2", padding: "8px" }}
+                      style={{ flex: "2", padding: "8px", minWidth: "40px" }}
                     >
                       {student.sum}
                     </div>
                   )}
-                  {activeDates.map((date, index) => (
-                    <div
-                      key={index}
-                      className="Body-2"
-                      style={{ flex: "1", padding: "8px" }}
-                    >
-                      -
-                    </div>
-                  ))}
+                  <ActiveDatesList
+                    student={student}
+                    studentIndex={studentIndex}
+                    startOfMonth={startOfMonth}
+                    endOfMonth={endOfMonth}
+                  />
                   <div style={{ flex: "1", padding: "8px" }}>
                     {user?.role?.id === Number(ManagerId) && (
                       <button

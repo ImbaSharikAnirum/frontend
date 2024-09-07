@@ -8,11 +8,13 @@ import { authAPI } from "./services/authAPI";
 import { courseAPI } from "./services/courseAPI";
 import { studentAPI } from "./services/studentAPI";
 import { invoiceAPI } from "./services/invoiceAPI";
+import { activityApi } from "./services/activityApi";
 import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
 import invoiceReducer from "./reducers/invoiceReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
+import activityReducer from "./reducers/activityReducer";
 
 export const store = configureStore({
   reducer: {
@@ -26,16 +28,19 @@ export const store = configureStore({
     student: studentReducer,
     invoice: invoiceReducer,
     courseTable: courseTableReducer,
+    activity: activityReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,
     [invoiceAPI.reducerPath]: invoiceAPI.reducer,
+    [activityApi.reducerPath]: activityApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authAPI.middleware,
       courseAPI.middleware,
       studentAPI.middleware,
-      invoiceAPI.middleware
+      invoiceAPI.middleware,
+      activityApi.middleware
     ),
 });

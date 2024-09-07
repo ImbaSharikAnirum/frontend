@@ -49,6 +49,7 @@ export const selectCurrentInvoice = createSelector(
       name: invoiceData?.name || "",
       family: invoiceData?.family || "",
       phone: invoiceData?.phone || "",
+      activities: invoiceData?.activities || [],
       status_payment: invoiceData?.status_payment || false,
       group: invoiceData?.group || null,
     };

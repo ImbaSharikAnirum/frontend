@@ -3,6 +3,7 @@ import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
 import invoiceReducer from "./reducers/invoiceReducer";
+import activityReducer from "./reducers/activityReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
 import filterReducer from "./filterSlice";
 import coursesReducer from "./coursesSlice";
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   student: studentReducer,
   invoice: invoiceReducer,
   courseTable: courseTableReducer,
+  activity: activityReducer,
 });
 
 export default rootReducer; // Не нужно экспортировать, если используете configureStore

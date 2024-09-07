@@ -34,7 +34,7 @@ export const invoiceAPI = createApi({
         if (endDate) params.append("filters[end_day][$lte]", endDate);
 
         return {
-          url: `/invoices?${params.toString()}`,
+          url: `/invoices?${params.toString()}&populate[activities]=*`,
         };
       },
     }),
