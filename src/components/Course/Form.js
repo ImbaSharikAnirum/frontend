@@ -8,6 +8,7 @@ import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import moment from "moment";
 import "moment/locale/ru";
 import { Link, useParams } from "react-router-dom";
+import { selectCurrentUser } from "../../redux/reducers/authReducer";
 
 export default function Form() {
   const theme = useTheme();
@@ -46,9 +47,14 @@ export default function Form() {
 
   const startDate = moment(course.start_day).startOf("month");
   const endDate = moment(course.end_day).endOf("month");
-
+  const user = useSelector(selectCurrentUser);
+  const ManagerId = process.env.REACT_APP_MANAGER;
   // Начать с первого числа следующего месяца
-  let currentMonth = startDate.add(1, "month").startOf("month");
+  let currentMonth =
+    user && user.role.id === Number(ManagerId)
+      ? startDate.startOf("month")
+      : startDate.add(1, "month").startOf("month");
+  // let currentMonth = startDate.add(1, "month").startOf("month");
 
   const monthsArray = [];
 

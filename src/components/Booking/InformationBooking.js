@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import { ReactComponent as Left } from "../../images/left.svg";
 import { Skeleton, useMediaQuery, useTheme } from "@mui/material";
 import { useParams } from "react-router-dom";
@@ -11,10 +11,7 @@ import {
   setError,
 } from "../../redux/reducers/courseReducer";
 import moment from "moment";
-import {
-  setInvoice,
-  updateInvoiceField,
-} from "../../redux/reducers/invoiceReducer";
+import { setInvoice } from "../../redux/reducers/invoiceReducer";
 
 export default function InformationBooking() {
   const theme = useTheme();
@@ -22,12 +19,12 @@ export default function InformationBooking() {
   const { id, date } = useParams();
   const dispatch = useDispatch();
   const { data, error, isLoading } = useFetchCourseByIdQuery(id);
-
   const course = useSelector(selectCurrentCourse);
-  const startOfMonth = moment(date).locale("ru").format("MMMM YYYY");
-  const endOfMonth = moment(course.end_day, "YYYY-MM-DD")
-    .locale("ru")
-    .format("MMMM YYYY");
+
+  // Convert `date` to a moment object
+  const startOfMonth = moment(date);
+  const endOfMonth = moment(course.end_day, "YYYY-MM-DD");
+
   const activeDays = {
     monday: course.monday,
     tuesday: course.tuesday,
@@ -48,56 +45,54 @@ export default function InformationBooking() {
       dispatch(resetCourse());
     };
   }, [data, error, dispatch]);
+
   const getFirstActiveDayOfMonth = (startOfMonth, activeDays) => {
-    const firstDayOfMonth = moment(startOfMonth, "MMMM YYYY").startOf("month");
+    const firstDayOfMonth = startOfMonth.clone().startOf("month");
+    let firstActiveDay = null;
 
-    // Перебираем дни недели, чтобы найти первый активный день
-    for (let day in activeDays) {
-      if (activeDays[day]) {
-        // Найти первый активный день недели
-        let firstActiveDay = firstDayOfMonth.clone().startOf("week").day(day);
-
-        // Проверить, если первый активный день недели в пределах текущего месяца
-        if (firstActiveDay.isBefore(firstDayOfMonth, "month")) {
-          firstActiveDay.add(1, "week");
-        }
-
-        return firstActiveDay;
+    for (
+      let date = firstDayOfMonth.clone();
+      date.isSameOrBefore(firstDayOfMonth.clone().endOf("month"));
+      date.add(1, "day")
+    ) {
+      const dayOfWeek = date.locale("en").format("dddd").toLowerCase();
+      if (activeDays[dayOfWeek]) {
+        firstActiveDay = date;
+        break; // Stop after finding the first active day
       }
     }
 
-    // Если нет активных дней недели
-    return null;
+    return firstActiveDay;
   };
+
   const getLastActiveDayOfMonth = (startOfMonth, activeDays) => {
-    const lastDayOfMonth = moment(startOfMonth, "MMMM YYYY").endOf("month");
+    const lastDayOfMonth = startOfMonth.clone().endOf("month");
+    let lastActiveDay = null;
 
-    // Перебираем дни недели с конца месяца
-    for (let day in activeDays) {
-      if (activeDays[day]) {
-        let lastActiveDay = lastDayOfMonth.clone().startOf("week").day(day);
-
-        // Если найденный день находится после последнего дня месяца, перемещаем его на предыдущую неделю
-        if (lastActiveDay.isAfter(lastDayOfMonth)) {
-          lastActiveDay.subtract(1, "week");
-        }
-
-        return lastActiveDay;
+    for (
+      let date = lastDayOfMonth.clone();
+      date.isSameOrAfter(startOfMonth.clone().startOf("month"));
+      date.subtract(1, "day")
+    ) {
+      const dayOfWeek = date.locale("en").format("dddd").toLowerCase();
+      if (activeDays[dayOfWeek]) {
+        lastActiveDay = date;
+        break; // Stop after finding the last active day
       }
     }
 
-    return null;
+    return lastActiveDay;
   };
 
-  // Применение функции
+  // Apply the functions
   const lastActiveDay = getLastActiveDayOfMonth(startOfMonth, activeDays);
   const formattedLastActiveDay = lastActiveDay
-    ? lastActiveDay.format("YYYY-MM-DD") // Изменено на нужный формат
+    ? lastActiveDay.format("YYYY-MM-DD")
     : null;
 
   const firstActiveDay = getFirstActiveDayOfMonth(startOfMonth, activeDays);
   const formattedStartDay = firstActiveDay
-    ? firstActiveDay.format("YYYY-MM-DD") // Изменено на нужный формат
+    ? firstActiveDay.locale("ru").format("YYYY-MM-DD")
     : null;
 
   dispatch(
@@ -106,6 +101,7 @@ export default function InformationBooking() {
       end_day: formattedLastActiveDay,
     })
   );
+
   return (
     <div>
       {!isMobile && (
@@ -118,12 +114,9 @@ export default function InformationBooking() {
               alignItems: "center",
               height: "36px",
               width: "36px",
-              // boxShadow:
-              //   "0 0 0 1px transparent, 0 0 0 4px transparent, 0 0 0 0.5px #E0E0E0", // Пример имитации границы
-              // backgroundColor: "transparent",
               border: "none",
               cursor: "pointer",
-              zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
+              zIndex: 1000,
             }}
           >
             <Left style={{ fill: "white", width: "80px", height: "80px" }} />
@@ -211,7 +204,8 @@ export default function InformationBooking() {
       )}
       {course.end_day ? (
         <div className="Body-2" style={{ marginTop: "8px" }}>
-          Длительность: {startOfMonth} - {endOfMonth}
+          Длительность: {startOfMonth.format("MMMM YYYY")} -{" "}
+          {endOfMonth.format("MMMM YYYY")}
         </div>
       ) : (
         <Skeleton
