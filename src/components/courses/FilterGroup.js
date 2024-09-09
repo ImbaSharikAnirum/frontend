@@ -46,7 +46,7 @@ export default function FilterGroup({ loading }) {
 
   const teachers = [
     { id: 3, name: "Виктория", family: "Поезд" },
-    { id: 7, name: "Ксения", family: "Григорьева" },
+    { id: 8, name: "Ксения", family: "Григорьева" },
     { id: 1, name: "Яна", family: "Базарова" },
     { id: 4, name: "Полина", family: "Торганова" },
     { id: 5, name: "Сергей", family: "Сергеев" },

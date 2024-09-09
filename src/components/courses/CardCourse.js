@@ -94,9 +94,20 @@ const CardCourse = ({ course }) => {
       <Slider images={course.image_url} course={course} />
       <Link
         to={`/course/${course.id}`}
-        style={{ textDecoration: "none", color: "black" }}
+        style={{
+          textDecoration: "none",
+          color: "black",
+        }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            width: "100%",
+            position: "relative",
+          }}
+        >
           <div style={{ display: "flex", gap: "8px" }}>
             <div style={{ height: "35px", width: "40px" }}>
               <img
@@ -112,10 +123,19 @@ const CardCourse = ({ course }) => {
               />
             </div>
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "4px" }}
+              style={{ display: "grid", flexDirection: "column", gap: "4px" }}
             >
               <div className="Body-3">{course.direction}</div>
-              <div className="Body-1" style={{ color: "#5F5F5F" }}>
+              <div
+                className="Body-1"
+                style={{
+                  marginRight: "12px",
+                  color: "#5F5F5F",
+                  overflow: "hidden", // Обрезает содержимое, если оно не помещается
+                  textOverflow: "ellipsis", // Добавляет многоточие в конце обрезанного текста
+                  whiteSpace: "nowrap", // Предотвращает перенос текста на новую строку
+                }}
+              >
                 {location}
               </div>
             </div>
