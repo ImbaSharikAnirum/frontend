@@ -287,6 +287,7 @@ export default function StudentsBooking() {
         .then((response) => {
           const invoiceId = response.data.id; // Извлечение id счета
           console.log("Созданный счет ID:", invoiceId); // Вывод ID счета в консоль
+          toast.success("Счет создан");
         })
         .catch((error) => {
           console.error("Ошибка при создании счета:", error);

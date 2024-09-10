@@ -55,6 +55,7 @@ export const selectCurrentCourse = createSelector(
       photo:
         attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url ||
         "",
+      id: attributes.teacher?.data?.id || "",
     };
 
     return {

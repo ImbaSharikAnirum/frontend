@@ -85,7 +85,8 @@ export default function Course() {
   if (!course) return <div>Group not found</div>;
   const ManagerId = process.env.REACT_APP_MANAGER;
   const TeacherId = process.env.REACT_APP_TEACHER;
-
+  console.log(course.teacher.id, "course");
+  console.log(user.id, "course");
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div style={{ width: isMobile ? "100%" : "1120px" }}>
@@ -109,7 +110,8 @@ export default function Course() {
         </div>
         {course.id &&
           (user?.role?.id === Number(ManagerId) ||
-            user?.role?.id === Number(TeacherId)) && <StudentTable />}
+            (user?.role?.id === Number(TeacherId) &&
+              user?.id === course?.teacher?.id)) && <StudentTable />}
 
         {course && <Location />}
         <Rules />
