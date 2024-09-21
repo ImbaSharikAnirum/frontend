@@ -15,7 +15,11 @@ import { selectCurrentCourse } from "../redux/reducers/courseReducer";
 import moment from "moment";
 import "moment/locale/ru";
 import { Link } from "react-router-dom";
-import { selectAllStudents } from "../redux/reducers/studentReducer";
+import {
+  clearStudents,
+  selectAllStudents,
+} from "../redux/reducers/studentReducer";
+import { logout, selectCurrentUser } from "../redux/reducers/authReducer";
 
 const FooterMenu = () => {
   const dispatch = useDispatch();
@@ -67,6 +71,16 @@ const FooterMenu = () => {
   const handleSearch = () => {
     dispatch(triggerSearch());
   };
+  const user = useSelector(selectCurrentUser);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    dispatch(clearStudents());
+    dispatch(logout());
+  };
+
+  // if (!user) return null;
 
   return (
     <>
@@ -223,35 +237,62 @@ const FooterMenu = () => {
                       alignItems: "center",
                     }}
                   >
-                    <div>
-                      <NavLink
-                        to="/login"
-                        className={({ isActive }) =>
-                          `link ${isActive ? "active" : ""}`
-                        }
-                      >
-                        <User />
-                      </NavLink>
-                    </div>
+                    {user ? (
+                      <div>
+                        <NavLink
+                          onClick={handleLogout}
+                          className={({ isActive }) =>
+                            `link ${!isActive ? "active" : ""}`
+                          }
+                        >
+                          <User />
+                        </NavLink>
+                      </div>
+                    ) : (
+                      <div>
+                        <NavLink
+                          to="/login"
+                          className={({ isActive }) =>
+                            `link ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <User />
+                        </NavLink>
+                      </div>
+                    )}
                     <div className="Body-2" style={{ marginTop: "4px" }}>
-                      <NavLink
-                        to="/login"
-                        className={({ isActive }) =>
-                          `link ${isActive ? "active" : ""}`
-                        }
-                        style={{ fontSize: "12px" }}
-                      >
-                        <div className="Body-2" style={{ marginTop: "4px" }}>
-                          Вход
-                        </div>
-                      </NavLink>
+                      {user ? (
+                        <NavLink
+                          onClick={handleLogout}
+                          className={({ isActive }) =>
+                            `link ${!isActive ? "active" : ""}`
+                          }
+                          style={{ fontSize: "12px" }}
+                        >
+                          <div className="Body-2" style={{ marginTop: "4px" }}>
+                            Выход
+                          </div>
+                        </NavLink>
+                      ) : (
+                        <NavLink
+                          to="/login"
+                          className={({ isActive }) =>
+                            `link ${isActive ? "active" : ""}`
+                          }
+                          style={{ fontSize: "12px" }}
+                        >
+                          <div className="Body-2" style={{ marginTop: "4px" }}>
+                            Вход
+                          </div>
+                        </NavLink>
+                      )}
                     </div>
                   </div>
                 </div>
               )}
             </div>
           )}
-        </div>  
+        </div>
       )}
     </>
   );

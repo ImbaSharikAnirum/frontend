@@ -188,6 +188,7 @@ export default function StudentTable() {
                       flex: "1",
                       padding: "8px",
                       alignItems: "center",
+                      maxWidth: isMobile && "25px",
                     }}
                   >
                     №
@@ -202,7 +203,8 @@ export default function StudentTable() {
                     left: 0,
                     backgroundColor: "white",
                     zIndex: 1,
-                    minWidth: "130px",
+                    minWidth: !isMobile && "130px",
+                    maxWidth: isMobile && "100px",
                   }}
                 >
                   Имя
@@ -259,7 +261,14 @@ export default function StudentTable() {
                     alignItems: "center",
                   }}
                 >
-                  <div className="Body-2" style={{ flex: "1", padding: "8px" }}>
+                  <div
+                    className="Body-2"
+                    style={{
+                      flex: "1",
+                      padding: "8px",
+                      maxWidth: isMobile && "25px",
+                    }}
+                  >
                     {studentIndex + 1}
                   </div>
                   <div
@@ -271,7 +280,8 @@ export default function StudentTable() {
                       left: 0,
                       backgroundColor: "white",
                       zIndex: 1,
-                      minWidth: "130px",
+                      minWidth: !isMobile && "130px",
+                      maxWidth: isMobile && "100px",
                     }}
                   >
                     {student.name}
