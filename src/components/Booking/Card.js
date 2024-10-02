@@ -53,8 +53,7 @@ export default function Card() {
       : "Онлайн";
 
   const { id, date } = useParams();
-  const decodedDate = decodeURIComponent(date);;
-  const monthName = moment(decodedDate).locale("ru").format("MMMM");
+  const monthName = moment(date).locale("ru").format("MMMM");
 
   const getMonthInGenitive = (month) => {
     const months = {
@@ -151,7 +150,6 @@ export default function Card() {
     // Allow empty string to enable clearing the input
     setSum(newSum === "" ? "" : Number(newSum));
   };
-
 
   return (
     <div
