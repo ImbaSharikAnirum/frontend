@@ -53,7 +53,8 @@ export default function Card() {
       : "Онлайн";
 
   const { id, date } = useParams();
-  const monthName = moment(date).locale("ru").format("MMMM");
+  const decodedDate = decodeURIComponent(date);;
+  const monthName = moment(decodedDate).locale("ru").format("MMMM");
 
   const getMonthInGenitive = (month) => {
     const months = {
