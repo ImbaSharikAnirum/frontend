@@ -22,7 +22,7 @@ export default function InformationBooking() {
   const course = useSelector(selectCurrentCourse);
 
   // Convert `date` to a moment object
-  const startOfMonth = moment(date);
+  const startOfMonth = moment(date, "YYYY-MM");
   const endOfMonth = moment(course.end_day, "YYYY-MM-DD");
   const activeDays = {
     monday: course.monday,

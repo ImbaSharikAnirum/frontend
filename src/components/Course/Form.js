@@ -137,9 +137,9 @@ export default function Form() {
   };
   const englishMonth = moment(months[0], "MMMM YYYY")
     .locale("en")
-    .format("MMMM YYYY");
+    .format("YYYY-MM");
   const selectedenglishMonth = selectedMonth
-    ? moment(selectedMonth, "MMMM YYYY").locale("en").format("MMMM YYYY")
+    ? moment(selectedMonth, "MMMM YYYY").locale("en").format("YYYY-MM")
     : null;
   const linkMonth = selectedenglishMonth ? selectedenglishMonth : englishMonth;
   return (

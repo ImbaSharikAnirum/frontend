@@ -138,7 +138,7 @@ const FooterMenu = () => {
                     // rel="noopener noreferrer"
                     to={`/booking/${course.id}/${moment(nextMonth, "MMMM YYYY")
                       .locale("en")
-                      .format("MMMM YYYY")}`}
+                      .format("YYYY-MM")}`}
                     style={{
                       textDecoration: "none",
                       // color: "black",
