@@ -27,6 +27,14 @@ const modalReducer = createSlice({
       state.deleteInvoiceModalOpen = false;
       state.studentData = null;
     },
+    openEditSumModal(state, action) {
+      state.editSumModalOpen = true;
+      state.studentData = action.payload;
+    },
+    closeEditSumModal(state) {
+      state.editSumModalOpen = false;
+      state.studentData = null;
+    },
   },
 });
 
@@ -47,6 +55,10 @@ export const openDeleteInvoiceModalWithFooter = () => (dispatch) => {
   dispatch(hideFooterMenu());
   dispatch(openDeleteInvoiceModal());
 };
+export const openEditSumModalWithFooter = () => (dispatch) => {
+  dispatch(hideFooterMenu());
+  dispatch(openEditSumModal());
+};
 
 export const closeDeleteInvoiceModalWithFooter = () => (dispatch) => {
   dispatch(closeDeleteInvoiceModal());
@@ -58,6 +70,8 @@ export const {
   closeStudentDataModal,
   openDeleteInvoiceModal,
   closeDeleteInvoiceModal,
+  openEditSumModal, // Новый экшен для открытия модалки редактирования суммы
+  closeEditSumModal, // Новый экшен для закрытия модалки редактирования суммы
 } = modalReducer.actions;
 
 export default modalReducer.reducer;

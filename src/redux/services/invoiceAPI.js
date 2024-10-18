@@ -49,6 +49,17 @@ export const invoiceAPI = createApi({
         },
       }),
     }),
+    updateInvoiceSum: builder.mutation({
+      query: ({ invoiceId, sum }) => ({
+        url: `/invoices/${invoiceId}`,
+        method: "PUT",
+        body: {
+          data: {
+            sum: sum,
+          },
+        },
+      }),
+    }),
     deleteInvoice: builder.mutation({
       query: (invoiceId) => ({
         url: `/invoices/${invoiceId}`,
@@ -62,5 +73,6 @@ export const {
   useCreateInvoiceMutation,
   useFetchInvoicesByCourseIdQuery,
   useUpdateInvoicePaymentStatusMutation,
+  useUpdateInvoiceSumMutation,
   useDeleteInvoiceMutation,
 } = invoiceAPI;

@@ -8,6 +8,7 @@ import DeleteTheInvoiceModal from "./DeleteTheInvoiceModal";
 import { useDispatch } from "react-redux";
 import {
   openDeleteInvoiceModal,
+  openEditSumModal,
   openStudentDataModal,
 } from "../../redux/reducers/modalReducer";
 import { useMediaQuery, useTheme } from "@mui/material";
@@ -57,9 +58,11 @@ export default function MoreTable({ student }) {
   const handleOptionSelect = (option) => {
     setIsModalOpen(false);
     if (option === "Данные ученика") {
-      dispatch(openStudentDataModal(student)); // Передаем данные студента
+      dispatch(openStudentDataModal(student));
     } else if (option === "Удалить счет") {
-      dispatch(openDeleteInvoiceModal(student)); // Передаем данные студента
+      dispatch(openDeleteInvoiceModal(student));
+    } else if (option === "Изменить сумму") {
+      dispatch(openEditSumModal(student)); // Открываем модалку для редактирования суммы
     }
     dispatch(hideFooterMenu());
   };
@@ -113,6 +116,8 @@ export default function MoreTable({ student }) {
             {[
               "Данные ученика",
               user?.role?.id === Number(ManagerId) && "Удалить счет",
+              ,
+              user?.role?.id === Number(ManagerId) && "Изменить сумму",
             ]
               .filter(Boolean)
               .map((option, index) => (

@@ -23,8 +23,10 @@ import StudentDataModal from "../components/Course/StudentDataModal";
 import DeleteTheInvoiceModal from "../components/Course/DeleteTheInvoiceModal";
 import {
   closeDeleteInvoiceModal,
+  closeEditSumModal,
   closeStudentDataModal,
 } from "../redux/reducers/modalReducer";
+import EditSumModal from "../components/Course/EditSumModal";
 
 export default function Course() {
   const { id } = useParams();
@@ -38,6 +40,9 @@ export default function Course() {
   );
   const isDeleteInvoiceModalOpen = useSelector(
     (state) => state.modals.deleteInvoiceModalOpen
+  );
+  const isEditSumModalOpen = useSelector(
+    (state) => state.modals.editSumModalOpen
   );
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -110,6 +115,12 @@ export default function Course() {
           <DeleteTheInvoiceModal
             className="courses_filters"
             onClose={() => dispatch(closeDeleteInvoiceModal())}
+          />
+        )}
+        {isEditSumModalOpen && (
+          <EditSumModal
+            className="courses_filters"
+            onClose={() => dispatch(closeEditSumModal())}
           />
         )}
         {!isMobile && <Address />}
