@@ -27,6 +27,7 @@ import {
   closeStudentDataModal,
 } from "../redux/reducers/modalReducer";
 import EditSumModal from "../components/Course/EditSumModal";
+import Edit from "../components/Course/Edit";
 
 export default function Course() {
   const { id } = useParams();
@@ -145,6 +146,8 @@ export default function Course() {
           (user?.role?.id === Number(ManagerId) ||
             (user?.role?.id === Number(TeacherId) &&
               user?.id === course?.teacher?.id)) && <StudentTable />}
+
+        <Edit />
 
         {course && <Location />}
         <Rules />
