@@ -40,6 +40,19 @@
 .button:hover {
     background-color: #B60000;
 }
+.button_disabled {
+    padding: 8px 24px;
+    border-radius: 30px;
+    background-color: #ECECEC;
+    color: #B5B5B5;
+    font-size: 16px;
+    border: none;
+    height: 40px;
+}
+
+
+
+
 .button_save {
     padding: 8px 24px;
     border-radius: 30px;

@@ -154,6 +154,7 @@ export default function Form() {
             transition: "top 0.3s ease",
             marginLeft: "20px",
             marginTop: "16px",
+            zIndex: 1,
           }}
         >
           <div

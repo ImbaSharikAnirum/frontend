@@ -19,6 +19,12 @@ import Rules from "../components/Course/Rules";
 import Form from "../components/Course/Form";
 import { selectCurrentUser } from "../redux/reducers/authReducer";
 import StudentTable from "../components/Course/StudentTable";
+import StudentDataModal from "../components/Course/StudentDataModal";
+import DeleteTheInvoiceModal from "../components/Course/DeleteTheInvoiceModal";
+import {
+  closeDeleteInvoiceModal,
+  closeStudentDataModal,
+} from "../redux/reducers/modalReducer";
 
 export default function Course() {
   const { id } = useParams();
@@ -27,7 +33,12 @@ export default function Course() {
   const course = useSelector(selectCurrentCourse);
   const status = useSelector(selectCourseStatus);
   const user = useSelector(selectCurrentUser);
-
+  const isStudentDataModalOpen = useSelector(
+    (state) => state.modals.studentDataModalOpen
+  );
+  const isDeleteInvoiceModalOpen = useSelector(
+    (state) => state.modals.deleteInvoiceModalOpen
+  );
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -45,7 +56,7 @@ export default function Course() {
   if (isLoading || status === "loading") {
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: isMobile ? "100%" : "1120px" }}>
+        <div style={{ maxWidth: "1120px", width: "100%", margin: "0 auto" }}>
           {!isMobile && <Skeleton variant="rectangular" height={50} />}
           <Skeleton
             variant="rectangular"
@@ -85,9 +96,22 @@ export default function Course() {
   if (!course) return <div>Group not found</div>;
   const ManagerId = process.env.REACT_APP_MANAGER;
   const TeacherId = process.env.REACT_APP_TEACHER;
+
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
-      <div style={{ width: isMobile ? "100%" : "1120px" }}>
+      <div style={{ maxWidth: "1120px", width: "100%", margin: "0 auto" }}>
+        {isStudentDataModalOpen && (
+          <StudentDataModal
+            className="courses_filters"
+            onClose={() => dispatch(closeStudentDataModal())}
+          />
+        )}
+        {isDeleteInvoiceModalOpen && (
+          <DeleteTheInvoiceModal
+            className="courses_filters"
+            onClose={() => dispatch(closeDeleteInvoiceModal())}
+          />
+        )}
         {!isMobile && <Address />}
         <Images />
         <div style={{ display: "flex", justifyContent: "space-between" }}>

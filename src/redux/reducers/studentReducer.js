@@ -15,6 +15,17 @@ const studentReducer = createSlice({
       state.status = "succeeded";
       state.error = null;
     },
+    updateStudentPaymentStatus: (state, action) => {
+      const { invoiceId, status_payment } = action.payload;
+      const studentIndex = state.students.findIndex(
+        (student) => student.invoiceId === invoiceId
+      );
+      console.log(invoiceId, "invoiceId");
+      console.log(status_payment, "status_payment");
+      if (studentIndex !== -1) {
+        state.students[studentIndex].status_payment = status_payment;
+      }
+    },
     addStudent: (state, action) => {
       state.students.push(action.payload);
       state.status = "succeeded";
@@ -35,8 +46,14 @@ const studentReducer = createSlice({
   },
 });
 
-export const { setStudents, addStudent, setLoading, setError, clearStudents } =
-  studentReducer.actions;
+export const {
+  setStudents,
+  addStudent,
+  setLoading,
+  setError,
+  clearStudents,
+  updateStudentPaymentStatus,
+} = studentReducer.actions;
 
 export const selectAllStudents = (state) => state.student.students;
 export const selectStudentStatus = (state) => state.student.status;

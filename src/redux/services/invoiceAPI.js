@@ -38,8 +38,29 @@ export const invoiceAPI = createApi({
         };
       },
     }),
+    updateInvoicePaymentStatus: builder.mutation({
+      query: ({ invoiceId, status_payment }) => ({
+        url: `/invoices/${invoiceId}`,
+        method: "PUT",
+        body: {
+          data: {
+            status_payment: status_payment,
+          },
+        },
+      }),
+    }),
+    deleteInvoice: builder.mutation({
+      query: (invoiceId) => ({
+        url: `/invoices/${invoiceId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useCreateInvoiceMutation, useFetchInvoicesByCourseIdQuery } =
-  invoiceAPI;
+export const {
+  useCreateInvoiceMutation,
+  useFetchInvoicesByCourseIdQuery,
+  useUpdateInvoicePaymentStatusMutation,
+  useDeleteInvoiceMutation,
+} = invoiceAPI;

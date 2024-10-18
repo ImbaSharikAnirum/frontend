@@ -15,6 +15,7 @@ import studentReducer from "./reducers/studentReducer";
 import invoiceReducer from "./reducers/invoiceReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
 import activityReducer from "./reducers/activityReducer";
+import modalReducer from "./reducers/modalReducer";
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,7 @@ export const store = configureStore({
     invoice: invoiceReducer,
     courseTable: courseTableReducer,
     activity: activityReducer,
+    modals: modalReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,

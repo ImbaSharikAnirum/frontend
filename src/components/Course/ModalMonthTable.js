@@ -11,6 +11,7 @@ import {
   setSelectedMonth,
 } from "../../redux/reducers/courseTableReducer";
 import { setLoading } from "../../redux/reducers/invoiceReducer";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 export default function ModalMonthTable() {
   const dispatch = useDispatch();
@@ -51,7 +52,7 @@ export default function ModalMonthTable() {
   // После нажатия выбора месяца
   const handleMonthSelect = (month) => {
     dispatch(setLoading());
-
+    
     dispatch(clearStudents());
     // Указывает выбранный месяц
     // setSelectedMonthState(month);
@@ -120,7 +121,26 @@ export default function ModalMonthTable() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const closeFilterModal = () => {
+    setIsModalOpen(false);
+  };
 
+  useEffect(() => {
+    if (isModalOpen && isMobile) {
+      // Убираем прокрутку на мобильных устройствах
+      document.body.style.overflow = "hidden";
+    } else {
+      // Восстанавливаем прокрутку при закрытии модалки
+      document.body.style.overflow = "auto";
+    }
+
+    // Возвращаемся к предыдущему состоянию при размонтировании компонента
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isModalOpen, isMobile]);
   return (
     <div
       style={{
@@ -144,7 +164,7 @@ export default function ModalMonthTable() {
       >
         <Calendar style={{ fill: "white" }} />
       </button>
-      {isModalOpen && (
+      {!isMobile && isModalOpen && (
         <div
           className="modal"
           ref={modalRef}
@@ -216,6 +236,105 @@ export default function ModalMonthTable() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+      {isMobile && isModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+          onClick={closeFilterModal}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "8px 24px",
+              width: "100%",
+              height: "100%",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-filter" style={{ border: "none" }}>
+              <button
+                className="button_white modal-close-button"
+                onClick={closeFilterModal}
+                style={{
+                  padding: 0,
+                  borderRadius: "50%",
+                  fontSize: "16px",
+                  textAlign: "center",
+                  width: "40px",
+                  height: "40px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <div className="h5" onClick={handleModalToggle}>
+                  ✕
+                </div>
+              </button>
+              <div className="h5">Месяцы</div>
+              <ul
+                className="teacher-list Body-2"
+                style={{
+                  listStyleType: "none",
+                  padding: "24px 0px",
+                  margin: 0,
+                  maxHeight: "80vh",
+                  overflowY: "auto",
+                }}
+              >
+                {months.map((month, index) => (
+                  <li
+                    key={index}
+                    onClick={() => handleMonthSelect(month)}
+                    className={`city-list-item ${
+                      month === selectedMonth ? "selected" : ""
+                    }`}
+                    style={{
+                      padding: "12px",
+                      cursor: "pointer",
+                      borderRadius: "8px",
+                      justifyContent: "space-between",
+                      backgroundColor:
+                        month === selectedMonth ? "#E9E9E9" : "transparent",
+                    }}
+                  >
+                    <div
+                      className="Body-3"
+                      style={{
+                        marginLeft: "16px",
+                        fontSize: "16px",
+                        color: "#333",
+                      }}
+                    >
+                      {month}
+                    </div>
+
+                    {month === selectedMonth && (
+                      <Check
+                        style={{
+                          marginRight: "16px",
+                        }}
+                      />
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       )}
     </div>

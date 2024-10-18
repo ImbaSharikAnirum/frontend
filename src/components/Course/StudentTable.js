@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ReactComponent as More } from "../../images/more.svg";
+
 import { ReactComponent as Check } from "../../images/list/check.svg";
 import { ReactComponent as X } from "../../images/list/x.svg";
 import { ReactComponent as Empty } from "../../images/list/empty.svg";
@@ -8,7 +8,10 @@ import { useParams } from "react-router-dom";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery, useTheme } from "@mui/material";
-import { useFetchInvoicesByCourseIdQuery } from "../../redux/services/invoiceAPI";
+import {
+  useFetchInvoicesByCourseIdQuery,
+  useUpdateInvoicePaymentStatusMutation,
+} from "../../redux/services/invoiceAPI";
 import {
   selectInvoiceStatus,
   setInvoice,
@@ -25,13 +28,13 @@ import {
   setStudents,
 } from "../../redux/reducers/courseTableReducer";
 import ActiveDatesList from "./ActiveDatesList";
+import { updateStudentPaymentStatus } from "../../redux/reducers/studentReducer";
+import { toast } from "react-toastify";
+import MoreTable from "./MoreTable";
 
 // Переименуем компонент в StudentTable
 export default function StudentTable() {
   const dispatch = useDispatch();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const course = useSelector(selectCurrentCourse);
   const { id } = useParams();
 
   const activeDates = useSelector(selectActiveDates);
@@ -49,6 +52,7 @@ export default function StudentTable() {
     startDate: startOfMonth,
     endDate: endOfMonth,
   });
+  const [updatePaymentStatus] = useUpdateInvoicePaymentStatusMutation();
 
   const students = useSelector(selectStudents);
   const status = useSelector(selectInvoiceStatus);
@@ -63,6 +67,7 @@ export default function StudentTable() {
             sum: invoice.attributes.sum,
             activities: invoice.attributes.activities.data,
             invoiceId: invoice.id,
+            status_payment: invoice.attributes.status_payment,
           }))
         )
       );
@@ -74,6 +79,55 @@ export default function StudentTable() {
   const user = useSelector(selectCurrentUser);
 
   const loadingItemsCount = 5;
+
+  const handlePaymentStatusToggle = async (invoiceId, currentStatus) => {
+    // Update status immediately in UI
+    const newStatus = !currentStatus;
+
+    // Dispatch the update to Redux
+    dispatch(
+      updateStudentPaymentStatus({
+        invoiceId,
+        status_payment: newStatus,
+      })
+    );
+
+    // Optimistically update the students' payment status in the Redux store
+    dispatch(
+      setStudents(
+        students.map((student) =>
+          student.invoiceId === invoiceId
+            ? { ...student, status_payment: newStatus }
+            : student
+        )
+      )
+    );
+
+    try {
+      // Send the API call to update the payment status
+      const updatedInvoice = await updatePaymentStatus({
+        invoiceId,
+        status_payment: newStatus,
+      }).unwrap();
+
+      // If successful, update the payment status in Redux
+      dispatch(
+        updateStudentPaymentStatus({
+          invoiceId,
+          status_payment: updatedInvoice.status_payment,
+        })
+      );
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      // Optionally, you could revert the UI update in case of an error
+      dispatch(
+        updateStudentPaymentStatus({
+          invoiceId,
+          status_payment: currentStatus, // Revert back to old status in case of error
+        })
+      );
+    }
+  };
 
   const renderSkeletons = () => {
     return Array.from({ length: loadingItemsCount }, (_, index) => (
@@ -128,7 +182,6 @@ export default function StudentTable() {
       </li>
     ));
   };
-
   return (
     <div style={{ width: "100%" }}>
       <div
@@ -188,7 +241,7 @@ export default function StudentTable() {
                       flex: "1",
                       padding: "8px",
                       alignItems: "center",
-                      maxWidth: isMobile && "25px",
+                      width: "20px", // Устанавливаем одинаковую ширину
                     }}
                   >
                     №
@@ -203,8 +256,7 @@ export default function StudentTable() {
                     left: 0,
                     backgroundColor: "white",
                     zIndex: 1,
-                    minWidth: !isMobile && "130px",
-                    maxWidth: isMobile && "100px",
+                    width: "130px", // Устанавливаем одинаковую ширину
                   }}
                 >
                   Имя
@@ -212,7 +264,11 @@ export default function StudentTable() {
                 {user?.role?.id === Number(ManagerId) && (
                   <div
                     className="Body-3"
-                    style={{ flex: "2", padding: "8px", minWidth: "130px" }}
+                    style={{
+                      flex: "2",
+                      padding: "8px",
+                      width: "130px", // Устанавливаем одинаковую ширину
+                    }}
                   >
                     Телефон
                   </div>
@@ -220,7 +276,14 @@ export default function StudentTable() {
                 {user?.role?.id === Number(ManagerId) && (
                   <div
                     className="Body-3"
-                    style={{ flex: "2", padding: "8px", minWidth: "40px" }}
+                    style={{
+                      flex: "2",
+                      padding: "8px",
+                      width: "100px", // Устанавливаем одинаковую ширину
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
                     Оплата
                   </div>
@@ -232,9 +295,10 @@ export default function StudentTable() {
                     style={{
                       flex: "1",
                       padding: "8px",
-                      justifyContent: "center",
                       display: "flex",
-                      minWidth: "50px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: "50px", // Устанавливаем одинаковую ширину для дат
                     }}
                   >
                     {date}
@@ -266,7 +330,7 @@ export default function StudentTable() {
                     style={{
                       flex: "1",
                       padding: "8px",
-                      maxWidth: isMobile && "25px",
+                      width: "20px", // Устанавливаем одинаковую ширину
                     }}
                   >
                     {studentIndex + 1}
@@ -280,30 +344,76 @@ export default function StudentTable() {
                       left: 0,
                       backgroundColor: "white",
                       zIndex: 1,
-                      minWidth: !isMobile && "130px",
-                      maxWidth: isMobile && "100px",
+                      width: "130px", // Устанавливаем одинаковую ширину
                     }}
                   >
                     {student.name}
                   </div>
 
-                  <div>
-                    {user?.role?.id === Number(ManagerId) && (
-                      <div
-                        className="Body-2"
-                        style={{ flex: "2", padding: "8px", minWidth: "140px" }}
-                      >
-                        {student.phone}
-                      </div>
-                    )}
-                  </div>
+                  {user?.role?.id === Number(ManagerId) && (
+                    <div
+                      className="button_white Body-2"
+                      style={{
+                        flex: "2",
+                        padding: "8px",
+                        width: "130px", // Устанавливаем одинаковую ширину
+                      }}
+                      onClick={() => {
+                        // Копирование номера телефона в буфер обмена
+                        navigator.clipboard.writeText(student.phone);
+                        toast.success("Номер телефона скопирован!");
+                      }}
+                    >
+                      {student.phone}
+                    </div>
+                  )}
 
                   {user?.role?.id === Number(ManagerId) && (
                     <div
                       className="Body-2"
-                      style={{ flex: "2", padding: "8px", minWidth: "40px" }}
+                      style={{
+                        flex: "2",
+                        padding: "8px",
+                        width: "100px", // Устанавливаем одинаковую ширину
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
                     >
-                      {student.sum}
+                      <div
+                        className={`button_white Body-2 button-animate-filter ${
+                          student.status_payment ? "" : ""
+                        }`}
+                        style={{
+                          flex: "2",
+                          padding: "8px",
+                          height: "10px",
+                          maxWidth: "60px", // Устанавливаем одинаковую ширину
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        onClick={() =>
+                          handlePaymentStatusToggle(
+                            student.invoiceId,
+                            student.status_payment
+                          )
+                        }
+                      >
+                        <div
+                          style={{
+                            width: "8px",
+                            height: "8px",
+                            borderRadius: "50%",
+                            backgroundColor: student.status_payment
+                              ? "#24a143"
+                              : "#E60023",
+                            marginRight: "8px", // Отступ между кругом и суммой
+                          }}
+                        ></div>
+
+                        {student.sum}
+                      </div>
                     </div>
                   )}
                   <ActiveDatesList
@@ -312,24 +422,8 @@ export default function StudentTable() {
                     startOfMonth={startOfMonth}
                     endOfMonth={endOfMonth}
                   />
-                  <div style={{ flex: "1", padding: "8px" }}>
-                    {user?.role?.id === Number(ManagerId) && (
-                      <button
-                        className="button_only_icon  button_white button-animate-filter"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          height: "36px",
-                          width: "36px",
-                          border: "none",
-                          cursor: "pointer",
-                          zIndex: 1000,
-                        }}
-                      >
-                        <More style={{ fill: "white" }} />
-                      </button>
-                    )}
-                  </div>
+
+                  <MoreTable student={student} />
                 </li>
               ))}
             </ul>
