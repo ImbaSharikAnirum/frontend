@@ -1,13 +1,7 @@
-import React, { useEffect, useState } from "react";
-
-import { ReactComponent as Check } from "../../images/list/check.svg";
-import { ReactComponent as X } from "../../images/list/x.svg";
-import { ReactComponent as Empty } from "../../images/list/empty.svg";
+import React, { useEffect } from "react";
 import moment from "moment";
 import { useParams } from "react-router-dom";
-import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { useMediaQuery, useTheme } from "@mui/material";
 import {
   useFetchInvoicesByCourseIdQuery,
   useUpdateInvoicePaymentStatusMutation,
@@ -21,7 +15,6 @@ import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { Skeleton } from "@mui/material";
 import ModalMonthTable from "./ModalMonthTable";
 import {
-  clearStudents,
   selectActiveDates,
   selectSelectedMonth,
   selectStudents,
@@ -31,8 +24,8 @@ import ActiveDatesList from "./ActiveDatesList";
 import { updateStudentPaymentStatus } from "../../redux/reducers/studentReducer";
 import { toast } from "react-toastify";
 import MoreTable from "./MoreTable";
+import { skipToken } from "@reduxjs/toolkit/query";
 
-// Переименуем компонент в StudentTable
 export default function StudentTable() {
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -40,24 +33,34 @@ export default function StudentTable() {
   const activeDates = useSelector(selectActiveDates);
   const selectedMonth = useSelector(selectSelectedMonth);
 
-  const startOfMonth = moment(selectedMonth, "MMMM YYYY")
-    .startOf("month")
-    .format("YYYY-MM-DD");
-  const endOfMonth = moment(selectedMonth, "MMMM YYYY")
-    .endOf("month")
-    .format("YYYY-MM-DD");
+  // Проверяем, что активные даты уже существуют
+  const startOfMonth = selectedMonth
+    ? moment(selectedMonth, "MMMM YYYY").startOf("month").format("YYYY-MM-DD")
+    : null;
+  const endOfMonth = selectedMonth
+    ? moment(selectedMonth, "MMMM YYYY").endOf("month").format("YYYY-MM-DD")
+    : null;
 
-  const { data: invoices, isLoading } = useFetchInvoicesByCourseIdQuery({
-    courseId: id,
-    startDate: startOfMonth,
-    endDate: endOfMonth,
-  });
+  // Выполняем запрос только если даты известны (startOfMonth и endOfMonth не null)
+  const { data: invoices } = useFetchInvoicesByCourseIdQuery(
+    startOfMonth && endOfMonth
+      ? {
+          courseId: id,
+          startDate: startOfMonth,
+          endDate: endOfMonth,
+        }
+      : skipToken // Служит для пропуска запроса до тех пор, пока данные не будут готовы
+  );
+
   const [updatePaymentStatus] = useUpdateInvoicePaymentStatusMutation();
-
   const students = useSelector(selectStudents);
   const status = useSelector(selectInvoiceStatus);
+
   useEffect(() => {
-    dispatch(setLoading());
+    if (startOfMonth && endOfMonth) {
+      dispatch(setLoading());
+    }
+
     if (invoices?.data) {
       dispatch(
         setStudents(
@@ -73,18 +76,15 @@ export default function StudentTable() {
       );
       dispatch(setInvoice(invoices.data));
     }
-  }, [invoices, dispatch]);
+  }, [invoices, dispatch, startOfMonth, endOfMonth]);
 
   const ManagerId = process.env.REACT_APP_MANAGER;
   const user = useSelector(selectCurrentUser);
-
   const loadingItemsCount = 5;
 
   const handlePaymentStatusToggle = async (invoiceId, currentStatus) => {
-    // Update status immediately in UI
     const newStatus = !currentStatus;
 
-    // Dispatch the update to Redux
     dispatch(
       updateStudentPaymentStatus({
         invoiceId,
@@ -92,7 +92,6 @@ export default function StudentTable() {
       })
     );
 
-    // Optimistically update the students' payment status in the Redux store
     dispatch(
       setStudents(
         students.map((student) =>
@@ -104,13 +103,11 @@ export default function StudentTable() {
     );
 
     try {
-      // Send the API call to update the payment status
       const updatedInvoice = await updatePaymentStatus({
         invoiceId,
         status_payment: newStatus,
       }).unwrap();
 
-      // If successful, update the payment status in Redux
       dispatch(
         updateStudentPaymentStatus({
           invoiceId,
@@ -119,11 +116,10 @@ export default function StudentTable() {
       );
     } catch (error) {
       console.error("Error updating payment status:", error);
-      // Optionally, you could revert the UI update in case of an error
       dispatch(
         updateStudentPaymentStatus({
           invoiceId,
-          status_payment: currentStatus, // Revert back to old status in case of error
+          status_payment: currentStatus,
         })
       );
     }
@@ -234,7 +230,7 @@ export default function StudentTable() {
                   height: "40px",
                 }}
               >
-                {user?.role?.id === Number(ManagerId) && (
+             
                   <div
                     className="Body-3"
                     style={{
@@ -246,7 +242,7 @@ export default function StudentTable() {
                   >
                     №
                   </div>
-                )}
+              
                 <div
                   className="Body-3"
                   style={{

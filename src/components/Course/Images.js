@@ -35,7 +35,9 @@ export default function Images() {
     onSwipedRight: () => prev(),
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
+    touchEventOptions: { passive: true },
   });
+
   const handleShare = () => {
     if (navigator.share) {
       navigator
@@ -103,6 +105,10 @@ export default function Images() {
             src={`${course.image_url[currentIndex]}`}
             alt="Курс"
             style={{ maxHeight: "80%", maxWidth: "80%", borderRadius: "16px" }}
+            onError={(e) => {
+              e.target.onerror = null; // предотвратить бесконечный цикл
+              e.target.src = "path/to/placeholder/image.png"; // путь к запасному изображению
+            }}
           />
 
           <button

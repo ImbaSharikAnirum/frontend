@@ -1,11 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
 import {
   closeStudentDataModal,
-  openEditingStudentDataModal,
 } from "../../redux/reducers/modalReducer";
-import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { toast } from "react-toastify";
 import { showFooterMenu } from "../../redux/footerMenuSlice";
 
@@ -15,9 +13,6 @@ export default function StudentDataModal() {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const modalRef = useRef(null);
   const student = useSelector((state) => state.modals.studentData);
-  const ManagerId = process.env.REACT_APP_MANAGER;
-  const TeacherId = process.env.REACT_APP_TEACHER;
-  const user = useSelector(selectCurrentUser);
 
   const handleСopyClick = () => {
     dispatch(showFooterMenu());
@@ -55,12 +50,7 @@ export default function StudentDataModal() {
     }
   };
 
-  const handleOutsideClick = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      dispatch(closeStudentDataModal());
-      dispatch(showFooterMenu());
-    }
-  };
+
 
   useEffect(() => {
     // Функция для предотвращения скролла

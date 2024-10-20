@@ -1,53 +1,68 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useCallback, useMemo } from "react"; // Импортируем useMemo
 import { useSelector } from "react-redux";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { useJsApiLoader } from "@react-google-maps/api";
 import DiscordIcon from "../../images/DiscordIcon";
 import { Link } from "react-router-dom";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 
 export default function Location() {
   const course = useSelector(selectCurrentCourse);
-  const [mapLoaded, setMapLoaded] = useState(false);
 
   const containerStyle = {
     width: "100%",
     height: "400px",
   };
-  // Проверяем, есть ли данные для координат
-  const center =
-    course && course.location
-      ? {
-          lat: parseFloat(course.location.lat),
-          lng: parseFloat(course.location.lng),
-        }
-      : null;
 
-  // Загружаем API Google Maps
+  const center = useMemo(
+    () =>
+      course && course.location
+        ? {
+            lat: parseFloat(course.location.lat),
+            lng: parseFloat(course.location.lng),
+          }
+        : null,
+    [course] // Зависимость от course
+  );
   const { isLoaded } = useJsApiLoader({
     id: "anirum",
     googleMapsApiKey: "AIzaSyBG3-McnhGanJsLu8AzA2TyXmdA4Ea6sSc",
   });
 
-  const onLoad = React.useCallback(
-    function callback(map) {
-      if (center) {
-        const bounds = new window.google.maps.LatLngBounds(center);
-        map.fitBounds(bounds);
-        setMapLoaded(true);
-      }
-    },
-    [center]
-  );
+  // Используем useCallback для инициализации карты
+  const initMap = useCallback(async () => {
+    if (!center) return; // Проверяем наличие центра
 
-  const onUnmount = React.useCallback(function callback(map) {
-    setMapLoaded(false);
-  }, []);
+    const { Map } = await window.google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await window.google.maps.importLibrary(
+      "marker"
+    );
 
-  const OPTIONS = {
-    minZoom: 4,
-    maxZoom: 20,
-    zoom: 11, // Добавьте этот параметр для установки начального уровня масштаба
-  };
+    const mapDiv = document.getElementById("map");
+    if (!mapDiv) {
+      return; // Прекращаем выполнение, если элемент не найден
+    }
+
+    const map = new Map(mapDiv, {
+      zoom: 15,
+      center: center,
+      minZoom: 4,
+      maxZoom: 20,
+      mapId: "YOUR_MAP_ID",
+    });
+
+    // Создание маркера
+    new AdvancedMarkerElement({
+      map: map,
+      position: center,
+      title: "Место проведения занятий",
+    });
+  }, [center]); // Добавляем center в зависимости
+
+  useEffect(() => {
+    if (isLoaded) {
+      initMap();
+    }
+  }, [isLoaded, initMap]); // Добавляем initMap в зависимости
 
   return (
     <div>
@@ -79,15 +94,7 @@ export default function Location() {
           </div>
           <div style={{ marginTop: "16px" }}>
             {isLoaded && center ? (
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={center}
-                options={OPTIONS}
-                onLoad={onLoad}
-                onUnmount={onUnmount}
-              >
-                <Marker position={center} />
-              </GoogleMap>
+              <div id="map" style={containerStyle}></div>
             ) : (
               <div>Loading map...</div>
             )}

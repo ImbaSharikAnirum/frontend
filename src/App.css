@@ -1,38 +1,28 @@
-@font-face {
-  font-family: NunitoSans_Regular;
-  src: url(./assets/Nunito_Sans/static/NunitoSans_10pt-Regular.ttf);
-}
+
 .Body-1 {
-  font-family: NunitoSans_Regular;
-  
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 400; /* Regular */
 }
-@font-face {
-  font-family: NunitoSans_ExtraLight;
-  src: url(./assets/Nunito_Sans/NunitoSans-VariableFont_YTLC\,opsz\,wdth\,wght.ttf);
-}
+
+
 .Body-2 {
-  font-family: NunitoSans_ExtraLight;
-
+  font-family: 'Nunito Sans', sans-serif, 'NunitoSans-VariableFont_YTLC'; /* ExtraLight и Variable Font */
+  font-weight: 400; /* ExtraLight */
 }
-
-@font-face {
-  font-family: NunitoSans_SemiBold;
-  src: url(./assets/Nunito_Sans/static/NunitoSans_10pt-SemiBold.ttf);
-}
-@font-face {
-  font-family: NunitoSans_Bold;
-  src: url(./assets/Nunito_Sans/static/NunitoSans_10pt-Bold.ttf);
-}
-
 .Body-3 {
-  font-family: NunitoSans_SemiBold;
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 600; /* SemiBold */
 }
+
 .h5 {
-  font-family: NunitoSans_SemiBold;
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 600; /* SemiBold */
   font-size: 18px;
 }
+
 .h4 {
-  font-family: NunitoSans_Bold;
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 700; /* Bold */
   font-size: 24px;
 }
 

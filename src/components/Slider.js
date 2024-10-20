@@ -20,6 +20,7 @@ const Slider = ({ course, images }) => {
     onSwipedRight: () => prev(),
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
+    
   });
 
   const theme = useTheme();

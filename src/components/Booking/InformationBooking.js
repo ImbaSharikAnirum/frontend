@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ReactComponent as Left } from "../../images/left.svg";
 import { Skeleton, useMediaQuery, useTheme } from "@mui/material";
 import { useParams } from "react-router-dom";
@@ -18,21 +18,32 @@ export default function InformationBooking() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { id, date } = useParams();
   const dispatch = useDispatch();
-  const { data, error, isLoading } = useFetchCourseByIdQuery(id);
+  const { data, error } = useFetchCourseByIdQuery(id);
   const course = useSelector(selectCurrentCourse);
 
   // Convert `date` to a moment object
   const startOfMonth = moment(date, "YYYY-MM");
   const endOfMonth = moment(course.end_day, "YYYY-MM-DD");
-  const activeDays = {
-    monday: course.monday,
-    tuesday: course.tuesday,
-    wednesday: course.wednesday,
-    thursday: course.thursday,
-    friday: course.friday,
-    saturday: course.saturday,
-    sunday: course.sunday,
-  };
+  const activeDays = useMemo(
+    () => ({
+      monday: course.monday,
+      tuesday: course.tuesday,
+      wednesday: course.wednesday,
+      thursday: course.thursday,
+      friday: course.friday,
+      saturday: course.saturday,
+      sunday: course.sunday,
+    }),
+    [
+      course.monday,
+      course.tuesday,
+      course.wednesday,
+      course.thursday,
+      course.friday,
+      course.saturday,
+      course.sunday,
+    ]
+  );
 
   useEffect(() => {
     if (data) {
@@ -40,10 +51,32 @@ export default function InformationBooking() {
     } else if (error) {
       dispatch(setError(error));
     }
+
+    // Устанавливаем счет-фактуру только после загрузки данных
+    if (course.end_day) {
+      const firstActiveDay = getFirstActiveDayOfMonth(startOfMonth, activeDays);
+      const lastActiveDay = getLastActiveDayOfMonth(startOfMonth, activeDays);
+
+      const formattedLastActiveDay = lastActiveDay
+        ? lastActiveDay.format("YYYY-MM-DD")
+        : null;
+
+      const formattedStartDay = firstActiveDay
+        ? firstActiveDay.locale("ru").format("YYYY-MM-DD")
+        : null;
+
+      dispatch(
+        setInvoice({
+          start_day: formattedStartDay,
+          end_day: formattedLastActiveDay,
+        })
+      );
+    }
+
     return () => {
       dispatch(resetCourse());
     };
-  }, [data, error, dispatch]);
+  }, [data, error, dispatch, course.end_day, startOfMonth, activeDays]);
 
   const getFirstActiveDayOfMonth = (startOfMonth, activeDays) => {
     const firstDayOfMonth = startOfMonth.clone().startOf("month");
@@ -83,23 +116,7 @@ export default function InformationBooking() {
     return lastActiveDay;
   };
 
-  // Apply the functions
-  const lastActiveDay = getLastActiveDayOfMonth(startOfMonth, activeDays);
-  const formattedLastActiveDay = lastActiveDay
-    ? lastActiveDay.format("YYYY-MM-DD")
-    : null;
-
   const firstActiveDay = getFirstActiveDayOfMonth(startOfMonth, activeDays);
-  const formattedStartDay = firstActiveDay
-    ? firstActiveDay.locale("ru").format("YYYY-MM-DD")
-    : null;
-
-  dispatch(
-    setInvoice({
-      start_day: formattedStartDay,
-      end_day: formattedLastActiveDay,
-    })
-  );
 
   return (
     <div>

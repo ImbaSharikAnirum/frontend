@@ -1,24 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
-import ReactDOM from "react-dom";
 import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { ReactComponent as More } from "../../images/more.svg";
-import StudentDataModal from "./StudentDataModal";
-import DeleteTheInvoiceModal from "./DeleteTheInvoiceModal";
 import { useDispatch } from "react-redux";
 import {
   openDeleteInvoiceModal,
   openEditSumModal,
   openStudentDataModal,
 } from "../../redux/reducers/modalReducer";
-import { useMediaQuery, useTheme } from "@mui/material";
 import { hideFooterMenu } from "../../redux/footerMenuSlice";
 
 export default function MoreTable({ student }) {
   const ManagerId = process.env.REACT_APP_MANAGER;
   const user = useSelector(selectCurrentUser);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   // Состояние для отображения модалки
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -71,7 +65,6 @@ export default function MoreTable({ student }) {
 
   return (
     <div style={{ flex: "1", padding: "8px" }}>
-      {user?.role?.id === Number(ManagerId) && (
         <button
           ref={buttonRef}
           className="button_only_icon button_white button-animate-filter"
@@ -89,7 +82,6 @@ export default function MoreTable({ student }) {
         >
           <More style={{ fill: "white" }} />
         </button>
-      )}
       {isModalOpen && (
         <div
           ref={modalRef}
@@ -116,7 +108,7 @@ export default function MoreTable({ student }) {
             {[
               "Данные ученика",
               user?.role?.id === Number(ManagerId) && "Удалить счет",
-              ,
+
               user?.role?.id === Number(ManagerId) && "Изменить сумму",
             ]
               .filter(Boolean)
