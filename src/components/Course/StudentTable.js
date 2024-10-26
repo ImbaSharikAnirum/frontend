@@ -25,10 +25,14 @@ import { updateStudentPaymentStatus } from "../../redux/reducers/studentReducer"
 import { toast } from "react-toastify";
 import MoreTable from "./MoreTable";
 import { skipToken } from "@reduxjs/toolkit/query";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 export default function StudentTable() {
   const dispatch = useDispatch();
   const { id } = useParams();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const activeDates = useSelector(selectActiveDates);
   const selectedMonth = useSelector(selectSelectedMonth);
@@ -215,7 +219,7 @@ export default function StudentTable() {
                 padding: "0",
                 marginRight: "20px",
                 listStyle: "none",
-                minWidth: "1000px",
+                minWidth: "600px",
               }}
             >
               <li
@@ -230,19 +234,18 @@ export default function StudentTable() {
                   height: "40px",
                 }}
               >
-             
-                  <div
-                    className="Body-3"
-                    style={{
-                      flex: "1",
-                      padding: "8px",
-                      alignItems: "center",
-                      width: "20px", // Устанавливаем одинаковую ширину
-                    }}
-                  >
-                    №
-                  </div>
-              
+                <div
+                  className="Body-3"
+                  style={{
+                    flex: "1",
+                    padding: "8px",
+                    alignItems: "center",
+                    maxWidth: "20px", // Устанавливаем одинаковую ширину
+                  }}
+                >
+                  №
+                </div>
+
                 <div
                   className="Body-3"
                   style={{
@@ -252,7 +255,7 @@ export default function StudentTable() {
                     left: 0,
                     backgroundColor: "white",
                     zIndex: 1,
-                    width: "130px", // Устанавливаем одинаковую ширину
+                    maxWidth: "130px",
                   }}
                 >
                   Имя
@@ -300,7 +303,13 @@ export default function StudentTable() {
                     {date}
                   </div>
                 ))}
-                <ModalMonthTable />
+                <div
+                  style={{
+                    right: 0, // Фиксируем компонент по правой стороне
+                  }}
+                >
+                  <ModalMonthTable />
+                </div>
               </li>
               {status === "loading" && <>{renderSkeletons()}</>}
               {students.length === 0 && status === "succeeded" && (
@@ -326,7 +335,7 @@ export default function StudentTable() {
                     style={{
                       flex: "1",
                       padding: "8px",
-                      width: "20px", // Устанавливаем одинаковую ширину
+                      maxWidth: "20px", // Устанавливаем одинаковую ширину
                     }}
                   >
                     {studentIndex + 1}
@@ -340,7 +349,7 @@ export default function StudentTable() {
                       left: 0,
                       backgroundColor: "white",
                       zIndex: 1,
-                      width: "130px", // Устанавливаем одинаковую ширину
+                      maxWidth: "130px", // Устанавливаем одинаковую ширину
                     }}
                   >
                     {student.name}
@@ -418,8 +427,13 @@ export default function StudentTable() {
                     startOfMonth={startOfMonth}
                     endOfMonth={endOfMonth}
                   />
-
-                  <MoreTable student={student} />
+                  <div
+                    style={{
+                      right: 0, // Фиксируем компонент по правой стороне
+                    }}
+                  >
+                    <MoreTable student={student} />
+                  </div>
                 </li>
               ))}
             </ul>
