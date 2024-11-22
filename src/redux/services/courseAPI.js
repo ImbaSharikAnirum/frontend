@@ -14,7 +14,6 @@ export const courseAPI = createApi({
         method: "GET",
       }),
     }),
-    // Можно добавить другие эндпоинты, если нужно
   }),
 });
 

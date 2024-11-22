@@ -13,18 +13,32 @@ function Header() {
   return (
     <div className="header" style={{ zIndex: "1" }}>
       <Logo style={{ height: "25px", width: "auto" }} />
+      <div>
+        {" "}
+        <Link
+          to="/"
+          style={{
+            textDecoration: "none",
+            color: "black",
+          }}
+        >
+          <button className="button_white button-animate-filter">
+            <div className="h5">Курсы</div>
+          </button>
+        </Link>
+        <Link
+          to="/guides"
+          style={{
+            textDecoration: "none",
+            color: "black",
+          }}
+        >
+          <button className="button_white button-animate-filter">
+            <div className="h5">Гайды</div>
+          </button>
+        </Link>
+      </div>
 
-      <Link
-        to="/"
-        style={{
-          textDecoration: "none",
-          color: "black",
-        }}
-      >
-        <button className="button_white button-animate-filter">
-          <div className="h5">Курсы</div>
-        </button>
-      </Link>
       {/* <AuthButtons /> */}
       {user ? <UserProfile /> : <AuthButtons />}
     </div>

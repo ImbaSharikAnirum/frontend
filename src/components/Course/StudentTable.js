@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
+import "moment/locale/ru";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,6 +16,7 @@ import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { Skeleton } from "@mui/material";
 import ModalMonthTable from "./ModalMonthTable";
 import {
+  clearStudents,
   selectActiveDates,
   selectSelectedMonth,
   selectStudents,
@@ -36,7 +38,6 @@ export default function StudentTable() {
 
   const activeDates = useSelector(selectActiveDates);
   const selectedMonth = useSelector(selectSelectedMonth);
-
   // Проверяем, что активные даты уже существуют
   const startOfMonth = selectedMonth
     ? moment(selectedMonth, "MMMM YYYY").startOf("month").format("YYYY-MM-DD")
@@ -53,7 +54,7 @@ export default function StudentTable() {
           startDate: startOfMonth,
           endDate: endOfMonth,
         }
-      : skipToken // Служит для пропуска запроса до тех пор, пока данные не будут готовы
+      : skipToken
   );
 
   const [updatePaymentStatus] = useUpdateInvoicePaymentStatusMutation();
@@ -64,7 +65,9 @@ export default function StudentTable() {
     if (startOfMonth && endOfMonth) {
       dispatch(setLoading());
     }
+  }, [startOfMonth, endOfMonth, dispatch]);
 
+  useEffect(() => {
     if (invoices?.data) {
       dispatch(
         setStudents(
@@ -219,7 +222,7 @@ export default function StudentTable() {
                 padding: "0",
                 marginRight: "20px",
                 listStyle: "none",
-                minWidth: "600px",
+                minWidth: "800px",
               }}
             >
               <li
@@ -239,8 +242,10 @@ export default function StudentTable() {
                   style={{
                     flex: "1",
                     padding: "8px",
-                    alignItems: "center",
                     maxWidth: "20px", // Устанавливаем одинаковую ширину
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   №
@@ -255,7 +260,10 @@ export default function StudentTable() {
                     left: 0,
                     backgroundColor: "white",
                     zIndex: 1,
-                    maxWidth: "130px",
+                    maxWidth: isMobile && "120px",
+                    minWidth: isMobile ? "120px" : "180px",
+                    display: "flex",
+                    alignItems: "center",
                   }}
                 >
                   Имя
@@ -267,6 +275,9 @@ export default function StudentTable() {
                       flex: "2",
                       padding: "8px",
                       width: "130px", // Устанавливаем одинаковую ширину
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
                     Телефон
@@ -297,10 +308,10 @@ export default function StudentTable() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      minWidth: "50px", // Устанавливаем одинаковую ширину для дат
+                      minWidth: "70px", // Устанавливаем одинаковую ширину для дат
                     }}
                   >
-                    {date}
+                    {moment(date).format("D MMM")}
                   </div>
                 ))}
                 <div
@@ -349,7 +360,8 @@ export default function StudentTable() {
                       left: 0,
                       backgroundColor: "white",
                       zIndex: 1,
-                      maxWidth: "130px", // Устанавливаем одинаковую ширину
+                      maxWidth: "120px", // Устанавливаем одинаковую ширину
+                      minWidth: isMobile ? "120px" : "180px",
                     }}
                   >
                     {student.name}

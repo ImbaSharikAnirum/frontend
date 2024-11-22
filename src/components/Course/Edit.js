@@ -5,7 +5,10 @@ import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { ReactComponent as EditForm } from "../../images/edit_form.svg";
 import { useDispatch } from "react-redux";
 import { hideFooterMenu } from "../../redux/footerMenuSlice";
-import { selectStudents } from "../../redux/reducers/courseTableReducer";
+import {
+  selectFollowingMonthDetails,
+  selectStudents,
+} from "../../redux/reducers/courseTableReducer";
 import { toast } from "react-toastify";
 
 export default function Edit() {
@@ -16,7 +19,9 @@ export default function Edit() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const course = useSelector(selectCurrentCourse);
   const students = useSelector(selectStudents);
-
+  const nextMonthDetails = useSelector(selectFollowingMonthDetails);
+  const nextMonth = nextMonthDetails.month;
+  // console.log(nextMonthDetails);
   const modalRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -52,7 +57,7 @@ export default function Edit() {
   // Обработка выбора опции
   const handleOptionSelect = (option) => {
     setIsModalOpen(false);
-    if (option === "Выставить счет всем") {
+    if (option === `Выставить счет всем за ${nextMonth}`) {
     } else if (option === "Удалить счет") {
     } else if (option === "Копировать список группы") {
       const studentsList = students
@@ -72,7 +77,6 @@ export default function Edit() {
     }
     dispatch(hideFooterMenu());
   };
-
   return (
     <div>
       {course.id &&
@@ -108,7 +112,7 @@ export default function Edit() {
                   backgroundColor: "#fff",
                   boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.2)",
                   borderRadius: "12px",
-                  width: "180px",
+                  width: "200px",
                   padding: "12px",
                   overflowY: "auto",
                   marginTop: "45px",
@@ -124,7 +128,8 @@ export default function Edit() {
                   {[
                     "Копировать список группы",
                     user?.role?.id === Number(ManagerId) &&
-                      "Выставить счет всем",
+                      nextMonth &&
+                      `Выставить счет всем за ${nextMonth}`,
 
                     user?.role?.id === Number(ManagerId) && "Удалить курс",
                   ]

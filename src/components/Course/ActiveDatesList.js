@@ -32,11 +32,12 @@ const ActiveDatesList = ({
       );
 
       if (activityForDate) {
-        initialStatus[date] = activityForDate.attributes.status === "Пришел"
-          ? "check"
-          : activityForDate.attributes.status === "Не пришел"
-          ? "x"
-          : "empty";
+        initialStatus[date] =
+          activityForDate.attributes.status === "Пришел"
+            ? "check"
+            : activityForDate.attributes.status === "Не пришел"
+            ? "x"
+            : "empty";
       } else {
         initialStatus[date] = "empty";
       }
@@ -140,7 +141,7 @@ const ActiveDatesList = ({
             padding: "8px",
             justifyContent: "center",
             display: "flex",
-            minWidth: "60px",
+            minWidth: "70px",
           }}
         >
           <div

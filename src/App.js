@@ -20,6 +20,7 @@ import { useInitializeUser } from "./hooks/useInitializeUser";
 import "react-toastify/dist/ReactToastify.css";
 import Authenticated from "./hooks/Authenticated";
 import SucsessCourse from "./pages/SucsessCourse";
+import Guides from "./pages/Guides";
 
 function App() {
   useInitializeUser();
@@ -37,6 +38,7 @@ function App() {
           <Route path="/course/:id" element={<Course />} />
           <Route path="/" element={<Courses />} />
           <Route path="/team" element={<Team />} />
+          <Route path="/guides" element={<Guides />} />
           <Route path="/finance" element={<Finance />} />
           <Route path="/booking/:id/:date" element={<Booking />} />
           <Route path="/create/course" element={<CreateCourse />} />

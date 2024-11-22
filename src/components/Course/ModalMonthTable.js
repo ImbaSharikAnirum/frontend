@@ -5,9 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import { ReactComponent as Check } from "../../images/check.svg";
 import {
+  clearFollowingMonthDetails,
   clearStudents,
   selectSelectedMonth,
   setActiveDates,
+  setFollowingMonthDetails,
   setSelectedMonth,
 } from "../../redux/reducers/courseTableReducer";
 import { setLoading } from "../../redux/reducers/invoiceReducer";
@@ -40,7 +42,6 @@ export default function ModalMonthTable() {
 
   const handleModalToggle = () => {
     if (!isModalOpen && !selectedMonth) {
-      // Устанавливаем первый месяц в selectedMonth, если модальное окно открывается впервые
       dispatch(setSelectedMonth(months[0]));
     }
     setIsModalOpen(!isModalOpen);
@@ -48,21 +49,44 @@ export default function ModalMonthTable() {
 
   // Сохранение индекса выбранного месяца
   const [hoveredMonthIndex, setHoveredMonthIndex] = useState(null);
+  const endDateRef = useRef(moment(course.end_day).endOf("month"));
 
+  const getNextMonth = (currentMonth) => {
+    return moment(currentMonth, "MMMM YYYY")
+      .add(1, "month")
+      .format("MMMM YYYY");
+  };
   // После нажатия выбора месяца
   const handleMonthSelect = (month) => {
-    dispatch(setLoading());
-    
     dispatch(clearStudents());
-    // Указывает выбранный месяц
-    // setSelectedMonthState(month);
-    // Закрывает модалку
+    dispatch(setLoading());
+
     setIsModalOpen(false);
 
-    //Сохраняет активные дни месяца
+    // Сохраняем активные дни месяца
     const dates = getActiveDatesForMonth(month);
     dispatch(setActiveDates(dates));
     dispatch(setSelectedMonth(month));
+
+    // Получаем следующий месяц, основываясь на выбранном месяце, а не todayMonth
+    const nextMonth = getNextMonth(month);
+    const nextMonthDates = getActiveDatesForMonth(nextMonth);
+    const firstDate = nextMonthDates[0];
+    const lastDate = nextMonthDates[nextMonthDates.length - 1];
+    const sum = course.price_lesson * nextMonthDates.length;
+
+    if (moment(nextMonth, "MMMM YYYY").isSameOrBefore(endDateRef.current)) {
+      dispatch(
+        setFollowingMonthDetails({
+          month: nextMonth,
+          startDayOfMonth: firstDate,
+          endDayOfMonth: lastDate,
+          sum: sum,
+        })
+      );
+    } else {
+      dispatch(clearFollowingMonthDetails()); // Очищаем данные следующего месяца
+    }
   };
 
   // Подсчет активных дней в месяце
@@ -89,7 +113,7 @@ export default function ModalMonthTable() {
       ) {
         const dayOfWeek = date.locale("en").format("dddd").toLowerCase();
         if (activeDays[dayOfWeek]) {
-          dates.push(date.format("D MMM"));
+          dates.push(date.format("D MMMM YYYY"));
         }
       }
 
@@ -99,11 +123,32 @@ export default function ModalMonthTable() {
   );
 
   //Подсчет активных дней при загрузке страницы и месяца
+  // Подсчет активных дней при загрузке страницы и месяца
   useEffect(() => {
     const dates = getActiveDatesForMonth(todayMonth);
     dispatch(setActiveDates(dates));
     dispatch(setSelectedMonth(todayMonth));
-  }, [dispatch, todayMonth, getActiveDatesForMonth]);
+
+    // Получаем следующий месяц и проверяем его
+    const nextMonth = getNextMonth(todayMonth);
+    const nextMonthDates = getActiveDatesForMonth(nextMonth);
+    const firstDate = nextMonthDates[0];
+    const lastDate = nextMonthDates[nextMonthDates.length - 1];
+    const sum = course.price_lesson * nextMonthDates.length;
+
+    if (moment(nextMonth, "MMMM YYYY").isSameOrBefore(endDateRef.current)) {
+      dispatch(
+        setFollowingMonthDetails({
+          month: nextMonth,
+          startDayOfMonth: firstDate,
+          endDayOfMonth: lastDate,
+          sum: sum,
+        })
+      );
+    } else {
+      dispatch(clearFollowingMonthDetails());
+    }
+  }, [dispatch, todayMonth, getActiveDatesForMonth, course]);
 
   // Закрывает модалку при нажатии вне поля
   useEffect(() => {
