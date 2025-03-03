@@ -233,8 +233,8 @@ export default function Booking() {
             {course.direction && user?.role?.id === Number(ManagerId) && (
               <ManagerForm />
             )}
-     
-              <StudentsBooking />
+
+            <StudentsBooking />
           </div>
 
           {!isMobile && (

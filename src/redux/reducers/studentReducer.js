@@ -20,8 +20,6 @@ const studentReducer = createSlice({
       const studentIndex = state.students.findIndex(
         (student) => student.invoiceId === invoiceId
       );
-      console.log(invoiceId, "invoiceId");
-      console.log(status_payment, "status_payment");
       if (studentIndex !== -1) {
         state.students[studentIndex].status_payment = status_payment;
       }

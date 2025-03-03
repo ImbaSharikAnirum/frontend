@@ -13,5 +13,5 @@ export const useInitializeUser = () => {
     } else {
       dispatch(setInitialized()); // Устанавливаем флаг инициализации, если пользователь не найден
     }
-  }, [dispatch]);
+  });
 };

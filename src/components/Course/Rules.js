@@ -10,6 +10,7 @@ import {
   Grid,
   Divider,
   ListItemIcon,
+  Skeleton,
 } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
@@ -24,7 +25,7 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import MoodIcon from "@mui/icons-material/Mood";
 import InfoIcon from "@mui/icons-material/Info";
 
-export default function Rules() {
+export default function Rules({ isLoading }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -60,9 +61,21 @@ export default function Rules() {
     <div>
       <Divider sx={{ mt: 2, mb: 2 }} />
       <Grid>
-        <Typography variant="h6" gutterBottom>
-          Правила компании
-        </Typography>
+        {isLoading ? (
+          <Skeleton
+            variant="text"
+            width={isMobile ? "70%" : "20%"}
+            height={32}
+            style={{
+              marginTop: "12px",
+              lineHeight: "24px",
+            }}
+          />
+        ) : (
+          <Typography variant="h6" gutterBottom>
+            Правила компании
+          </Typography>
+        )}
       </Grid>
       <Grid
         container
@@ -71,31 +84,94 @@ export default function Rules() {
         alignItems="flex-start"
       >
         <Grid item xs={isMobile ? 12 : 2} mb={1}>
-          <Typography variant="subtitle2" mb={1}>
-            Правила компании
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Допуск и регистрация
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Платежи и финансовые обязательства
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Правила посещения
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Дополнительные условия
-          </Typography>
-          <Typography
-            variant="caption"
-            display="block"
-            gutterBottom
-            mb={1}
-            sx={{ fontWeight: "bold", cursor: "pointer" }}
-            onClick={handleClickOpen}
-          >
-            Подробнее
-          </Typography>
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "150px" : "100%"}
+              height={24}
+            />
+          ) : (
+            <Typography variant="subtitle2" mb={1}>
+              Правила компании
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Допуск и регистрация
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Платежи и финансовые обязательства
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Правила посещения
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Дополнительные условия
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "50%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography
+              variant="caption"
+              display="block"
+              gutterBottom
+              mb={1}
+              sx={{ fontWeight: "bold", cursor: "pointer" }}
+              onClick={handleClickOpen}
+            >
+              Подробнее
+            </Typography>
+          )}
         </Grid>
         <Dialog onClose={handleClose} open={open}>
           <DialogTitle>Правила компании</DialogTitle>
@@ -182,31 +258,96 @@ export default function Rules() {
         </Dialog>
 
         <Grid item xs={isMobile ? 12 : 2} mb={1}>
-          <Typography variant="subtitle2" mb={1}>
-            Правила обучения
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Посещаемость
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Поддержание порядка
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Дружелюбная атмосфера
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Дополнительная информация
-          </Typography>
-          <Typography
-            variant="caption"
-            display="block"
-            gutterBottom
-            mb={1}
-            sx={{ fontWeight: "bold", cursor: "pointer" }}
-            onClick={handleClickOpen1}
-          >
-            Подробнее
-          </Typography>
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "150px" : "100%"}
+              height={24}
+            />
+          ) : (
+            <Typography variant="subtitle2" mb={1}>
+              Правила обучения
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Посещаемость
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Поддержание порядка
+            </Typography>
+          )}
+
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Дружелюбная атмосфера
+            </Typography>
+          )}
+
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Дополнительная информация
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "50%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography
+              variant="caption"
+              display="block"
+              gutterBottom
+              mb={1}
+              sx={{ fontWeight: "bold", cursor: "pointer" }}
+              onClick={handleClickOpen1}
+            >
+              Подробнее
+            </Typography>
+          )}
         </Grid>
         <Dialog onClose={handleClose1} open={open1}>
           <DialogTitle>Правила обучения</DialogTitle>
@@ -311,31 +452,94 @@ export default function Rules() {
         </Dialog>
 
         <Grid item xs={isMobile ? 12 : 2} mb={1}>
-          <Typography variant="subtitle2" mb={1}>
-            Договор и условия
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Важные условия
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Обязательства сторон
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Условия отмены занятий
-          </Typography>
-          <Typography variant="caption" display="block" gutterBottom mb={1}>
-            Порядок возврата средств
-          </Typography>
-          <Typography
-            variant="caption"
-            display="block"
-            gutterBottom
-            mb={1}
-            sx={{ fontWeight: "bold", cursor: "pointer" }}
-            onClick={handleClickOpen2}
-          >
-            Подробнее
-          </Typography>
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "150px" : "100%"}
+              height={24}
+            />
+          ) : (
+            <Typography variant="subtitle2" mb={1}>
+              Договор и условия
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Важные условия
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Обязательства сторон
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Условия отмены занятий
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "90%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography variant="caption" display="block" gutterBottom mb={1}>
+              Порядок возврата средств
+            </Typography>
+          )}
+          {isLoading ? (
+            <Skeleton
+              variant="text"
+              width={isMobile ? "130px" : "50%"}
+              height={20}
+              style={{
+                marginTop: "4px",
+              }}
+            />
+          ) : (
+            <Typography
+              variant="caption"
+              display="block"
+              gutterBottom
+              mb={1}
+              sx={{ fontWeight: "bold", cursor: "pointer" }}
+              onClick={handleClickOpen2}
+            >
+              Подробнее
+            </Typography>
+          )}
         </Grid>
         <Dialog onClose={handleClose2} open={open2}>
           <DialogTitle>Договор и условия</DialogTitle>

@@ -21,6 +21,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Authenticated from "./hooks/Authenticated";
 import SucsessCourse from "./pages/SucsessCourse";
 import Guides from "./pages/Guides";
+import CreateGuide from "./components/Guide/CreateGuide";
+import Error from "./pages/Error";
 
 function App() {
   useInitializeUser();
@@ -42,12 +44,14 @@ function App() {
           <Route path="/finance" element={<Finance />} />
           <Route path="/booking/:id/:date" element={<Booking />} />
           <Route path="/create/course" element={<CreateCourse />} />
+          <Route path="/create/guide" element={<CreateGuide />} />
           <Route path="/conditions" element={<Conditions />} />
           <Route path="/requisites" element={<Requisites />} />
           <Route path="/confidentiality" element={<Confidentiality />} />
           <Route path="/sucsess-payment" element={<SucsessCourse />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/error" element={<Error />} />
           <Route path="/authenticated/:service" element={<Authenticated />} />
         </Routes>
       </main>

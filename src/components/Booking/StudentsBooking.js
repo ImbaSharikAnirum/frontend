@@ -298,6 +298,31 @@ export default function StudentsBooking() {
 
   const status = useSelector(selectStudentStatus);
 
+  const createPaymentLink = async () => {
+    // const response = await fetch("https://api.wata.pro/api/h2h/links", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: "Bearer ваш_access_token",
+    //   },
+    //   body: JSON.stringify({
+    //     amount: 50.0,
+    //     currency: "RUB",
+    //     description: "Оплата заказа #12345",
+    //     orderId: "12345",
+    //     successRedirectUrl: "https://anirum.com/sucsess-payment",
+    //     failRedirectUrl: "https://anirum.com/error",
+    //   }),
+    // });
+    // const data = await response.json();
+    // if (response.ok) {
+    //   // Перенаправляем пользователя на страницу оплаты
+    //   window.location.href = data.url;
+    // } else {
+    //   // Обработка ошибок
+    //   console.error("Ошибка создания платежной ссылки:", data);
+    // }
+  };
   return (
     <div style={{ marginTop: "24px" }}>
       {status === "loading" ? (
@@ -594,13 +619,24 @@ export default function StudentsBooking() {
                   — и подтверждаете, что прочли их.
                 </p>
               </div>
-              <button
-                className="button Body-3 button-animate-filter"
-                style={{ marginTop: "20px" }}
-                onClick={handleConfirmAndPay}
-              >
-                Подтвердить и оплатить
-              </button>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <button
+                  className="button Body-3 button-animate-filter"
+                  style={{ marginTop: "20px", maxWidth: "240px" }}
+                  onClick={createPaymentLink}
+                >
+                  Подтвердить и оплатить
+                </button>
+                {user?.role?.id === Number(ManagerId) && (
+                  <button
+                    className="button Body-3 button-animate-filter"
+                    style={{ marginTop: "20px", maxWidth: "240px" }}
+                    onClick={handleConfirmAndPay}
+                  >
+                    Добавить счет
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

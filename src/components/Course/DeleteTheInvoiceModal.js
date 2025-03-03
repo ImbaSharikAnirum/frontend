@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { showFooterMenu } from "../../redux/footerMenuSlice";
 import { closeDeleteInvoiceModal } from "../../redux/reducers/modalReducer";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,10 +6,6 @@ import { useMediaQuery } from "react-responsive";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDeleteInvoiceMutation } from "../../redux/services/invoiceAPI";
-import {
-  setStudents,
-  selectStudents,
-} from "../../redux/reducers/courseTableReducer"; // Импортируем действия и селекторы студентов
 
 export default function DeleteTheInvoiceModal() {
   const dispatch = useDispatch();
@@ -18,7 +14,6 @@ export default function DeleteTheInvoiceModal() {
 
   // Получаем данные студента из состояния Redux
   const student = useSelector((state) => state.modals.studentData);
-  const students = useSelector(selectStudents); // Получаем текущих студентов
 
   // Мутация для удаления счета
   const [deleteInvoice] = useDeleteInvoiceMutation();
@@ -37,27 +32,21 @@ export default function DeleteTheInvoiceModal() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dispatch]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Обработчик для удаления счета
   const handleDeleteClick = async () => {
-    // 1. Оптимистически убираем ученика из списка
-    const updatedStudents = students.filter(
-      (s) => s.invoiceId !== student.invoiceId
-    );
-    dispatch(setStudents(updatedStudents)); // Обновляем список студентов сразу
-
-    // 2. Закрываем модалку
-    dispatch(closeDeleteInvoiceModal());
-    dispatch(showFooterMenu());
-
+    setIsLoading(true); // Показываем лоадинг
     try {
-      // 3. Отправляем запрос на удаление счета
       await deleteInvoice(student.invoiceId);
-      toast.success("Счет успешно удален"); // Успешное уведомление
+      toast.success("Счет успешно удален");
+      dispatch(closeDeleteInvoiceModal()); // ✅ Закрываем только после успешного удаления
+      dispatch(showFooterMenu());
     } catch (error) {
-      // В случае ошибки можно показать уведомление
       toast.error("Ошибка при удалении счета");
       console.error("Ошибка при удалении счета:", error);
+    } finally {
+      setIsLoading(false); // Выключаем лоадинг
     }
   };
 
@@ -128,9 +117,10 @@ export default function DeleteTheInvoiceModal() {
           >
             <button
               className="button_secondary Body-3 button-animate-filter"
-              onClick={handleDeleteClick} // Вызов функции удаления
+              onClick={handleDeleteClick}
+              disabled={isLoading} // Делаем кнопку неактивной при загрузке
             >
-              Удалить
+              {isLoading ? "Удаление..." : "Удалить"}
             </button>
           </div>
         </div>

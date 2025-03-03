@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import { ReactComponent as MoreIcon } from "../../images/more.svg";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../redux/reducers/authReducer";
-import { ReactComponent as More } from "../../images/more.svg";
 import { useDispatch } from "react-redux";
 import {
   openDeleteInvoiceModal,
@@ -10,7 +10,7 @@ import {
 } from "../../redux/reducers/modalReducer";
 import { hideFooterMenu } from "../../redux/footerMenuSlice";
 
-export default function MoreTable({ student }) {
+export default function More({ student }) {
   const ManagerId = process.env.REACT_APP_MANAGER;
   const user = useSelector(selectCurrentUser);
   // Состояние для отображения модалки
@@ -18,7 +18,7 @@ export default function MoreTable({ student }) {
 
   const modalRef = useRef(null);
   const buttonRef = useRef(null);
-
+  const dispatch = useDispatch();
   // Состояние для хранения позиции кнопки
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -34,7 +34,18 @@ export default function MoreTable({ student }) {
     }
     setIsModalOpen(!isModalOpen);
   };
-  const dispatch = useDispatch();
+
+  const handleOptionSelect = (option) => {
+    setIsModalOpen(false);
+    if (option === "Данные ученика") {
+      dispatch(openStudentDataModal(student));
+    } else if (option === "Удалить счет") {
+      dispatch(openDeleteInvoiceModal(student));
+    } else if (option === "Изменить сумму") {
+      dispatch(openEditSumModal(student)); // Открываем модалку для редактирования суммы
+    }
+    dispatch(hideFooterMenu());
+  };
   // Закрытие модалки при клике вне ее области
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -48,40 +59,25 @@ export default function MoreTable({ student }) {
     };
   }, [dispatch]);
 
-  // Обработка выбора опции
-  const handleOptionSelect = (option) => {
-    setIsModalOpen(false);
-    if (option === "Данные ученика") {
-      dispatch(openStudentDataModal(student));
-    } else if (option === "Удалить счет") {
-      dispatch(openDeleteInvoiceModal(student));
-    } else if (option === "Изменить сумму") {
-      dispatch(openEditSumModal(student)); // Открываем модалку для редактирования суммы
-    }
-    dispatch(hideFooterMenu());
-  };
-
-  // Модальное окно, рендерится через портал
-
   return (
     <div style={{ flex: "1", padding: "8px" }}>
-        <button
-          ref={buttonRef}
-          className="button_only_icon button_white button-animate-filter"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "36px",
-            width: "36px",
-            border: "none",
-            cursor: "pointer",
-            zIndex: 1000,
-          }}
-          onClick={handleModalToggle}
-        >
-          <More style={{ fill: "white" }} />
-        </button>
+      <button
+        ref={buttonRef}
+        className="button_only_icon button_white button-animate-filter"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "36px",
+          width: "36px",
+          border: "none",
+          cursor: "pointer",
+          zIndex: 1000,
+        }}
+        onClick={handleModalToggle}
+      >
+        <MoreIcon style={{ fill: "white" }} />
+      </button>
       {isModalOpen && (
         <div
           ref={modalRef}

@@ -39,7 +39,6 @@ export const selectCurrentCourse = createSelector(
   [selectCourseData],
   (courseData) => {
     const attributes = courseData?.attributes || {};
-
     const cityData = attributes.city?.data?.attributes?.title || "";
     const addressData = attributes.address?.data?.attributes?.title || "";
     const locationData = {
@@ -53,8 +52,26 @@ export const selectCurrentCourse = createSelector(
           " " +
           attributes.teacher?.data?.attributes?.family || "",
       photo:
-        attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url ||
-        "",
+        {
+          original:
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url,
+          large:
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes
+              ?.formats?.large?.url ||
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url,
+          medium:
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes
+              ?.formats?.medium?.url ||
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url,
+          small:
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes
+              ?.formats?.small?.url ||
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url,
+          thumbnail:
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes
+              ?.formats?.thumbnail?.url ||
+            attributes.teacher?.data?.attributes?.photo?.data?.attributes?.url,
+        } || [],
       id: attributes.teacher?.data?.id || "",
     };
 
@@ -85,8 +102,15 @@ export const selectCurrentCourse = createSelector(
       end_day: attributes.end_day || "",
       price_lesson: attributes.price_lesson || 0,
       teacher: teacherData,
-      image_url:
-        attributes.images?.data?.map((image) => image.attributes.url) || [],
+      images:
+        attributes.images?.data?.map((image) => ({
+          original: image.attributes.url, // Оригинальное изображение
+          large: image.attributes.formats?.large?.url || image.attributes.url,
+          medium: image.attributes.formats?.medium?.url || image.attributes.url,
+          small: image.attributes.formats?.small?.url || image.attributes.url,
+          thumbnail:
+            image.attributes.formats?.thumbnail?.url || image.attributes.url,
+        })) || [],
       time_zone: attributes.time_zone || "",
       language: attributes.language || "",
     };

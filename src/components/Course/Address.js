@@ -1,9 +1,11 @@
 import React from "react";
-import { ReactComponent as Share2 } from "../../images/share2.svg";
 import { useSelector } from "react-redux";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
+import { ReactComponent as Share2 } from "../../images/share2.svg";
+import { Skeleton } from "@mui/material";
 
-export default function Address() {
+export default function Address({ isLoading }) {
+  const course = useSelector(selectCurrentCourse);
   const handleShare = () => {
     if (navigator.share) {
       navigator
@@ -16,9 +18,6 @@ export default function Address() {
       alert("Sharing is not supported on this browser.");
     }
   };
-
-  const course = useSelector(selectCurrentCourse);
-
   return (
     <div
       style={{
@@ -26,43 +25,51 @@ export default function Address() {
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: "8px",
+        width: "100%",
+        height: "60px",
       }}
     >
-      {course.format === "Оффлайн" ? (
+      {isLoading ? (
+        <Skeleton variant="text" width={"70%"} height={"100%"} />
+      ) : course.format === "Оффлайн" ? (
         <div
           className="h5"
           style={{
             display: "flex",
           }}
         >
-          г. {course.city}, {course.district}, ул. {course.address}
+          г. {course.city}, {course.district}, {course.address}
         </div>
       ) : (
         <div
           className="h5"
           style={{
-            marginBottom: "16px",
             alignItems: "center",
+            justifyContent: "center",
           }}
         >
           {course.format}
         </div>
       )}
 
-      <button
-        className="button_white button-animate-filter"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          borderRadius: "8px",
-        }}
-        onClick={() => handleShare()}
-      >
-        <Share2 style={{ fill: "white", width: "16px", height: "16px" }} />
-        <div className="h5" style={{ marginLeft: "8px" }}>
-          Поделиться
-        </div>
-      </button>
+      {isLoading ? (
+        <Skeleton variant="text" width={"20%"} height={"100%"} />
+      ) : (
+        <button
+          className="button_white button-animate-filter"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            borderRadius: "8px",
+          }}
+          onClick={() => handleShare()}
+        >
+          <Share2 style={{ fill: "white", width: "16px", height: "16px" }} />
+          <div className="h5" style={{ marginLeft: "8px" }}>
+            Поделиться
+          </div>
+        </button>
+      )}
     </div>
   );
 }

@@ -33,7 +33,6 @@ export default function Authenticated() {
         dispatch(setUser(response.data));
         localStorage.setItem("token", response.data.jwt || "");
         localStorage.setItem("user", JSON.stringify(response.data.user));
-
         navigate(`/`);
         toast.success(`Вы вошли через ${servicePath}`);
       })

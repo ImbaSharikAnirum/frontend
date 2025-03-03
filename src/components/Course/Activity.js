@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ReactComponent as Check } from "../../images/list/check.svg";
 import { ReactComponent as X } from "../../images/list/x.svg";
 import { ReactComponent as Empty } from "../../images/list/empty.svg";
@@ -9,24 +9,18 @@ import {
   useUpdateActivityMutation,
 } from "../../redux/services/activityApi";
 import moment from "moment";
+import { selectActiveDaysForSelectedMonth } from "../../redux/reducers/monthReducer";
 
-const ActiveDatesList = ({
-  studentIndex,
-  courseId,
-  startOfMonth,
-  endOfMonth,
-  student,
-}) => {
-  const activeDates = useSelector(selectActiveDates);
+const Activity = ({ studentIndex, student }) => {
+  const activeDays = useSelector(selectActiveDaysForSelectedMonth);
   const [attendanceStatus, setAttendanceStatus] = useState({});
   const [createActivity] = useCreateActivityMutation();
   const [updateActivity] = useUpdateActivityMutation();
-  const [timerId, setTimerId] = useState(null); // Храним ID таймера для запроса
-
+  const timersRef = useRef({}); // Хранение таймеров для каждого дня
   useEffect(() => {
     const initialStatus = {};
-    activeDates.forEach((date) => {
-      const formattedDate = moment(date, "D MMM");
+    activeDays.forEach((date) => {
+      const formattedDate = moment(date, "D MMMM YYYY");
       const activityForDate = student.activities.find((activity) =>
         moment(activity.attributes.date).isSame(formattedDate, "day")
       );
@@ -43,14 +37,13 @@ const ActiveDatesList = ({
       }
     });
     setAttendanceStatus({ [studentIndex]: initialStatus });
-  }, [activeDates, studentIndex, student.activities]);
+  }, [activeDays, studentIndex, student.activities]);
 
   const handleStatusChange = (date) => {
     // Если таймер уже существует, сбрасываем его
-    if (timerId) {
-      clearTimeout(timerId);
+    if (timersRef.current[date]) {
+      clearTimeout(timersRef.current[date]);
     }
-
     // Обновляем статус немедленно для UI
     setAttendanceStatus((prevStatus) => {
       const currentStatus = prevStatus[studentIndex]?.[date] || "empty";
@@ -70,7 +63,7 @@ const ActiveDatesList = ({
       }
 
       // Создаем таймер для отправки запроса через 1 секунду
-      const newTimerId = setTimeout(() => {
+      timersRef.current[date] = setTimeout(() => {
         const formattedDate = moment(date, "D MMM").format("YYYY-MM-DD");
         const activityForDate = student.activities.find((activity) =>
           moment(activity.attributes.date).isSame(formattedDate, "day")
@@ -104,10 +97,8 @@ const ActiveDatesList = ({
         }
 
         // Очищаем таймер после выполнения
-        setTimerId(null);
+        delete timersRef.current[date];
       }, 1000); // Задержка 1 секунда
-
-      setTimerId(newTimerId); // Сохраняем ID таймера
 
       return {
         ...prevStatus,
@@ -132,7 +123,7 @@ const ActiveDatesList = ({
 
   return (
     <>
-      {activeDates.map((date, index) => (
+      {activeDays.map((date, index) => (
         <div
           key={index}
           className="Body-3"
@@ -164,4 +155,4 @@ const ActiveDatesList = ({
   );
 };
 
-export default ActiveDatesList;
+export default Activity;

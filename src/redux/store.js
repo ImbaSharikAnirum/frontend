@@ -13,11 +13,12 @@ import { guidesAPI } from "./services/guidesAPI";
 import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
-import invoiceReducer from "./reducers/invoiceReducer";
+import invoiceReducer from "./reducers/invoiceSlice";
 import courseTableReducer from "./reducers/courseTableReducer";
 import activityReducer from "./reducers/activityReducer";
 import modalReducer from "./reducers/modalReducer";
 import guidesReducer from "./reducers/guidesReducer";
+import monthReducer from "./reducers/monthReducer";
 
 export const store = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ export const store = configureStore({
     activity: activityReducer,
     modals: modalReducer,
     guides: guidesReducer,
+    monthCalculation: monthReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,

@@ -10,6 +10,7 @@ import {
 } from "../../redux/reducers/courseTableReducer"; // Импорт действий и селекторов
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { setInvoicesCourseTable } from "../../redux/reducers/invoiceSlice";
 
 export default function EditSumModal() {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ export default function EditSumModal() {
   // Получаем данные студента и список студентов из состояния Redux
   const student = useSelector((state) => state.modals.studentData);
   const students = useSelector(selectStudents); // Получаем текущих студентов
+  const [isLoading, setIsLoading] = useState(false);
 
   const [sum, setSum] = useState(student?.sum || ""); // Инициализация суммы студента
 
@@ -44,15 +46,15 @@ export default function EditSumModal() {
   };
 
   const handleSave = async () => {
+    setIsLoading(true);
     // 1. Оптимистически обновляем сумму студента в списке
-    const updatedStudents = students.map((s) =>
-      s.invoiceId === student.invoiceId ? { ...s, sum: sum } : s
-    );
-    dispatch(setStudents(updatedStudents)); // Обновляем список студентов
+    // const updatedStudents = students.map((s) =>
+    //   s.invoiceId === student.invoiceId ? { ...s, sum: sum } : s
+    // );
+    // dispatch(setStudents(updatedStudents)); // Обновляем список студентов
+    // dispatch(setInvoicesCourseTable(updatedStudents)); // Обновляем список студентов
 
     // 2. Закрываем модалку
-    dispatch(closeEditSumModal());
-    dispatch(showFooterMenu());
 
     try {
       // 3. Отправляем запрос на обновление суммы счета
@@ -61,9 +63,13 @@ export default function EditSumModal() {
         sum: sum,
       });
       toast.success("Сумма успешно изменена");
+      dispatch(closeEditSumModal());
+      dispatch(showFooterMenu());
     } catch (error) {
       console.error("Ошибка при обновлении суммы:", error);
       toast.success("Ошибка при обновлении суммы");
+    } finally {
+      setIsLoading(false); // Выключаем лоадинг
     }
   };
 
@@ -148,7 +154,7 @@ export default function EditSumModal() {
               className="button_secondary Body-3 button-animate-filter"
               onClick={handleSave} // Вызов обработчика сохранения
             >
-              Сохранить
+              {isLoading ? "Изменение..." : "Изменить"}
             </button>
           </div>
         </div>

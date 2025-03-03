@@ -5,30 +5,72 @@ import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import { ReactComponent as EditForm } from "../../images/edit_form.svg";
 import { useDispatch } from "react-redux";
 import { hideFooterMenu } from "../../redux/footerMenuSlice";
-import {
-  selectFollowingMonthDetails,
-  selectStudents,
-} from "../../redux/reducers/courseTableReducer";
 import { toast } from "react-toastify";
+import { useCreateGroupInvoicesMutation } from "../../redux/services/invoiceAPI";
+import moment from "moment";
+import {
+  selectMonthsWithActiveDays,
+  selectNextMonth,
+  selectSelectedMonth,
+  setNextMonth,
+} from "../../redux/reducers/monthReducer";
 
-export default function Edit() {
+export default function CourseEdit() {
   const ManagerId = process.env.REACT_APP_MANAGER;
   const TeacherId = process.env.REACT_APP_TEACHER;
   const user = useSelector(selectCurrentUser);
-  // Состояние для отображения модалки
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const course = useSelector(selectCurrentCourse);
-  const students = useSelector(selectStudents);
-  const nextMonthDetails = useSelector(selectFollowingMonthDetails);
-  const nextMonth = nextMonthDetails.month;
-  // console.log(nextMonthDetails);
   const modalRef = useRef(null);
   const buttonRef = useRef(null);
-
-  // Состояние для хранения позиции кнопки
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [createInvoice] = useCreateGroupInvoicesMutation();
 
+  const course = useSelector(selectCurrentCourse);
+  const invoices = useSelector((state) => state.invoice.invoicesCourseTable);
+  const dispatch = useDispatch();
+
+  const selectedMonth = useSelector(selectSelectedMonth);
+  const monthsWithActiveDays = useSelector(selectMonthsWithActiveDays);
+  const nextMonth = useSelector(selectNextMonth);
+
+
+  useEffect(() => {
+    if (selectedMonth) {
+      const selectedIndex = monthsWithActiveDays.findIndex(
+        (m) => m.month === selectedMonth
+      );
+      if (
+        selectedIndex !== -1 &&
+        selectedIndex + 1 < monthsWithActiveDays.length
+      ) {
+        const nextMonth = monthsWithActiveDays[selectedIndex + 1];
+        const details = {
+          month: moment(nextMonth.month, "MMMM YYYY").format("MMMM YYYY"),
+          startDayOfMonth:
+            moment(nextMonth.activeDays[0], "DD MMMM YYYY").format(
+              "YYYY-MM-DD"
+            ) || "",
+          endDayOfMonth:
+            moment(
+              nextMonth.activeDays[nextMonth.activeDays.length - 1],
+              "DD-MMMM-YYYY"
+            ).format("YYYY-MM-DD") || "",
+          sum: course.price_lesson * nextMonth.activeDays.length,
+        };
+        dispatch(setNextMonth(details));
+      } else {
+        dispatch(
+          setNextMonth({
+            month: "",
+            startDayOfMonth: "",
+            endDayOfMonth: "",
+            sum: "",
+          })
+        );
+      }
+    }
+  }, [selectedMonth, monthsWithActiveDays, course, dispatch]);
   // Переключение отображения модалки
   const toggleOptions = () => {
     if (buttonRef.current) {
@@ -40,7 +82,7 @@ export default function Edit() {
     }
     setIsModalOpen(!isModalOpen);
   };
-  const dispatch = useDispatch();
+
   // Закрытие модалки при клике вне ее области
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -53,14 +95,31 @@ export default function Edit() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dispatch]);
-
-  // Обработка выбора опции
-  const handleOptionSelect = (option) => {
+  // Проверяем, что активные даты уже существуют
+  const startOfMonth = selectedMonth
+    ? moment(selectedMonth, "MMMM YYYY").startOf("month").format("YYYY-MM-DD")
+    : null;
+  const endOfMonth = selectedMonth
+    ? moment(selectedMonth, "MMMM YYYY").endOf("month").format("YYYY-MM-DD")
+    : null;
+  const month = { startOfMonth, endOfMonth };
+  const handleOptionSelect = async (option) => {
     setIsModalOpen(false);
-    if (option === `Выставить счет всем за ${nextMonth}`) {
+
+    if (option === `Выставить всем счет за ${nextMonth.month}`) {
+      try {
+        await createInvoice({
+          courseId: course.id,
+          month: month,
+          nextMonth: nextMonth,
+        }).unwrap();
+        toast.success("Счета успешно выставлены!");
+      } catch (error) {
+        toast.error("Ошибка при выставлении счетов");
+      }
     } else if (option === "Удалить счет") {
     } else if (option === "Копировать список группы") {
-      const studentsList = students
+      const studentsList = invoices
         .map((student, index) => `${index + 1}) ${student.name}`)
         .join("\n");
       const textToCopy = `Преподаватель: ${course.teacher.name}\nСтуденты:\n${studentsList}`;
@@ -100,7 +159,6 @@ export default function Edit() {
 
               <div className="Body-3">Прочее</div>
             </button>
-
             {isModalOpen && (
               <div
                 ref={modalRef}
@@ -128,8 +186,8 @@ export default function Edit() {
                   {[
                     "Копировать список группы",
                     user?.role?.id === Number(ManagerId) &&
-                      nextMonth &&
-                      `Выставить счет всем за ${nextMonth}`,
+                      nextMonth?.month &&
+                      `Выставить всем счет за ${nextMonth.month}`,
 
                     user?.role?.id === Number(ManagerId) && "Удалить курс",
                   ]

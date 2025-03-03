@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
-import {
-  closeStudentDataModal,
-} from "../../redux/reducers/modalReducer";
+import { closeStudentDataModal } from "../../redux/reducers/modalReducer";
 import { toast } from "react-toastify";
 import { showFooterMenu } from "../../redux/footerMenuSlice";
 
@@ -13,24 +11,38 @@ export default function StudentDataModal() {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const modalRef = useRef(null);
   const student = useSelector((state) => state.modals.studentData);
-
+  console.log(student, "student");
   const handleСopyClick = () => {
     dispatch(showFooterMenu());
     if (student) {
       const parentData = [
-        student.parents_name ? `Имя: ${student.parents_name}` : null,
-        student.parents_phone ? `Телефон: ${student.parents_phone}` : null,
-        student.parents_email ? `Почта: ${student.parents_email}` : null,
+        student.parents_name
+          ? `Имя: ${student.parents_name}`
+          : null,
+        student.parents_phone
+          ? `Телефон: ${student.parents_phone}`
+          : null,
+        student.parents_email
+          ? `Почта: ${student.parents_email}`
+          : null,
       ].filter(Boolean);
 
       const studentData = [
         "Ученик:",
-        student.name ? `Имя: ${student.name}` : null,
+        student.name
+          ? `Имя: ${student.name}`
+          : null,
         student.age ? `Возраст: ${student.age}` : null,
-        student.phone ? `Телефон: ${student.phone}` : null,
-        student.address ? `Адрес: ${student.address}` : null,
+        student.phone
+          ? `Телефон: ${student.phone}`
+          : null,
+        student.address
+          ? `Адрес: ${student.address}`
+          : null,
         student.email ? `Почта: ${student.email}` : null,
-        student.profileID ? `Профиль: ${student.profileID}` : null,
+        student.profileID
+          ? `Профиль: ${student.profileID}`
+          : null,
         parentData.length > 0 ? "" : null, // Добавляем пустую строку для разделения, если есть родитель
         parentData.length > 0 ? "Родитель:" : null, // Если есть данные у родителя
         ...parentData, // Вставляем родительские данные, если они есть
@@ -49,8 +61,6 @@ export default function StudentDataModal() {
       );
     }
   };
-
-
 
   useEffect(() => {
     // Функция для предотвращения скролла
@@ -146,7 +156,7 @@ export default function StudentDataModal() {
               <div style={{ display: "flex" }}>
                 <div className="Body-3">Имя:</div>
                 <div className="Body-2" style={{ marginLeft: "8px" }}>
-                  {student.name}{" "}
+                  {student.name}
                 </div>
               </div>
               <div style={{ display: "flex" }}>

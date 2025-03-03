@@ -4,8 +4,9 @@ import { useJsApiLoader } from "@react-google-maps/api";
 import DiscordIcon from "../../images/DiscordIcon";
 import { Link } from "react-router-dom";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
+import { useMediaQuery, useTheme, Skeleton } from "@mui/material";
 
-export default function Location() {
+export default function Location({ isLoading }) {
   const course = useSelector(selectCurrentCourse);
 
   const containerStyle = {
@@ -63,7 +64,8 @@ export default function Location() {
       initMap();
     }
   }, [isLoaded, initMap]); // Добавляем initMap в зависимости
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <div>
       <div
@@ -73,68 +75,107 @@ export default function Location() {
           marginTop: "32px",
         }}
       ></div>
-      <div
-        className="h4"
-        style={{
-          marginTop: "32px",
-        }}
-      >
-        Где пройдут занятия
-      </div>
-      {course && course.format === "Оффлайн" ? (
+      {isLoading ? (
+        <Skeleton
+          variant="text"
+          width={isMobile ? "70%" : "30%"}
+          height={32}
+          style={{
+            marginTop: "32px",
+            lineHeight: "24px",
+          }}
+        />
+      ) : (
+        <div
+          className="h4"
+          style={{
+            marginTop: "32px",
+          }}
+        >
+          Где пройдут занятия
+        </div>
+      )}
+      {isLoading ? (
         <div>
-          <div
-            className="Body-2"
+          <Skeleton
+            variant="text"
+            width={isMobile ? "90%" : "60%"}
+            height={24}
             style={{
-              display: "flex",
               marginTop: "8px",
+              lineHeight: "24px",
             }}
-          >
-            г. {course.city}, {course.district}, ул. {course.address}
-          </div>
-          <div style={{ marginTop: "16px" }}>
-            {isLoaded && center ? (
-              <div id="map" style={containerStyle}></div>
-            ) : (
-              <div>Loading map...</div>
-            )}
-          </div>
+          />
+          <Skeleton
+            variant="rectangular"
+            // width={isMobile ? "90%" : "60%"}
+            height={250}
+            style={{
+              marginTop: "12px",
+              lineHeight: "100px",
+            }}
+          />
         </div>
       ) : (
         <div>
-          <div
-            className="Body-2"
-            style={{
-              marginBottom: "16px",
-              alignItems: "center",
-              marginTop: "8px",
-            }}
-          >
-            {course.format}, приложение Discord
-          </div>
-          <Link
-            to={`https://discord.com/`}
-            style={{
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: "#5865F2",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "90px",
-              }}
-            >
-              <DiscordIcon />
+          {course && course.format === "Оффлайн" && (
+            <div>
+              <div
+                className="Body-2"
+                style={{
+                  display: "flex",
+                  marginTop: "8px",
+                }}
+              >
+                г. {course.city}, {course.district}, ул. {course.address}
+              </div>
+              <div style={{ marginTop: "16px" }}>
+                {isLoaded && center ? (
+                  <div id="map" style={containerStyle}></div>
+                ) : (
+                  <div>Loading map...</div>
+                )}
+              </div>
             </div>
-          </Link>
+          )}
+
+          {course && course.format === "Онлайн" && (
+            <div>
+              <div
+                className="Body-2"
+                style={{
+                  marginBottom: "16px",
+                  alignItems: "center",
+                  marginTop: "8px",
+                }}
+              >
+                {course.format}, приложение Discord
+              </div>
+              <Link
+                to={`https://discord.com/`}
+                style={{
+                  textDecoration: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: "#5865F2",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: "90px",
+                  }}
+                >
+                  <DiscordIcon />
+                </div>
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>

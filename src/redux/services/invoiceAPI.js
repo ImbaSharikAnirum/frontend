@@ -15,6 +15,7 @@ export const invoiceAPI = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Invoice"],
   endpoints: (builder) => ({
     createInvoice: builder.mutation({
       query: (invoiceData) => ({
@@ -23,6 +24,13 @@ export const invoiceAPI = createApi({
         body: {
           data: invoiceData,
         },
+      }),
+    }),
+    createGroupInvoices: builder.mutation({
+      query: ({ courseId, month, nextMonth }) => ({
+        url: `/groups/${courseId}/invoice`,
+        method: "POST",
+        body: { courseId, month, nextMonth },
       }),
     }),
     fetchInvoicesByCourseId: builder.query({
@@ -37,6 +45,7 @@ export const invoiceAPI = createApi({
           url: `/invoices?${params.toString()}&populate[activities]=*`,
         };
       },
+      providesTags: ["Invoice"],
     }),
     updateInvoicePaymentStatus: builder.mutation({
       query: ({ invoiceId, status_payment }) => ({
@@ -48,6 +57,7 @@ export const invoiceAPI = createApi({
           },
         },
       }),
+      invalidatesTags: ["Invoice"],
     }),
     updateInvoiceSum: builder.mutation({
       query: ({ invoiceId, sum }) => ({
@@ -59,18 +69,21 @@ export const invoiceAPI = createApi({
           },
         },
       }),
+      invalidatesTags: ["Invoice"],
     }),
     deleteInvoice: builder.mutation({
       query: (invoiceId) => ({
         url: `/invoices/${invoiceId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Invoice"],
     }),
   }),
 });
 
 export const {
   useCreateInvoiceMutation,
+  useCreateGroupInvoicesMutation,
   useFetchInvoicesByCourseIdQuery,
   useUpdateInvoicePaymentStatusMutation,
   useUpdateInvoiceSumMutation,

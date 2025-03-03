@@ -1,151 +1,61 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ReactComponent as Calendar } from "../../images/calendar.svg";
-import moment from "moment";
+import React, { useRef, useState, useEffect } from "react";
+import { ReactComponent as IconCalendar } from "../../images/calendar.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
-import { ReactComponent as Check } from "../../images/check.svg";
 import {
-  clearFollowingMonthDetails,
-  clearStudents,
+  selectMonthsWithActiveDays,
   selectSelectedMonth,
-  setActiveDates,
-  setFollowingMonthDetails,
   setSelectedMonth,
-} from "../../redux/reducers/courseTableReducer";
-import { setLoading } from "../../redux/reducers/invoiceReducer";
+} from "../../redux/reducers/monthReducer";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { ReactComponent as Check } from "../../images/check.svg";
+import moment from "moment";
 
-export default function ModalMonthTable() {
-  const dispatch = useDispatch();
-  const course = useSelector(selectCurrentCourse);
-  const todayMonth = moment().format("MMMM YYYY");
-
-  const startDate = moment(course.start_day).startOf("month");
-  const endDate = moment(course.end_day).endOf("month");
-  let currentMonth = startDate.startOf("month");
-  const monthsArray = [];
-  while (currentMonth.isBefore(endDate)) {
-    monthsArray.push(currentMonth.format("MMMM YYYY"));
-    currentMonth = currentMonth.add(1, "month");
-  }
-  const months = monthsArray;
-
-  //Открытие модалки
+export default function Calendar() {
+  const monthsWithActiveDays = useSelector(selectMonthsWithActiveDays);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef(null);
-
-  //Выбранный месяц
+  const listRef = useRef(null);
+  const selectedMonthRef = useRef(null);
+  const [hoveredMonthIndex, setHoveredMonthIndex] = useState(null);
+  const dispatch = useDispatch();
   const selectedMonth = useSelector(selectSelectedMonth);
+  useEffect(() => {
+    const currentMonth = moment().format("MMMM YYYY");
+    if (
+      monthsWithActiveDays.some(
+        (month) =>
+          moment(month.month, "MMMM YYYY").format("MMMM YYYY") === currentMonth
+      )
+    ) {
+      dispatch(setSelectedMonth(currentMonth));
+    }
+  }, [monthsWithActiveDays]);
+
+  useEffect(() => {
+    if (isModalOpen && selectedMonthRef.current) {
+      selectedMonthRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [isModalOpen]);
+
+  const closeFilterModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleMonthSelect = (month) => {
+    dispatch(setSelectedMonth(month));
+
+    closeFilterModal();
+  };
 
   const handleModalToggle = () => {
-    if (!isModalOpen && !selectedMonth) {
-      dispatch(setSelectedMonth(months[0]));
-    }
     setIsModalOpen(!isModalOpen);
   };
 
-  // Сохранение индекса выбранного месяца
-  const [hoveredMonthIndex, setHoveredMonthIndex] = useState(null);
-  const endDateRef = useRef(moment(course.end_day).endOf("month"));
-
-  const getNextMonth = (currentMonth) => {
-    return moment(currentMonth, "MMMM YYYY")
-      .add(1, "month")
-      .format("MMMM YYYY");
-  };
-  // После нажатия выбора месяца
-  const handleMonthSelect = (month) => {
-    dispatch(clearStudents());
-    dispatch(setLoading());
-
-    setIsModalOpen(false);
-
-    // Сохраняем активные дни месяца
-    const dates = getActiveDatesForMonth(month);
-    dispatch(setActiveDates(dates));
-    dispatch(setSelectedMonth(month));
-
-    // Получаем следующий месяц, основываясь на выбранном месяце, а не todayMonth
-    const nextMonth = getNextMonth(month);
-    const nextMonthDates = getActiveDatesForMonth(nextMonth);
-    const firstDate = nextMonthDates[0];
-    const lastDate = nextMonthDates[nextMonthDates.length - 1];
-    const sum = course.price_lesson * nextMonthDates.length;
-
-    if (moment(nextMonth, "MMMM YYYY").isSameOrBefore(endDateRef.current)) {
-      dispatch(
-        setFollowingMonthDetails({
-          month: nextMonth,
-          startDayOfMonth: firstDate,
-          endDayOfMonth: lastDate,
-          sum: sum,
-        })
-      );
-    } else {
-      dispatch(clearFollowingMonthDetails()); // Очищаем данные следующего месяца
-    }
-  };
-
-  // Подсчет активных дней в месяце
-
-  const getActiveDatesForMonth = useCallback(
-    (month) => {
-      const activeDays = {
-        monday: course.monday,
-        tuesday: course.tuesday,
-        wednesday: course.wednesday,
-        thursday: course.thursday,
-        friday: course.friday,
-        saturday: course.saturday,
-        sunday: course.sunday,
-      };
-      const startOfMonth = moment(month, "MMMM YYYY").startOf("month");
-      const endOfMonth = moment(month, "MMMM YYYY").endOf("month");
-      const dates = [];
-
-      for (
-        let date = startOfMonth.clone();
-        date.isSameOrBefore(endOfMonth);
-        date.add(1, "day")
-      ) {
-        const dayOfWeek = date.locale("en").format("dddd").toLowerCase();
-        if (activeDays[dayOfWeek]) {
-          dates.push(date.format("D MMMM YYYY"));
-        }
-      }
-
-      return dates;
-    },
-    [course]
-  );
-
-  useEffect(() => {
-    const dates = getActiveDatesForMonth(todayMonth);
-    dispatch(setActiveDates(dates));
-    dispatch(setSelectedMonth(todayMonth));
-
-    // Получаем следующий месяц и проверяем его
-    const nextMonth = getNextMonth(todayMonth);
-    const nextMonthDates = getActiveDatesForMonth(nextMonth);
-    const firstDate = nextMonthDates[0];
-    const lastDate = nextMonthDates[nextMonthDates.length - 1];
-    const sum = course.price_lesson * nextMonthDates.length;
-
-    if (moment(nextMonth, "MMMM YYYY").isSameOrBefore(endDateRef.current)) {
-      dispatch(
-        setFollowingMonthDetails({
-          month: nextMonth,
-          startDayOfMonth: firstDate,
-          endDayOfMonth: lastDate,
-          sum: sum,
-        })
-      );
-    } else {
-      dispatch(clearFollowingMonthDetails());
-    }
-  }, [dispatch, todayMonth, getActiveDatesForMonth, course]);
-
-  // Закрывает модалку при нажатии вне поля
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -161,26 +71,6 @@ export default function ModalMonthTable() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const closeFilterModal = () => {
-    setIsModalOpen(false);
-  };
-
-  useEffect(() => {
-    if (isModalOpen && isMobile) {
-      // Убираем прокрутку на мобильных устройствах
-      document.body.style.overflow = "hidden";
-    } else {
-      // Восстанавливаем прокрутку при закрытии модалки
-      document.body.style.overflow = "auto";
-    }
-
-    // Возвращаемся к предыдущему состоянию при размонтировании компонента
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isModalOpen, isMobile]);
   return (
     <div
       style={{
@@ -202,7 +92,7 @@ export default function ModalMonthTable() {
         }}
         onClick={handleModalToggle}
       >
-        <Calendar style={{ fill: "white" }} />
+        <IconCalendar style={{ fill: "white" }} />
       </button>
       {!isMobile && isModalOpen && (
         <div
@@ -211,7 +101,6 @@ export default function ModalMonthTable() {
           style={{
             position: "absolute",
             top: "50px",
-            // left: "0",
             right: "0",
             zIndex: 1000,
             backgroundColor: "#fff",
@@ -220,6 +109,7 @@ export default function ModalMonthTable() {
             width: "200px",
             padding: "12px",
             overflowY: "auto",
+            maxHeight: "150px",
           }}
         >
           <ul
@@ -229,14 +119,17 @@ export default function ModalMonthTable() {
               padding: 0,
               margin: 0,
               maxHeight: "150px",
+              overflowY: "auto",
             }}
+            ref={listRef}
           >
-            {months.map((month, index) => (
+            {monthsWithActiveDays.map((month, index) => (
               <li
                 key={index}
+                ref={month.month === selectedMonth ? selectedMonthRef : null}
                 onClick={(event) => {
                   event.stopPropagation();
-                  handleMonthSelect(month);
+                  handleMonthSelect(month.month);
                 }}
                 onMouseEnter={() => setHoveredMonthIndex(index)}
                 onMouseLeave={() => setHoveredMonthIndex(null)}
@@ -264,9 +157,9 @@ export default function ModalMonthTable() {
                     color: "#333",
                   }}
                 >
-                  {month}
+                  {month.month}
                 </div>
-                {month === selectedMonth && (
+                {month.month === selectedMonth && (
                   <Check
                     style={{
                       marginRight: "16px",
@@ -336,12 +229,12 @@ export default function ModalMonthTable() {
                   overflowY: "auto",
                 }}
               >
-                {months.map((month, index) => (
+                {monthsWithActiveDays.map((month, index) => (
                   <li
                     key={index}
-                    onClick={() => handleMonthSelect(month)}
+                    onClick={() => handleMonthSelect(month.month)}
                     className={`city-list-item ${
-                      month === selectedMonth ? "selected" : ""
+                      month.month === selectedMonth ? "selected" : ""
                     }`}
                     style={{
                       padding: "12px",
@@ -349,7 +242,9 @@ export default function ModalMonthTable() {
                       borderRadius: "8px",
                       justifyContent: "space-between",
                       backgroundColor:
-                        month === selectedMonth ? "#E9E9E9" : "transparent",
+                        month.month === selectedMonth
+                          ? "#E9E9E9"
+                          : "transparent",
                     }}
                   >
                     <div
@@ -360,10 +255,10 @@ export default function ModalMonthTable() {
                         color: "#333",
                       }}
                     >
-                      {month}
+                      {month.month}
                     </div>
 
-                    {month === selectedMonth && (
+                    {month.month === selectedMonth && (
                       <Check
                         style={{
                           marginRight: "16px",

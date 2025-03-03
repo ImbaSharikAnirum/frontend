@@ -150,6 +150,7 @@ export default function Card() {
     // Allow empty string to enable clearing the input
     setSum(newSum === "" ? "" : Number(newSum));
   };
+ 
 
   return (
     <div
@@ -169,9 +170,9 @@ export default function Card() {
             height: "150px",
           }}
         >
-          {course.image_url[0] ? (
+          {course?.images[0] ? (
             <img
-              src={`${course.image_url[0]}`}
+              src={`${course?.images[0].original}`}
               alt="Курс"
               className="slide-image"
               style={{
@@ -209,7 +210,7 @@ export default function Card() {
             <div style={{ height: "35px", width: "40px" }}>
               {course.teacher.photo ? (
                 <img
-                  src={`${course.teacher.photo}`}
+                  src={`${course.teacher.photo.original}`}
                   alt="Аватар"
                   style={{
                     width: "35px",

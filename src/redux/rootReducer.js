@@ -2,9 +2,10 @@ import { combineReducers } from "redux"; // Не нужен здесь
 import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
-import invoiceReducer from "./reducers/invoiceReducer";
+import invoiceReducer from "./reducers/invoiceSlice";
 import activityReducer from "./reducers/activityReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
+import monthReducer from "./reducers/monthReducer";
 import modalReducer from "./reducers/modalReducer";
 import guidesReducer from "./reducers/guidesReducer";
 import filterReducer from "./filterSlice";
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   activity: activityReducer,
   modals: modalReducer,
   guides: guidesReducer,
+  monthCalculation: monthReducer,
 });
 
 export default rootReducer; // Не нужно экспортировать, если используете configureStore
