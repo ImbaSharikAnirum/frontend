@@ -41,7 +41,7 @@ function App() {
         <Routes>
           <Route path="/course/:id" element={<Course />} />
           <Route path="/pinterest" element={<PinterestLogin />} />
-          <Route path="/pinterest/callback" element={<Callback />} />
+          <Route path="/auth/pinterest/callback" element={<Callback />} />
           <Route path="/" element={<Courses />} />
           <Route path="/team" element={<Team />} />
           <Route path="/guides" element={<Guides />} />
