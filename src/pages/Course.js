@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Table from "../components/Course/Table";
 import Info from "../components/Course/Info";
 import StudentDataModal from "../components/Course/StudentDataModal";
@@ -15,6 +15,7 @@ import CourseEdit from "../components/Course/CourseEdit";
 import Rules from "../components/Course/Rules";
 import { useParams } from "react-router-dom";
 import { useFetchCourseByIdQuery } from "../redux/services/courseAPI";
+import { showFooterMenu } from "../redux/footerMenuSlice";
 
 function Course() {
   const dispatch = useDispatch();
@@ -29,6 +30,11 @@ function Course() {
   const isEditSumModalOpen = useSelector(
     (state) => state.modals.editSumModalOpen
   );
+  useEffect(() => {
+    return () => {
+      dispatch(showFooterMenu(false));
+    };
+  }, [dispatch]);
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div style={{ maxWidth: "1120px", width: "100%", margin: "0 auto" }}>

@@ -36,6 +36,8 @@ const FooterMenu = () => {
   const scrollDownThreshold = 15;
   const scrollUpThreshold = 10;
   const location = useLocation();
+
+  const isCoursePage = /^\/course\/\d+$/.test(location.pathname);
   useEffect(() => {
     dispatch(showFooterMenu());
   }, [location.pathname]);
@@ -92,7 +94,7 @@ const FooterMenu = () => {
                 !isFilterMobile && "visible"
               }`}
             >
-              {course.id ? (
+              {course.id && isCoursePage ? (
                 <div
                   style={{
                     display: "flex",
