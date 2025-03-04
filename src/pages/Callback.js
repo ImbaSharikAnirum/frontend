@@ -11,7 +11,7 @@ const Callback = () => {
 
     if (code) {
       axios
-        .post("http://localhost:1337/pinterest/auth", { code }) // Укажите ваш backend URL
+        .post("https://anirum.up.railway.app/api/pinterest/auth", { code }) // Укажите ваш backend URL
         .then((response) => {
           const { access_token } = response.data;
           dispatch(setPinterestToken({ token: access_token })); // Сохраняем токен в Redux
