@@ -27,10 +27,20 @@ export const authAPI = createApi({
         url: "/users/me?populate=role",
         method: "GET",
       }),
-      // You can use providesTags here for caching and invalidation
+    }),
+    pinterestAuth: builder.mutation({
+      query: (code) => ({
+        url: "/pinterest/auth", // Должен быть обработан на бэке Strapi
+        method: "POST",
+        body: { code },
+      }),
     }),
   }),
 });
 
-export const { useSignupMutation, useLoginMutation, useGetUserDetailsQuery } =
-  authAPI;
+export const {
+  useSignupMutation,
+  useLoginMutation,
+  useGetUserDetailsQuery,
+  usePinterestAuthMutation,
+} = authAPI;
