@@ -13,11 +13,19 @@ const Callback = () => {
       axios
         .post("https://anirum.up.railway.app/api/pinterest/auth", { code }) // Укажите ваш backend URL
         .then((response) => {
-          const { access_token } = response.data;
-          dispatch(setPinterestToken({ token: access_token })); // Сохраняем токен в Redux
+          const { access_token, message } = response.data;
+
+          if (access_token) {
+            dispatch(setPinterestToken({ token: access_token })); // Сохраняем токен в Redux
+            console.log(message); // Выводим сообщение из ответа сервера
+          } else {
+            console.error("Токен не получен");
+            // Можно показать ошибку на UI
+          }
         })
         .catch((error) => {
           console.error("Ошибка при получении токена: ", error);
+          // Можете обработать ошибку на UI
         });
     }
   }, [dispatch]);
