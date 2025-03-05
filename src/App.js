@@ -25,6 +25,7 @@ import CreateGuide from "./components/Guide/CreateGuide";
 import Error from "./pages/Error";
 import Callback from "./pages/Callback";
 import PinterestLogin from "./pages/PinterestLogin";
+import PinterestPins from "./pages/PinterestPins";
 
 function App() {
   useInitializeUser();
@@ -40,7 +41,8 @@ function App() {
       <main>
         <Routes>
           <Route path="/course/:id" element={<Course />} />
-          <Route path="/pinterest" element={<PinterestLogin />} />
+          <Route path="/pinterest/login" element={<PinterestLogin />} />
+          <Route path="/pinterest" element={<PinterestPins />} />
           <Route path="/auth/pinterest/callback" element={<Callback />} />
           <Route path="/" element={<Courses />} />
           <Route path="/team" element={<Team />} />

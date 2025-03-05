@@ -5,8 +5,11 @@ import {
   selectCurrentUser,
   setPinterestToken,
 } from "../redux/reducers/authReducer";
+import { useNavigate } from "react-router-dom";
 
 const Callback = () => {
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const user = useSelector(selectCurrentUser);
@@ -16,13 +19,18 @@ const Callback = () => {
 
     if (code) {
       axios
-        .post("https://anirum.up.railway.app/api/pinterest/auth", { code }) // Укажите ваш backend URL
+        .post("https://anirum.up.railway.app/api/pinterest/auth", {
+          code,
+          userId: user?.id,
+        }) // Укажите ваш backend URL
         .then((response) => {
           const { access_token } = response.data;
 
           if (access_token) {
-            dispatch(setPinterestToken({ token: access_token })); // Сохраняем токен в Redux
+            localStorage.setItem("pinterestAccessToken", access_token); // Сохраняем токен в localStorage
             console.log("Pinterest токен получен успешно");
+            navigate("/pinterest");
+            // Перенаправление на страницу пинов
           } else {
             setError("Токен не получен");
             console.error("Токен не получен");
