@@ -26,6 +26,7 @@ const PinterestPins = () => {
     if (isLoading) {
       dispatch(setLoading());
     } else if (isSuccess && pins) {
+      console.log("Pins received:", pins);
       dispatch(setPinterest(pins));
     } else if (error) {
       dispatch(setError(error.message || "Error fetching pins"));
