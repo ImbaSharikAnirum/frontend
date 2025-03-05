@@ -6,12 +6,20 @@ import {
   setPinterest,
 } from "../redux/reducers/pinterestReducer";
 import { useFetchPinsQuery } from "../redux/services/pinterestApi";
+import { selectIsInitialized } from "../redux/reducers/authReducer";
 
 const PinterestPins = () => {
   const dispatch = useDispatch();
-
+  const isInitialized = useSelector(selectIsInitialized);
   // Используем хук для запроса пинов
-  const { data: pins, error, isLoading, isSuccess } = useFetchPinsQuery();
+  const {
+    data: pins,
+    error,
+    isLoading,
+    isSuccess,
+  } = useFetchPinsQuery({
+    skip: !isInitialized,
+  });
 
   useEffect(() => {
     if (isLoading) {

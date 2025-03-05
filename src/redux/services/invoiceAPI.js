@@ -9,6 +9,7 @@ export const invoiceAPI = createApi({
     baseUrl: API,
     prepareHeaders: (headers, { getState }) => {
       const token = selectJwt(getState());
+      console.log(token, "token2");
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
