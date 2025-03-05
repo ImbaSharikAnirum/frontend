@@ -19,6 +19,8 @@ import activityReducer from "./reducers/activityReducer";
 import modalReducer from "./reducers/modalReducer";
 import guidesReducer from "./reducers/guidesReducer";
 import monthReducer from "./reducers/monthReducer";
+import pinterestReducer from "./reducers/pinterestReducer";
+import { pinterestAPI } from "./services/pinterestApi";
 
 export const store = configureStore({
   reducer: {
@@ -36,12 +38,14 @@ export const store = configureStore({
     modals: modalReducer,
     guides: guidesReducer,
     monthCalculation: monthReducer,
+    pinterest: pinterestReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,
     [invoiceAPI.reducerPath]: invoiceAPI.reducer,
     [activityApi.reducerPath]: activityApi.reducer,
     [guidesAPI.reducerPath]: guidesAPI.reducer,
+    [pinterestAPI.reducerPath]: pinterestAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -50,6 +54,7 @@ export const store = configureStore({
       studentAPI.middleware,
       invoiceAPI.middleware,
       activityApi.middleware,
-      guidesAPI.middleware
+      guidesAPI.middleware,
+      pinterestAPI.middleware
     ),
 });

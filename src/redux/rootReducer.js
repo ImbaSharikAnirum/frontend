@@ -8,6 +8,7 @@ import courseTableReducer from "./reducers/courseTableReducer";
 import monthReducer from "./reducers/monthReducer";
 import modalReducer from "./reducers/modalReducer";
 import guidesReducer from "./reducers/guidesReducer";
+import pinterestReducer from "./reducers/pinterestReducer";
 import filterReducer from "./filterSlice";
 import coursesReducer from "./coursesSlice";
 import coursesCountReducer from "./coursesCountSlice";
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   modals: modalReducer,
   guides: guidesReducer,
   monthCalculation: monthReducer,
+  pinterest: pinterestReducer,
 });
 
 export default rootReducer; // Не нужно экспортировать, если используете configureStore
