@@ -15,7 +15,7 @@ const PinterestLogin = () => {
       return;
     }
 
-    const authUrl = `https://www.pinterest.com/oauth/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=pins:read`;
+    const authUrl = `https://www.pinterest.com/oauth/?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=pins:read,boards:read`;
 
     window.location.href = authUrl; // Переадресация на Pinterest для авторизации
   };
