@@ -9,6 +9,7 @@ export const pinterestAPI = createApi({
     baseUrl: API,
     prepareHeaders: (headers, { getState }) => {
       const token = selectJwt(getState());
+      console.log("Sending token:", token);
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
