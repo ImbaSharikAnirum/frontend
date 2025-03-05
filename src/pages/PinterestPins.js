@@ -47,10 +47,10 @@ const PinterestPins = () => {
         <div>
           <h2>Your Pinterest Pins</h2>
           <ul>
-            {Array.isArray(pinsFromStore) && pinsFromStore.length > 0 ? (
-              pinsFromStore.map((pin) => (
+            {pinsFromStore.items.length > 0 ? (
+              pinsFromStore.items.map((pin) => (
                 <li key={pin.id}>
-                  <img src={pin.imageUrl} alt={pin.title} width="100" />
+                  <img src={pin.media?.images["1200x"]?.url} alt={pin.title} width="100" />
                   <p>{pin.title}</p>
                 </li>
               ))
