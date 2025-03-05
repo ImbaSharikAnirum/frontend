@@ -1,59 +1,51 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import {
+  selectPinterestError,
+  selectPinterestStatus,
+  setError,
+  setLoading,
+  setPinterest,
+} from "../redux/reducers/pinterestReducer";
+import { useFetchPinsQuery } from "../redux/services/pinterestApi";
 
 const PinterestPins = () => {
-  const [pins, setPins] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+
+  // Используем хук для запроса пинов
+  const { data: pins, error, isLoading, isSuccess } = useFetchPinsQuery();
 
   useEffect(() => {
-    const token = localStorage.getItem("pinterestAccessToken");
-
-    if (token) {
-      axios
-        .get("https://api.pinterest.com/v5/me/pins", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Отправляем токен для авторизации
-          },
-        })
-        .then((response) => {
-          setPins(response.data.data); // Сохраняем пины в состояние
-          console.log(response, "response");
-          setLoading(false); // Останавливаем индикатор загрузки
-        })
-        .catch((error) => {
-          setError("Ошибка при загрузке пинов");
-          setLoading(false);
-          console.error("Ошибка при получении пинов: ", error);
-        });
-    } else {
-      setError("Токен не найден");
-      setLoading(false);
+    if (isLoading) {
+      dispatch(setLoading());
+    } else if (isSuccess && pins) {
+      dispatch(setPinterest(pins));
+    } else if (error) {
+      dispatch(setError(error.message || "Error fetching pins"));
     }
-  }, []);
+  }, [isLoading, isSuccess, pins, error, dispatch]);
 
-  if (loading) {
-    return <div>Загрузка пинов...</div>; // Индикатор загрузки
-  }
-
-  if (error) {
-    return <div>{error}</div>; // Ошибка
-  }
+  // Селекторы для получения статуса и ошибки
+  const status = selectPinterestStatus();
+  const selectError = selectPinterestError();
 
   return (
     <div>
-      <h1>Мои пины</h1>
-      {pins.length > 0 ? (
-        <ul>
-          {pins.map((pin) => (
-            <li key={pin.id}>
-              <img src={pin.image.original.url} alt={pin.title} />
-              <p>{pin.title}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Пины не найдены</p>
+      <h1>Pinterest Pins</h1>
+      {status === "loading" && <p>Loading...</p>}
+      {status === "failed" && <p>Error: {selectError}</p>}
+      {status === "succeeded" && pins && (
+        <div>
+          <h2>Your Pinterest Pins</h2>
+          <ul>
+            {pins.map((pin) => (
+              <li key={pin.id}>
+                <img src={pin.imageUrl} alt={pin.title} width="100" />
+                <p>{pin.title}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
