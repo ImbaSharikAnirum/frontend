@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux"; // Используем useSelector
+import { useDispatch, useSelector } from "react-redux";
 import {
   setError,
   setLoading,
@@ -11,6 +11,7 @@ import { selectIsInitialized } from "../redux/reducers/authReducer";
 const PinterestPins = () => {
   const dispatch = useDispatch();
   const isInitialized = useSelector(selectIsInitialized);
+
   // Используем хук для запроса пинов
   const {
     data: pins,
@@ -45,7 +46,7 @@ const PinterestPins = () => {
         <div>
           <h2>Your Pinterest Pins</h2>
           <ul>
-            {pinsFromStore.length > 0 ? (
+            {Array.isArray(pinsFromStore) && pinsFromStore.length > 0 ? (
               pinsFromStore.map((pin) => (
                 <li key={pin.id}>
                   <img src={pin.imageUrl} alt={pin.title} width="100" />
