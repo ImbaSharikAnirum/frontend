@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { setPinterestToken } from "../redux/reducers/authReducer";
+import {
+  selectCurrentUser,
+  setPinterestToken,
+} from "../redux/reducers/authReducer";
 
 const Callback = () => {
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
-
+  const user = useSelector(selectCurrentUser);
+  console.log(user, "user");
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
