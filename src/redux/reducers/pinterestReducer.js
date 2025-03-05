@@ -28,8 +28,9 @@ const pinterestReducer = createSlice({
 
 export const { setPinterest, setLoading, setError } = pinterestReducer.actions;
 
-export const selectAllPinterest = (state) => state.student.pinterest;
+// Пример правильного использования селектора для получения данных о пинах
 export const selectPinterestStatus = (state) => state.pinterest.status;
 export const selectPinterestError = (state) => state.pinterest.error;
+export const selectAllPinterest = (state) => state.pinterest.pinterest;
 
 export default pinterestReducer.reducer;

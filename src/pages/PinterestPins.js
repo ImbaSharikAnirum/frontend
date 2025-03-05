@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux"; // Используем useSelector
 import {
-  selectPinterestError,
-  selectPinterestStatus,
   setError,
   setLoading,
   setPinterest,
@@ -25,25 +23,30 @@ const PinterestPins = () => {
     }
   }, [isLoading, isSuccess, pins, error, dispatch]);
 
-  // Селекторы для получения статуса и ошибки
-  const status = selectPinterestStatus();
-  const selectError = selectPinterestError();
+  // Получаем статус и ошибку из Redux с помощью useSelector
+  const status = useSelector((state) => state.pinterest.status);
+  const selectError = useSelector((state) => state.pinterest.error);
+  const pinsFromStore = useSelector((state) => state.pinterest.pinterest);
 
   return (
     <div>
       <h1>Pinterest Pins</h1>
       {status === "loading" && <p>Loading...</p>}
       {status === "failed" && <p>Error: {selectError}</p>}
-      {status === "succeeded" && pins && (
+      {status === "succeeded" && pinsFromStore && (
         <div>
           <h2>Your Pinterest Pins</h2>
           <ul>
-            {pins.map((pin) => (
-              <li key={pin.id}>
-                <img src={pin.imageUrl} alt={pin.title} width="100" />
-                <p>{pin.title}</p>
-              </li>
-            ))}
+            {pinsFromStore.length > 0 ? (
+              pinsFromStore.map((pin) => (
+                <li key={pin.id}>
+                  <img src={pin.imageUrl} alt={pin.title} width="100" />
+                  <p>{pin.title}</p>
+                </li>
+              ))
+            ) : (
+              <p>No pins available</p>
+            )}
           </ul>
         </div>
       )}
