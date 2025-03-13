@@ -7,7 +7,6 @@ import activityReducer from "./reducers/activityReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
 import monthReducer from "./reducers/monthReducer";
 import modalReducer from "./reducers/modalReducer";
-import guidesReducer from "./reducers/guidesReducer";
 import pinterestReducer from "./reducers/pinterestReducer";
 import filterReducer from "./filterSlice";
 import coursesReducer from "./coursesSlice";
@@ -29,7 +28,6 @@ const rootReducer = combineReducers({
   courseTable: courseTableReducer,
   activity: activityReducer,
   modals: modalReducer,
-  guides: guidesReducer,
   monthCalculation: monthReducer,
   pinterest: pinterestReducer,
 });

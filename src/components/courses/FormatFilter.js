@@ -244,9 +244,9 @@ export default function FormatFilter({ loading }) {
                         border: isCitySelected ? "1px solid black" : "",
                         marginLeft: "22px",
                         width: "270px",
-                        overflow: "hidden", // Обрезает содержимое, если оно не помещается
-                        textOverflow: "ellipsis", // Добавляет многоточие в конце обрезанного текста
-                        whiteSpace: "nowrap", // Предотвращает перенос текста на новую строку
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap", 
                       }}
                     />
 

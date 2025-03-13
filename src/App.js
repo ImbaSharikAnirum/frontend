@@ -26,6 +26,7 @@ import Error from "./pages/Error";
 import Callback from "./pages/Callback";
 import PinterestLogin from "./pages/PinterestLogin";
 import PinterestPins from "./pages/PinterestPins";
+import Guide from "./pages/Guide";
 
 function App() {
   useInitializeUser();
@@ -47,6 +48,7 @@ function App() {
           <Route path="/" element={<Courses />} />
           <Route path="/team" element={<Team />} />
           <Route path="/guides" element={<Guides />} />
+          <Route path="/guide/:id" element={<Guide />} />
           <Route path="/finance" element={<Finance />} />
           <Route path="/booking/:id/:date" element={<Booking />} />
           <Route path="/create/course" element={<CreateCourse />} />

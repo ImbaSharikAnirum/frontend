@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/footerMenu.css";
 import { ReactComponent as Vector } from "../images/Vector.svg";
+import { ReactComponent as GridIcon } from "../images/grid.svg";
 import { ReactComponent as User } from "../images/user.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +21,7 @@ import {
   selectAllStudents,
 } from "../redux/reducers/studentReducer";
 import { logout, selectCurrentUser } from "../redux/reducers/authReducer";
+import { useMediaQuery } from "react-responsive";
 
 const FooterMenu = () => {
   const dispatch = useDispatch();
@@ -36,6 +38,9 @@ const FooterMenu = () => {
   const scrollDownThreshold = 15;
   const scrollUpThreshold = 10;
   const location = useLocation();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+
+  // Если мобильная версия и мы на странице гайда, не рендерим футер
 
   const isCoursePage = /^\/course\/\d+$/.test(location.pathname);
   useEffect(() => {
@@ -83,7 +88,9 @@ const FooterMenu = () => {
   };
 
   // if (!user) return null;
-
+  // if (isMobile && location.pathname.startsWith("/guide")) {
+  //   return null;
+  // }
   return (
     <>
       {!isFilterGroupMobile && (
@@ -225,6 +232,39 @@ const FooterMenu = () => {
                       >
                         <div className="Body-2" style={{ marginTop: "4px" }}>
                           Курсы
+                        </div>
+                      </NavLink>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: "120px",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <NavLink
+                        to="/guides"
+                        className={({ isActive }) =>
+                          `link ${isActive ? "active" : ""}`
+                        }
+                      >
+                        <GridIcon />
+                      </NavLink>
+                    </div>
+                    <div style={{ marginTop: "4px" }}>
+                      <NavLink
+                        to="/guides"
+                        style={{ fontSize: "12px" }}
+                        className={({ isActive }) =>
+                          `link ${isActive ? "active" : ""}`
+                        }
+                      >
+                        <div className="Body-2" style={{ marginTop: "4px" }}>
+                          Гайды
                         </div>
                       </NavLink>
                     </div>

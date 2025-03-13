@@ -74,8 +74,6 @@
 
 
 
-
-
 .modal-footer {
   position: sticky;
   bottom: 0; /* Фиксировать к нижней части модального окна */
@@ -259,6 +257,29 @@
   background-color: white;
   width: 100%;
   z-index: 10;
+}
+.scroll_guide {
+  list-style-type: none;
+}
+
+.scroll_guide::-webkit-scrollbar {
+  height : 8px; /* Width of the scrollbar */
+  border-radius: 10px;
+}
+
+.scroll_guide::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background color of the scrollbar track */
+  border-radius: 30px;
+}
+
+.scroll_guide::-webkit-scrollbar-thumb {
+  background: #c4c4c4; /* Color of the scrollbar thumb */
+  border-radius: 30px;
+}
+
+.scroll_guide::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8; /* Color of the scrollbar thumb on hover */
+  border-radius: 30px;
 }
 
 /* Optional: Style scrollbar for WebKit browsers (Chrome, Safari) */

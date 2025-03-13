@@ -26,7 +26,23 @@
 .button_white:hover {
     background-color: #F7F7F7;
 }
-
+.button-create {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    text-align: center;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .button-create:hover {
+    background-color: #E9E9E9;
+  }
+  
 .button {
     padding: 8px 24px;
     border-radius: 30px;
@@ -40,6 +56,7 @@
 .button:hover {
     background-color: #B60000;
 }
+
 .button_disabled {
     padding: 8px 24px;
     border-radius: 30px;
@@ -174,5 +191,42 @@
     background-color: black; /* Optional: change color on click */
 }
 .button_filter_group:active {
+    transform: scale(0.95); /* Slightly reduce size */
+}
+.button_close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #E9E9E9;
+    color: black;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button_close:hover {
+    background-color: #DDDDDD;
+}
+
+.button_icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+}
+.button_icon:hover {
+    background-color: #DDDDDD;
+}
+.button_icon:active {
     transform: scale(0.95); /* Slightly reduce size */
 }

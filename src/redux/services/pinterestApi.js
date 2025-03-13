@@ -9,7 +9,6 @@ export const pinterestAPI = createApi({
     baseUrl: API,
     prepareHeaders: (headers, { getState }) => {
       const token = selectJwt(getState());
-      console.log("Sending token:", token);
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
@@ -23,9 +22,17 @@ export const pinterestAPI = createApi({
         method: "GET",
       }),
     }),
+    savePinterestGuide: builder.mutation({
+      query: (data) => ({
+        url: "/save-pinterest-guide", // Эндпоинт для сохранения гайда из Pinterest
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
 export const {
   useFetchPinsQuery, // Хук для использования в компоненте
+  useSavePinterestGuideMutation, // Хук для сохранения гайда из Pinterest
 } = pinterestAPI;

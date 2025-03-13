@@ -7,6 +7,7 @@ import {
 } from "../redux/reducers/pinterestReducer";
 import { useFetchPinsQuery } from "../redux/services/pinterestApi";
 import { selectIsInitialized } from "../redux/reducers/authReducer";
+import "../styles/gallery.css"; // Подключение стилей
 
 const PinterestPins = () => {
   const dispatch = useDispatch();
@@ -46,18 +47,22 @@ const PinterestPins = () => {
       {status === "succeeded" && pinsFromStore && (
         <div>
           <h2>Your Pinterest Pins</h2>
-          <ul>
+          <div className="pinterest-grid">
             {pinsFromStore.items.length > 0 ? (
               pinsFromStore.items.map((pin) => (
-                <li key={pin.id}>
-                  <img src={pin.media?.images["1200x"]?.url} alt={pin.title} width="100" />
+                <div key={pin.id} className="grid-item">
+                  <img
+                    src={pin.media?.images["1200x"]?.url}
+                    alt={pin.title}
+                    className="pin-image"
+                  />
                   <p>{pin.title}</p>
-                </li>
+                </div>
               ))
             ) : (
               <p>No pins available</p>
             )}
-          </ul>
+          </div>
         </div>
       )}
     </div>

@@ -17,7 +17,6 @@ import invoiceReducer from "./reducers/invoiceSlice";
 import courseTableReducer from "./reducers/courseTableReducer";
 import activityReducer from "./reducers/activityReducer";
 import modalReducer from "./reducers/modalReducer";
-import guidesReducer from "./reducers/guidesReducer";
 import monthReducer from "./reducers/monthReducer";
 import pinterestReducer from "./reducers/pinterestReducer";
 import { pinterestAPI } from "./services/pinterestApi";
@@ -36,7 +35,6 @@ export const store = configureStore({
     courseTable: courseTableReducer,
     activity: activityReducer,
     modals: modalReducer,
-    guides: guidesReducer,
     monthCalculation: monthReducer,
     pinterest: pinterestReducer,
     [authAPI.reducerPath]: authAPI.reducer,
