@@ -49,7 +49,6 @@ export default function GuidesPinGallery({
     }
   );
 
-    
   // Функция для переключения выбора тега
   const togglePinTag = (tag) => {
     if (selectedPinTags.includes(tag)) {
@@ -211,19 +210,29 @@ export default function GuidesPinGallery({
         </Masonry>
         {pinsError && (
           <div style={{ width: "100%" }}>
-            <div className="h4" style={{ fontSize: "24px" }}>
-              Ошибка при загрузке пинов
-            </div>
-            <div
-              className="Body-2"
-              style={{
-                fontSize: "20px",
-                marginTop: "16px",
-              }}
-            >
-              Попробуйте авторизоваться
-            </div>
-            <PinterestLogin />
+            {!user ? (
+              <div>
+                <div className="h4" style={{ fontSize: "24px" }}>
+                  Ошибка при загрузке пинов
+                </div>
+                <div
+                  className="Body-2"
+                  style={{
+                    fontSize: "20px",
+                    marginTop: "16px",
+                  }}
+                >
+                  Попробуйте авторизоваться
+                </div>
+                <PinterestLogin />
+              </div>
+            ) : (
+              <div>
+                <div className="h4" style={{ fontSize: "24px" }}>
+                  Для начала пройдите регистрацию
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
