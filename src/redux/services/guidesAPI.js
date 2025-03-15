@@ -44,9 +44,8 @@ export const guidesAPI = createApi({
       }),
     }),
     getGuides: builder.query({
-      query: ({ search = "", userId } = {}) => {
-        let url =
-          "/guides?populate[image]=*&populate[savedBy]=*&pagination[pageSize]=100";
+      query: ({ search = "", userId, page = 1 } = {}) => {
+        let url = `/guides?populate[image]=*&populate[savedBy]=*&pagination[page]=${page}&pagination[pageSize]=30`;
         const trimmedSearch = search.trim();
         if (trimmedSearch) {
           if (trimmedSearch === "Созданные гайды" && userId) {

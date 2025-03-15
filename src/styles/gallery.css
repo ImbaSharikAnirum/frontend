@@ -1,6 +1,36 @@
-/* PinterestPins.css */
+/* галлерея */
+.my-masonry-grid {
+  display: flex;
+  margin-left: -16px;
+  width: 100%; /* вместо auto */
+}
+.my-masonry-grid_column {
+  padding-left: 16px; /* Размер зазора между колонками */
+  background-clip: padding-box;
+}
+.my-masonry-grid_column > div {
+  margin-bottom: 16px;
+}
 
-/* Создаем контейнер для сетки */
+.gallery-image {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+  transition: filter 0.3s ease;
+  filter: brightness(0.97);
+}
+
+.gallery-item {
+  break-inside: avoid;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.gallery-item:hover .gallery-image,
+.gallery-item:active .gallery-image {
+  filter: brightness(0.7);
+}
+/* конец галлери */
 .pinterest-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Колонки с минимум 300px шириной */
@@ -49,12 +79,7 @@
     width: 100%;
     margin: 0 auto;
   }
-  .gallery-item {
-    break-inside: avoid;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
+
   .save-button {
     position: absolute;
     top: 8px;
@@ -63,16 +88,9 @@
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  
+
   .gallery-item:hover .save-button {
     opacity: 1;
-  }
-  .gallery-image {
-    width: 100%;
-    display: block;
-    border-radius: 8px;
-    transition: filter 0.3s ease;
-    filter: brightness(0.97);
   }
 
   .gallery-item.png-image::before {
@@ -86,10 +104,7 @@
     height: 100%;
     z-index: -1;
   }
-  .gallery-item:hover .gallery-image,
-.gallery-item:active .gallery-image {
-  filter: brightness(0.7);
-}
+  
   /* Стили выпадающего списка */
   .search-suggestions {
     position: absolute;

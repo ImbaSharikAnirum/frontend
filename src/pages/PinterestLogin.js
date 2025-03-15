@@ -1,8 +1,6 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 
 const PinterestLogin = () => {
-  const dispatch = useDispatch();
 
   const handleLogin = () => {
     const clientId = process.env.REACT_APP_PINTEREST_CLIENT_ID;
@@ -20,7 +18,15 @@ const PinterestLogin = () => {
     window.location.href = authUrl; // Переадресация на Pinterest для авторизации
   };
 
-  return <button onClick={handleLogin}>Войти через Pinterest</button>;
+  return (
+    <button
+      className="button_secondary Body-3 button-animate-filter"
+      onClick={handleLogin}
+      style={{ marginTop: "16px" }}
+    >
+      Авторизация Pinterest
+    </button>
+  );
 };
 
 export default PinterestLogin;

@@ -30,7 +30,7 @@ const Callback = () => {
           if (access_token) {
             localStorage.setItem("pinterestAccessToken", access_token); // Сохраняем токен в localStorage
             console.log("Pinterest токен получен успешно");
-            navigate("/pinterest"); // Перенаправление на страницу пинов
+            navigate("/guides"); // Перенаправление на страницу пинов
           } else {
             setError("Токен не получен");
             console.error("Токен не получен");
