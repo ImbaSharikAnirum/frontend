@@ -210,7 +210,7 @@ export default function GuidesPinGallery({
         </Masonry>
         {pinsError && (
           <div style={{ width: "100%" }}>
-            {!user ? (
+            {user ? (
               <div>
                 <div className="h4" style={{ fontSize: "24px" }}>
                   Ошибка при загрузке пинов
