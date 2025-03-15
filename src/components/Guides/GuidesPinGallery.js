@@ -228,8 +228,12 @@ export default function GuidesPinGallery({
               </div>
             ) : (
               <div>
-                <div className="h4" style={{ fontSize: "24px" }}>
-                  Для начала пройдите регистрацию
+                <div
+                  className="h4"
+                  style={{ fontSize: "24px", marginTop: "16px" }}
+                >
+                  Чтобы выгрузить данные из Pinterest пройдите регистрацию или
+                  вход
                 </div>
               </div>
             )}
