@@ -1,11 +1,11 @@
 /* галлерея */
 .my-masonry-grid {
   display: flex;
-  margin-left: -16px;
+  /* margin-left: -16px; */
   width: 100%; /* вместо auto */
 }
 .my-masonry-grid_column {
-  padding-left: 16px; /* Размер зазора между колонками */
+  padding: 8px; 
   background-clip: padding-box;
 }
 .my-masonry-grid_column > div {
@@ -139,16 +139,4 @@
   }
   .search-tags span:hover {
     background: #e5e5e5;
-  }
-  @media (max-width: 1200px) {
-    .gallery { column-count: 4; }
-  }
-  @media (max-width: 992px) {
-    .gallery { column-count: 3; }
-  }
-  @media (max-width: 768px) {
-    .gallery { column-count: 2; }
-  }
-  @media (max-width: 480px) {
-    .gallery { column-count: 1; }
   }

@@ -190,7 +190,11 @@ export default function Guides() {
 
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
     >
       <GuidesSearch
         searchQuery={searchQuery}
@@ -207,6 +211,7 @@ export default function Guides() {
         DEFAULT_QUERIES={DEFAULT_QUERIES}
         user={user}
         handleRemoveRecentQuery={handleRemoveRecentQuery} // Передаём функцию удаления
+   
       />
 
       {isPinterestSearch ? (

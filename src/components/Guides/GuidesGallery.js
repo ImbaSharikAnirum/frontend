@@ -20,7 +20,7 @@ const GuidesGallery = ({
     default: 7,
     1100: 3,
     700: 2,
-    500: 1,
+    500: 2,
   };
 
   const [saveGuideStatus, setSavedGuideStatus] = useState([]);
@@ -53,7 +53,7 @@ const GuidesGallery = ({
       next={loadMore}
       hasMore={hasMore}
       loader={null}
-      style={{ overflow: "hidden" }}
+      style={{ overflow: "hidden"  }}
       endMessage={
         images.length > 0 && (
           <p style={{ textAlign: "center" }} className="Body-2">

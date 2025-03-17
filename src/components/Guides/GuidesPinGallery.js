@@ -17,7 +17,7 @@ export default function GuidesPinGallery({
   isInitialized,
   isPinterestSearch,
 }) {
-  const breakpointColumnsObj = { default: 7, 1100: 3, 700: 2, 500: 1 };
+  const breakpointColumnsObj = { default: 7, 1100: 3, 700: 2, 500: 2 };
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   const ManagerId = process.env.REACT_APP_MANAGER;
