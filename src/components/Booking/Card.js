@@ -8,7 +8,7 @@ import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import {
   selectCurrentInvoice,
   setInvoice,
-} from "../../redux/reducers/invoiceReducer";
+} from "../../redux/reducers/invoiceBookingReducer";
 
 export default function Card() {
   const theme = useTheme();
@@ -150,7 +150,6 @@ export default function Card() {
     // Allow empty string to enable clearing the input
     setSum(newSum === "" ? "" : Number(newSum));
   };
- 
 
   return (
     <div

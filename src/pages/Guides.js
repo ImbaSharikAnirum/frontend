@@ -12,7 +12,7 @@ import {
 import GuidesGallery from "../components/Guides/GuidesGallery";
 import GuidesPinGallery from "../components/Guides/GuidesPinGallery";
 import GuidesSearch from "../components/Guides/GuidesSearch";
-
+import "../styles/gallery.css";
 const LOCAL_STORAGE_KEY = "recentQueries";
 const DEFAULT_QUERIES = ["Формы", "Как рисовать голову"];
 
@@ -174,7 +174,13 @@ export default function Guides() {
       if (page === 1) {
         setImages(data.data);
       } else {
-        setImages((prevImages) => [...prevImages, ...data.data]);
+        setImages((prevImages) => {
+          // Фильтруем новые данные, исключая те, которые уже есть в prevImages
+          const newUniqueImages = data.data.filter(
+            (item) => !prevImages.some((prev) => prev.id === item.id)
+          );
+          return [...prevImages, ...newUniqueImages];
+        });
       }
       setHasMore(data.data.length > 0);
     } else if (!data) {

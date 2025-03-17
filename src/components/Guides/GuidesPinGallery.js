@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Skeleton, Checkbox } from "@mui/material";
 import Masonry from "react-masonry-css";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useMediaQuery } from "react-responsive";
 import {
-  useFetchPinsQuery,
+  useLazyFetchPinsQuery,
   useSavePinterestGuideMutation,
 } from "../../redux/services/pinterestApi";
 import { toast } from "react-toastify";
@@ -17,93 +17,88 @@ export default function GuidesPinGallery({
   isInitialized,
   isPinterestSearch,
 }) {
-  const breakpointColumnsObj = {
-    default: 7,
-    1100: 3,
-    700: 2,
-    500: 1,
-  };
+  const breakpointColumnsObj = { default: 7, 1100: 3, 700: 2, 500: 1 };
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   const ManagerId = process.env.REACT_APP_MANAGER;
   const [approved, setApproved] = useState(false);
   const [selectedPinTags, setSelectedPinTags] = useState([]);
-
-  // Состояния, необходимые для сохранения пинов
   const [savedPins, setSavedPins] = useState([]);
-  const [savePinterestGuide] = useSavePinterestGuideMutation();
 
   // Локальные состояния для пинов и пагинации
   const [pins, setPins] = useState([]);
-  const [bookmark, setBookmark] = useState(null);
+  const [bookmark, setBookmark] = useState(""); // начальный bookmark – пустая строка
   const [hasMore, setHasMore] = useState(true);
+  const pageSize = 50;
 
-  const {
-    data: pinsData,
-    error: pinsError,
-    isLoading: pinsLoading,
-  } = useFetchPinsQuery(
-    { bookmark },
-    {
-      skip: !isInitialized || !isPinterestSearch,
+  // Используем ленивый запрос, чтобы подгружать следующую страницу по требованию
+  const [
+    fetchPins,
+    { data: pinsData, error: pinsError, isFetching: pinsLoading },
+  ] = useLazyFetchPinsQuery();
+
+  // Первый запрос при инициализации компонента
+  useEffect(() => {
+    if (isInitialized && isPinterestSearch) {
+      fetchPins({ bookmark: "", pageSize });
     }
-  );
+  }, [isInitialized, isPinterestSearch, fetchPins]);
 
-  // Функция для переключения выбора тега
-  const togglePinTag = (tag) => {
-    if (selectedPinTags.includes(tag)) {
-      setSelectedPinTags(selectedPinTags.filter((t) => t !== tag));
-    } else {
-      setSelectedPinTags([...selectedPinTags, tag]);
+  // При получении данных добавляем пины в общий список и обновляем bookmark
+  useEffect(() => {
+    if (pinsData?.items) {
+      setPins((prev) => [...prev, ...pinsData.items]);
+      setBookmark(pinsData.bookmark || ""); // Если bookmark отсутствует, это сигнал о завершении
+      setHasMore(!!pinsData.bookmark);
+    }
+  }, [pinsData]);
+
+  // Функция подгрузки следующей страницы
+  const fetchMorePins = () => {
+    if (hasMore) {
+      fetchPins({ bookmark, pageSize });
     }
   };
+
+  const togglePinTag = (tag) => {
+    setSelectedPinTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const [savePinterestGuide] = useSavePinterestGuideMutation();
 
   const handleSavePin = async (e, pin) => {
     e.preventDefault();
     if (!user) return;
-    // Если пин уже сохранён, то выходим из функции
     if (savedPins.includes(pin.id) || pin.isSaved) {
       toast.info("Гайд уже сохранён");
       return;
     }
-    // Оптимистично обновляем UI – сразу добавляем ID пина в список сохранённых
     setSavedPins((prev) => [...prev, pin.id]);
     try {
-      // Получаем URL изображения пина
       const imageUrl = pin.media?.images["1200x"]?.url;
-      if (!imageUrl) {
-        alert("Изображение пина недоступно");
-        return;
-      }
-      // Получаем заголовок, если отсутствует — задаём значение по умолчанию
-      const title = pin.title || "Pinterest Pin";
-      if (!title) {
-        alert("Заголовок пина отсутствует");
-        return;
-      }
+      if (!imageUrl) throw new Error("Изображение пина недоступно");
 
-      // Преобразование выбранных тегов в английский вариант
+      const title = pin.title || "Pinterest Pin";
       const englishTags = selectedPinTags.map(
         (tag) => queryMapping[tag] || tag
       );
 
-      // Формируем данные для запроса, включая выбранные теги на английском
       const requestData = {
         imageUrl,
         title,
         text: pin.description || "",
         link: `https://www.pinterest.com/pin/${pin.id}/`,
         tags: englishTags.length > 0 ? englishTags.join(", ") : "Pinterest",
-        approved: approved,
+        approved,
       };
-      // Вызываем mutation для сохранения гайда через Strapi
-      const result = await savePinterestGuide(requestData).unwrap();
-      console.log("Гайд успешно создан:", result);
-      // Дополнительная логика (например, уведомление или навигация) может быть добавлена здесь
+
+      await savePinterestGuide(requestData).unwrap();
+      toast.success("Гайд успешно сохранен!");
     } catch (error) {
-      console.error("Ошибка при создании гайда из пина:", error);
-      alert("Ошибка при создании гайда из пина");
-      // Если произошла ошибка – можно убрать пин из списка сохранённых
+      console.error("Ошибка при создании гайда:", error);
+      toast.error("Ошибка при сохранении гайда");
       setSavedPins((prev) => prev.filter((id) => id !== pin.id));
     }
   };
@@ -125,7 +120,6 @@ export default function GuidesPinGallery({
           const isSelected = selectedPinTags.includes(tag);
           return (
             <span
-              className="Body-2"
               key={index}
               onClick={() => togglePinTag(tag)}
               style={{
@@ -135,6 +129,7 @@ export default function GuidesPinGallery({
                 backgroundColor: isSelected ? "black" : "#f0f0f0",
                 color: isSelected ? "white" : "black",
               }}
+              className="Body-2"
             >
               {tag}
             </span>
@@ -147,9 +142,7 @@ export default function GuidesPinGallery({
               id="approved-checkbox"
               checked={approved}
               onChange={() => setApproved(!approved)}
-              defaultChecked
             />
-
             <label
               htmlFor="approved-checkbox"
               className="Body-2"
@@ -161,41 +154,47 @@ export default function GuidesPinGallery({
         )}
       </div>
 
-      <div>
+      <InfiniteScroll
+        dataLength={pins.length}
+        next={fetchMorePins}
+        hasMore={hasMore}
+        loader={<h4>Загрузка...</h4>}
+        endMessage={<p>Все пины загружены.</p>}
+      >
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column"
         >
-          {pinsData &&
-            pinsData.items &&
-            pinsData.items.map((pin) => {
-              const isPinSaved = savedPins.includes(pin.id) || pin.isSaved;
-              return (
-                <div key={pin.id} className="gallery-item">
-                  <button
-                    className="save-button button Body-3 button-animate-filter"
-                    style={{
-                      position: "absolute",
-                      top: "8px",
-                      left: "8px",
-                      zIndex: 1,
-                      backgroundColor: isPinSaved ? "black" : "",
-                    }}
-                    onClick={(e) => handleSavePin(e, pin)}
-                  >
-                    {isPinSaved ? "Сохранено" : "Сохранить в Anirum"}
-                  </button>
-                  <img
-                    src={pin.media?.images?.["1200x"]?.url}
-                    alt={pin.title}
-                    className="gallery-image"
-                  />
-                </div>
-              );
-            })}
-
-          {/* Добавляем скелетоны прямо сюда */}
+          {pins.map((pin) => {
+            const isPinSaved = savedPins.includes(pin.id) || pin.isSaved;
+            return (
+              <div
+                key={pin.id}
+                className="gallery-item"
+                style={{ position: "relative" }}
+              >
+                <button
+                  className="save-button button Body-3 button-animate-filter"
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    left: "8px",
+                    zIndex: 1,
+                    backgroundColor: isPinSaved ? "black" : "",
+                  }}
+                  onClick={(e) => handleSavePin(e, pin)}
+                >
+                  {isPinSaved ? "Сохранено" : "Сохранить в Anirum"}
+                </button>
+                <img
+                  src={pin.media?.images?.["1200x"]?.url}
+                  alt={pin.title}
+                  className="gallery-image"
+                />
+              </div>
+            );
+          })}
           {pinsLoading &&
             Array.from({ length: isMobile ? 5 : 40 }).map((_, index) => (
               <div key={`skeleton-${index}`} className="gallery-item">
@@ -208,38 +207,36 @@ export default function GuidesPinGallery({
               </div>
             ))}
         </Masonry>
-        {pinsError && (
-          <div style={{ width: "100%" }}>
-            {user ? (
-              <div>
-                <div className="h4" style={{ fontSize: "24px" }}>
-                  Ошибка при загрузке пинов
-                </div>
-                <div
-                  className="Body-2"
-                  style={{
-                    fontSize: "20px",
-                    marginTop: "16px",
-                  }}
-                >
-                  Попробуйте авторизоваться
-                </div>
-                <PinterestLogin />
+      </InfiniteScroll>
+
+      {pinsError && (
+        <div style={{ width: "100%" }}>
+          {user ? (
+            <div>
+              <div className="h4" style={{ fontSize: "24px" }}>
+                Ошибка при загрузке пинов
               </div>
-            ) : (
-              <div>
-                <div
-                  className="h4"
-                  style={{ fontSize: "24px", marginTop: "16px" }}
-                >
-                  Чтобы выгрузить данные из Pinterest пройдите регистрацию или
-                  вход
-                </div>
+              <div
+                className="Body-2"
+                style={{ fontSize: "20px", marginTop: "16px" }}
+              >
+                Попробуйте авторизоваться
               </div>
-            )}
-          </div>
-        )}
-      </div>
+              <PinterestLogin />
+            </div>
+          ) : (
+            <div>
+              <div
+                className="h4"
+                style={{ fontSize: "24px", marginTop: "16px" }}
+              >
+                Чтобы выгрузить данные из Pinterest, пройдите регистрацию или
+                вход
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

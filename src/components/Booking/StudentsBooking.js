@@ -27,7 +27,7 @@ import { Link } from "react-router-dom";
 import {
   selectCurrentInvoice,
   setInvoice,
-} from "../../redux/reducers/invoiceReducer";
+} from "../../redux/reducers/invoiceBookingReducer";
 import { useCreateInvoiceMutation } from "../../redux/services/invoiceAPI";
 
 export default function StudentsBooking() {
@@ -276,6 +276,7 @@ export default function StudentsBooking() {
   const [createInvoice] = useCreateInvoiceMutation();
 
   const currentInvoice = useSelector(selectCurrentInvoice);
+
   const handleConfirmAndPay = () => {
     if (!selectedStudent) {
       toast.error("Пожалуйста, выберите студента перед подтверждением.");

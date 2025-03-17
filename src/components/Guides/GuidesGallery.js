@@ -26,8 +26,6 @@ const GuidesGallery = ({
   const [saveGuideStatus, setSavedGuideStatus] = useState([]);
   const [saveGuide] = useSaveGuideMutation();
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-  console.log(isLoading, "isLoading");
-  console.log(isFetching, "isFetching");
   const handleSave = (e, guide) => {
     e.preventDefault();
     if (!user) {
@@ -70,8 +68,11 @@ const GuidesGallery = ({
         columnClassName="my-masonry-grid_column"
       >
         {images.map((item) => {
+          const imageAttributes = item.attributes?.image?.data?.attributes;
           const url =
-            item.attributes?.image?.data?.attributes?.formats?.medium?.url;
+            imageAttributes?.formats?.medium?.url ||
+            imageAttributes?.formats?.small?.url ||
+            imageAttributes?.url;
           if (!url) return null;
           const alternativeText =
             item.attributes?.image?.data?.attributes?.alternativeText ||

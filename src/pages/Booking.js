@@ -56,7 +56,6 @@ export default function Booking() {
     setShowLogin(false);
     setShowSignup(true);
   };
-  // const students = useSelector(selectAllStudents);
 
   const course = useSelector(selectCurrentCourse);
   return (

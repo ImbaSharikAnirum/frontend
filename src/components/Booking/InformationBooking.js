@@ -11,7 +11,7 @@ import {
   setError,
 } from "../../redux/reducers/courseReducer";
 import moment from "moment";
-import { setInvoice } from "../../redux/reducers/invoiceReducer";
+import { setInvoice } from "../../redux/reducers/invoiceBookingReducer";
 
 export default function InformationBooking() {
   const theme = useTheme();

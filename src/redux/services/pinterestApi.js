@@ -17,8 +17,10 @@ export const pinterestAPI = createApi({
   }),
   endpoints: (builder) => ({
     fetchPins: builder.query({
-      query: () => ({
-        url: "/pinterest/get", // Эндпоинт для получения пинов
+      query: ({ bookmark = "", pageSize = 25 }) => ({
+        url: `/pinterest/get?page_size=${pageSize}${
+          bookmark ? `&bookmark=${bookmark}` : ""
+        }`,
         method: "GET",
       }),
     }),
@@ -33,6 +35,6 @@ export const pinterestAPI = createApi({
 });
 
 export const {
-  useFetchPinsQuery, // Хук для использования в компоненте
+  useLazyFetchPinsQuery, // Хук для использования в компоненте
   useSavePinterestGuideMutation, // Хук для сохранения гайда из Pinterest
 } = pinterestAPI;

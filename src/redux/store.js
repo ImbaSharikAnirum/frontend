@@ -14,6 +14,7 @@ import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
 import invoiceReducer from "./reducers/invoiceSlice";
+import invoiceBookingReducer from "./reducers/invoiceBookingReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
 import activityReducer from "./reducers/activityReducer";
 import modalReducer from "./reducers/modalReducer";
@@ -32,6 +33,7 @@ export const store = configureStore({
     footerMenu: footerMenuReducer,
     student: studentReducer,
     invoice: invoiceReducer,
+    invoiceBooking: invoiceBookingReducer,
     courseTable: courseTableReducer,
     activity: activityReducer,
     modals: modalReducer,

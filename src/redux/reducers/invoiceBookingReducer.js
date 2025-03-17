@@ -3,14 +3,14 @@ import { createSelector } from "reselect";
 
 // Initial state for the invoice
 const initialState = {
-  invoice: null,
+  invoice: {},
   status: "idle",
   error: null,
 };
 
 // Creating the slice
-const invoiceReducer = createSlice({
-  name: "invoice",
+const invoiceBookingReducer = createSlice({
+  name: "invoiceBooking",
   initialState,
   reducers: {
     setLoading: (state) => {
@@ -31,10 +31,11 @@ const invoiceReducer = createSlice({
 });
 
 // Export actions and reducer
-export const { setLoading, setInvoice, setError } = invoiceReducer.actions;
+export const { setLoading, setInvoice, setError } =
+  invoiceBookingReducer.actions;
 
 // Simple selector for getting the invoice from the state
-const selectInvoiceData = (state) => state.invoice.invoice;
+const selectInvoiceData = (state) => state.invoiceBooking;
 
 // Memoized selector for extracting transformed data from the state
 export const selectCurrentInvoice = createSelector(
@@ -42,16 +43,16 @@ export const selectCurrentInvoice = createSelector(
   (invoiceData) => {
     if (!invoiceData) return null;
     return {
-      sum: invoiceData?.sum || "",
-      currency: invoiceData?.currency || "",
-      start_day: invoiceData?.start_day || "",
-      end_day: invoiceData?.end_day || "",
-      name: invoiceData?.name || "",
-      family: invoiceData?.family || "",
-      phone: invoiceData?.phone || "",
-      activities: invoiceData?.activities || [],
-      status_payment: invoiceData?.status_payment || false,
-      group: invoiceData?.group || null,
+      sum: invoiceData?.invoice?.sum || "",
+      currency: invoiceData?.invoice?.currency || "",
+      start_day: invoiceData?.invoice?.start_day || "",
+      end_day: invoiceData?.invoice?.end_day || "",
+      name: invoiceData?.invoice?.name || "",
+      family: invoiceData?.invoice?.family || "",
+      phone: invoiceData?.invoice?.phone || "",
+      activities: invoiceData?.invoice?.activities || [],
+      status_payment: invoiceData?.invoice?.status_payment || false,
+      group: invoiceData?.invoice?.group || null,
     };
   }
 );
@@ -60,4 +61,4 @@ export const selectInvoiceStatus = (state) => state.invoice.status;
 export const selectInvoiceError = (state) => state.invoice.error;
 
 // Export the reducer
-export default invoiceReducer.reducer;
+export default invoiceBookingReducer.reducer;
