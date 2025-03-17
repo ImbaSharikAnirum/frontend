@@ -53,7 +53,7 @@ const GuidesGallery = ({
       next={loadMore}
       hasMore={hasMore}
       loader={null}
-      style={{ overflow: "hidden"  }}
+      style={{ overflow: "hidden" }}
       endMessage={
         images.length > 0 && (
           <p style={{ textAlign: "center" }} className="Body-2">
@@ -94,21 +94,23 @@ const GuidesGallery = ({
                   className="gallery-image"
                 />
               </Link>
-              <button
-                className="save-button button Body-3 button-animate-filter"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: isImageSaved && "black",
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSave(e, item);
-                }}
-              >
-                {isImageSaved ? "Сохранено" : "Сохранить"}
-              </button>
+              {!isMobile && (
+                <button
+                  className="save-button button Body-3 button-animate-filter"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: isImageSaved && "black",
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSave(e, item);
+                  }}
+                >
+                  {isImageSaved ? "Сохранено" : "Сохранить"}
+                </button>
+              )}
             </div>
           );
         })}

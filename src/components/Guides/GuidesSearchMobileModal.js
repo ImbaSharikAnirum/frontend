@@ -9,7 +9,7 @@ export default function GuidesSearchMobileModal({
   onClose,
   setParentSearchQuery,
   industries,
-  DEFAULT_QUERIES,
+  DEFAULT_QUERIES
 }) {
   const [searchValue, setSearchValue] = useState("");
   const [recentQueries, setRecentQueries] = useState(DEFAULT_QUERIES);
@@ -107,7 +107,6 @@ export default function GuidesSearchMobileModal({
         height: "100vh",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
         zIndex: 1000,
-        padding: "0px 24px",
       }}
     >
       <div

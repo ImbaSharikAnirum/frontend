@@ -26,10 +26,12 @@
   position: relative;
   overflow: hidden;
 }
-.gallery-item:hover .gallery-image,
-.gallery-item:active .gallery-image {
-  filter: brightness(0.7);
-}
+  @media (hover: hover) {
+    .gallery-item:hover .gallery-image,
+    .gallery-item:active .gallery-image {
+     filter: brightness(0.7);
+   }
+  }
 /* конец галлери */
 .pinterest-grid {
     display: grid;
@@ -46,6 +48,11 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.3s ease-in-out;
+  }
+  @media (hover: hover) {
+    .gallery-item:hover .save-button {
+      opacity: 1;
+    }
   }
   
   /* Увеличиваем картинку до 100% ширины */
