@@ -26,7 +26,7 @@ export const guidesAPI = createApi({
     }),
     getGuideById: builder.query({
       query: ({ id, userId }) => {
-        let url = `/guides/${id}?populate[image]=*&populate[users_permissions_user]=*`;
+        let url = `/guides/${id}?populate[image]=*&populate[users_permissions_user]=*&populate[savedBy]=*`;
         if (userId) {
           url += `&populate[creations][sort]=publishedAt:desc&populate[creations][populate][image]=*&filters[creations][users_permissions_user][id][$eq]=${userId}`;
         }

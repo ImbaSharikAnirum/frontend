@@ -10,7 +10,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
 import GuideImage from "../components/Guide/GuideImage";
 import GuideInfo from "../components/Guide/GuideInfo";
-import { useGetGuideByIdQuery } from "../redux/services/guidesAPI";
+import {
+  useGetGuideByIdQuery,
+  useSaveGuideMutation,
+} from "../redux/services/guidesAPI";
 import { selectCurrentUser } from "../redux/reducers/authReducer";
 import GuideMore from "../components/Guide/GuideMore";
 import GuideImageMobile from "../components/Guide/GuideImageMobile";
@@ -28,11 +31,25 @@ export default function Guide() {
 
   const [imageHeight, setImageHeight] = useState(0);
 
-  // Состояния для модалок перенесены в родительский компонент
+  // Состояния модалок
   const [isComplainModalOpen, setIsComplainModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreationModalOpen, setIsCreationModalOpen] = useState(false);
   const [isNotAuthModalOpen, setIsNotAuthModalOpen] = useState(false);
+
+  // Состояние для статуса сохранения гайда
+  const [savedGuideStatus, setSavedGuideStatus] = useState(false);
+  const [saveGuide] = useSaveGuideMutation();
+
+  // Устанавливаем начальный статус сохранения, когда данные загружены
+  useEffect(() => {
+    if (data && user) {
+      const isGuideSaved = data.data.attributes.savedBy?.data?.some(
+        (u) => u.id === user.id
+      );
+      setSavedGuideStatus(!!isGuideSaved);
+    }
+  }, [data, user]);
 
   const openComplainModal = () => setIsComplainModalOpen(true);
   const openDeleteModal = () => setIsDeleteModalOpen(true);
@@ -45,7 +62,6 @@ export default function Guide() {
     };
   }, [dispatch]);
 
-  // if (isLoading) return <div>loading.</div>;
   if (error) return <div>Error loading guide.</div>;
 
   const imageUrl =
@@ -54,9 +70,27 @@ export default function Guide() {
   const creations = data?.data?.attributes?.creations?.data;
   const authorId = data?.data?.attributes?.users_permissions_user?.data.id;
 
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      setIsNotAuthModalOpen(true);
+      return;
+    }
+    const action = savedGuideStatus ? "unsave" : "save";
+    // Оптимистичное обновление: сразу меняем статус кнопки
+    const prevStatus = savedGuideStatus;
+    setSavedGuideStatus(!prevStatus);
+    try {
+      await saveGuide({ guideId: id, userId: user.id, action }).unwrap();
+    } catch (err) {
+      // Если произошла ошибка, возвращаем предыдущий статус
+      setSavedGuideStatus(prevStatus);
+    }
+  };
+
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
-      {/* Рендерим модалки в родительском компоненте */}
+      {/* Рендерим модальные окна */}
       {isComplainModalOpen && (
         <GuideComplainModal
           guideId={id}
@@ -129,28 +163,58 @@ export default function Guide() {
               marginTop: imageHeight ? imageHeight : "250px",
               display: "flex",
               justifyContent: "space-between",
+              alignItems: "center",
               zIndex: 1001,
             }}
           >
-            {isLoading ? (
-              <Skeleton
-                variant="rectangular"
-                style={{ width: "180px", height: "40px", borderRadius: "30px" }}
-              />
-            ) : (
-              <button
-                className="button Body-3 button-animate-filter"
-                onClick={() => {
-                  if (!user) {
-                    setIsNotAuthModalOpen(true);
-                  } else {
-                    setIsCreationModalOpen(true);
-                  }
-                }}
-              >
-                Загрузить работу
-              </button>
-            )}
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              {isLoading ? (
+                <Skeleton
+                  variant="rectangular"
+                  style={{
+                    width: "180px",
+                    height: "40px",
+                    borderRadius: "30px",
+                  }}
+                />
+              ) : (
+                <button
+                  className="button Body-3 button-animate-filter"
+                  onClick={() => {
+                    if (!user) {
+                      setIsNotAuthModalOpen(true);
+                    } else {
+                      setIsCreationModalOpen(true);
+                    }
+                  }}
+                >
+                  Загрузить работу
+                </button>
+              )}
+              {isLoading ? (
+                <Skeleton
+                  variant="rectangular"
+                  style={{
+                    width: "180px",
+                    height: "40px",
+                    borderRadius: "30px",
+                  }}
+                />
+              ) : (
+                <button
+                  className="button_secondary Body-3 button-animate-filter"
+                  onClick={handleSave}
+                  style={{
+                    backgroundColor: savedGuideStatus ? "black" : "",
+                    color: savedGuideStatus ? "white" : "",
+                  }}
+                >
+                  {savedGuideStatus ? "Сохранено" : "Сохранить"}
+                </button>
+              )}
+            </div>
             {isLoading ? (
               <Skeleton
                 className="button_icon"
