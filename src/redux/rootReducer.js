@@ -8,7 +8,10 @@ import activityReducer from "./reducers/activityReducer";
 import courseTableReducer from "./reducers/courseTableReducer";
 import monthReducer from "./reducers/monthReducer";
 import modalReducer from "./reducers/modalReducer";
+import creationReducer from "./reducers/creationReducer";
 import pinterestReducer from "./reducers/pinterestReducer";
+import userProfileReducer from "./reducers/userProfileReducer";
+import portfolioReducer from "./reducers/portfolioReducer";
 import filterReducer from "./filterSlice";
 import coursesReducer from "./coursesSlice";
 import coursesCountReducer from "./coursesCountSlice";
@@ -32,6 +35,9 @@ const rootReducer = combineReducers({
   modals: modalReducer,
   monthCalculation: monthReducer,
   pinterest: pinterestReducer,
+  userProfile: userProfileReducer,
+  creation: creationReducer,
+  portfolio: portfolioReducer,
 });
 
 export default rootReducer; // Не нужно экспортировать, если используете configureStore

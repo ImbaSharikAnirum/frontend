@@ -151,6 +151,10 @@ export default function Card() {
     setSum(newSum === "" ? "" : Number(newSum));
   };
 
+  const urlAvatar =
+    course?.teacher?.photo?.small ||
+    course?.teacher?.photo?.medium ||
+    course?.teacher?.photo?.original;
   return (
     <div
       style={{
@@ -207,9 +211,9 @@ export default function Card() {
         >
           <div style={{ display: "flex", gap: "8px" }}>
             <div style={{ height: "35px", width: "40px" }}>
-              {course.teacher.photo ? (
+              {urlAvatar ? (
                 <img
-                  src={`${course.teacher.photo.original}`}
+                  src={`${urlAvatar}`}
                   alt="Аватар"
                   style={{
                     width: "35px",

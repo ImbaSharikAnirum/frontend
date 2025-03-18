@@ -22,6 +22,7 @@ import {
 } from "../redux/reducers/studentReducer";
 import { logout, selectCurrentUser } from "../redux/reducers/authReducer";
 import { useMediaQuery } from "react-responsive";
+import { Avatar } from "@mui/material";
 
 const FooterMenu = () => {
   const dispatch = useDispatch();
@@ -282,9 +283,9 @@ const FooterMenu = () => {
                     {user ? (
                       <div>
                         <NavLink
-                          onClick={handleLogout}
+                          to={`/profile/${user.id}`}
                           className={({ isActive }) =>
-                            `link ${!isActive ? "active" : ""}`
+                            `link ${isActive ? "active" : ""}`
                           }
                         >
                           <User />
@@ -305,17 +306,26 @@ const FooterMenu = () => {
                     <div className="Body-2" style={{ marginTop: "4px" }}>
                       {user ? (
                         <NavLink
-                          onClick={handleLogout}
+                          to={`/profile/${user.id}`}
                           className={({ isActive }) =>
-                            `link ${!isActive ? "active" : ""}`
+                            `link ${isActive ? "active" : ""}`
                           }
                           style={{ fontSize: "12px" }}
                         >
                           <div className="Body-2" style={{ marginTop: "4px" }}>
-                            Выход
+                            Профиль
                           </div>
                         </NavLink>
                       ) : (
+                        // <NavLink
+                        //   onClick={handleLogout}
+                        //   className={({ isActive }) =>
+                        //     `link ${!isActive ? "active" : ""}`
+                        //   }
+                        //   style={{ fontSize: "12px" }}
+                        // >
+                        //
+                        // </NavLink>
                         <NavLink
                           to="/login"
                           className={({ isActive }) =>
