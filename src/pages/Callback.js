@@ -12,7 +12,6 @@ const Callback = () => {
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const user = useSelector(selectCurrentUser);
-  console.log(user, "user");
 
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");

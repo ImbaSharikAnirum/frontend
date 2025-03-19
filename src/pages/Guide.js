@@ -18,6 +18,7 @@ import { selectCurrentUser } from "../redux/reducers/authReducer";
 import GuideMore from "../components/Guide/GuideMore";
 import GuideImageMobile from "../components/Guide/GuideImageMobile";
 import { Skeleton } from "@mui/material";
+import { Link } from "react-router-dom";
 
 export default function Guide() {
   const { id } = useParams();
@@ -65,7 +66,10 @@ export default function Guide() {
   if (error) return <div>Error loading guide.</div>;
 
   const imageUrl =
-    data?.data?.attributes?.image?.data?.attributes?.formats?.medium?.url;
+    data?.data?.attributes?.image?.data?.attributes?.formats?.medium?.url ||
+    data?.data?.attributes?.image?.data?.attributes?.url ||
+    data?.data?.attributes?.image?.data?.attributes?.formats?.small?.url ||
+    data?.data?.attributes?.image?.data?.attributes?.formats?.thumbnail?.url;
   const info = data?.data?.attributes;
   const creations = data?.data?.attributes?.creations?.data;
   const authorId = data?.data?.attributes?.users_permissions_user?.data.id;
@@ -264,19 +268,21 @@ export default function Guide() {
                   }}
                   key={index}
                 >
-                  <img
-                    src={
-                      creation.attributes.image.data.attributes.formats?.small
-                        ?.url
-                    }
-                    alt="Creation"
-                    style={{
-                      maxWidth: "150px",
-                      height: "150px",
-                      border: "1px solid #DDDDDD",
-                      objectFit: "cover",
-                    }}
-                  />
+                  <Link to={`/creation/${creation.id}`}>
+                    <img
+                      src={
+                        creation.attributes.image.data.attributes.formats?.small
+                          ?.url
+                      }
+                      alt="Creation"
+                      style={{
+                        maxWidth: "150px",
+                        height: "150px",
+                        border: "1px solid #DDDDDD",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Link>
                   <div style={{ marginTop: "8px" }} className="Body-2">
                     {moment(creation.attributes.publishedAt).format(
                       "DD.MM.YYYY"
