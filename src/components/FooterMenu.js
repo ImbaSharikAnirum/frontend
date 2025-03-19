@@ -289,7 +289,7 @@ const FooterMenu = () => {
                               width: 25,
                             }}
                             alt="Avatar"
-                            src={user.avatar.formats.small.url || ""}
+                            src={user?.avatar?.formats?.small?.url || ""}
                           />
                         </Link>
                       </div>

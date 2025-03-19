@@ -14,7 +14,6 @@ function UserProfile() {
     dispatch(clearStudents());
     dispatch(logout());
   };
-
   if (!user) return null;
 
   return (
@@ -27,7 +26,7 @@ function UserProfile() {
             mr: 2,
           }}
           alt="Avatar"
-          src={user.avatar.formats.small.url || ""}
+          src={user?.avatar?.formats?.small?.url || ""}
         />
       </Link>
       <button
