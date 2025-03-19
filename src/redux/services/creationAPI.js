@@ -1,3 +1,4 @@
+// creationAPI.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { selectJwt } from "../reducers/authReducer";
 
@@ -25,14 +26,25 @@ export const creationAPI = createApi({
         if (userId) {
           url += `&filters[users_permissions_user][id][$eq]=${userId}`;
         }
-        return {
-          url,
-          method: "GET",
-        };
+        return { url, method: "GET" };
       },
       providesTags: ["creation"],
+    }),
+    getCreation: builder.query({
+      query: (id) =>
+        `/creations/${id}?populate[image]=*&populate[users_permissions_user][populate][avatar]=*&populate[guide][populate][image]=*`,
+    }),
+    deleteCreation: builder.mutation({
+      query: (id) => ({
+        url: `/creations/${id}`,
+        method: "DELETE",
+      }),
     }),
   }),
 });
 
-export const { useGetCreationsQuery } = creationAPI;
+export const {
+  useGetCreationsQuery,
+  useGetCreationQuery,
+  useDeleteCreationMutation,
+} = creationAPI;

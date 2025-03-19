@@ -8,7 +8,6 @@ import { Link } from "react-router-dom";
 function UserProfile() {
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -28,7 +27,7 @@ function UserProfile() {
             mr: 2,
           }}
           alt="Avatar"
-          src={user.avatar || ""}
+          src={user.avatar.formats.small.url || ""}
         />
       </Link>
       <button

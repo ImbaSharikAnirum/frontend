@@ -101,7 +101,7 @@ const CreationsGallery = ({ id, showSkeleton }) => {
       {!isLoading && !isFetching && creations.length === 0 && (
         <div style={{ width: "100%" }}>
           <div className="h4" style={{ width: "100%", fontSize: "24px" }}>
-            На такущий момент креативностей нет
+            На данный момент креативностей нет
           </div>
           <div
             className="Body-2"

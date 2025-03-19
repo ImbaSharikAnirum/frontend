@@ -8,11 +8,13 @@ import { Avatar } from "@mui/material";
 import CreationsGallery from "../components/Profile/CreationsGallery";
 import PortfolioGallery from "../components/Profile/PortfolioGallery";
 import { useMediaQuery } from "react-responsive";
+import { ReactComponent as SettingsIcon } from "../images/settings.svg";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const user = useSelector(selectCurrentUser);
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
-
+  const navigate = useNavigate();
   const { id } = useParams();
   const { data: profile, isLoading, error } = useGetUserProfileDetailsQuery(id);
 
@@ -22,23 +24,54 @@ export default function Profile() {
   if (error) {
     return <div>Ошибка загрузки профиля.</div>;
   }
+
+  const handleClickSettings = () => {
+    navigate(`/settings/${id}`);
+  };
+
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
-        marginLeft: isMobile ? "-24px" : "-40px",
-        marginRight: isMobile ? "-24px" : "-40px",
-        // width: "100%",
+        width: "100%",
       }}
     >
+      {user && user.id === Number(id) && isMobile && (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "left",
+          }}
+        >
+          {!isLoading ? (
+            <button
+              className="button_icon"
+              onClick={handleClickSettings}
+              style={{ width: "30px", height: "30px" }}
+            >
+              <SettingsIcon style={{ width: "15px", height: "15px" }} />
+            </button>
+          ) : (
+            <Skeleton
+              variant="circular"
+              style={{
+                width: "30px",
+                height: "30px",
+              }}
+            />
+          )}
+        </div>
+      )}
+
       <div
         style={{
           width: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginTop: "40px",
+          marginTop: "30px",
         }}
       >
         <div>
@@ -66,13 +99,36 @@ export default function Profile() {
             />
           )}
         </div>
-
-        <div className="Body-3" style={{ marginTop: "16px" }}>
-          0 LVL
-        </div>
-        <div className="Body-3" style={{ marginTop: "16px" }}>
-          nickname
-        </div>
+        {!isLoading ? (
+          <div className="Body-3" style={{ marginTop: "16px" }}>
+            0 LVL
+          </div>
+        ) : (
+          <Skeleton
+            variant="rectangular"
+            style={{
+              width: "15%",
+              height: "16px",
+              borderRadius: "4px",
+              marginTop: "16px",
+            }}
+          />
+        )}
+        {!isLoading ? (
+          <div className="Body-3" style={{ marginTop: "16px" }}>
+            nickname
+          </div>
+        ) : (
+          <Skeleton
+            variant="rectangular"
+            style={{
+              width: "30%",
+              height: "16px",
+              borderRadius: "4px",
+              marginTop: "16px",
+            }}
+          />
+        )}
       </div>
       <div
         style={{
@@ -122,8 +178,6 @@ export default function Profile() {
       <div
         style={{
           marginTop: "24px",
-          marginLeft: isMobile ? "8px" : "16px",
-          marginRight: isMobile ? "8px" : "16px",
         }}
       >
         {activeTab === "Креативы" ? (

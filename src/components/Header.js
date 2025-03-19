@@ -10,6 +10,7 @@ import { selectCurrentUser } from "../redux/reducers/authReducer";
 
 function Header() {
   const user = useSelector(selectCurrentUser);
+  
   return (
     <div className="header" style={{ zIndex: "1" }}>
       <Logo style={{ height: "25px", width: "auto" }} />

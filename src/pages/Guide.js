@@ -135,7 +135,7 @@ export default function Guide() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "stretch",
-                height: imageHeight ? imageHeight : "400px",
+                height: `${Math.max(imageHeight, 400)}px`,
                 width: "100%",
               }}
             >
@@ -143,6 +143,7 @@ export default function Guide() {
                 imageUrl={imageUrl}
                 isLoading={isLoading}
                 setImageHeight={setImageHeight}
+                imageHeight={imageHeight}
               />
               <GuideInfo
                 authorId={authorId}

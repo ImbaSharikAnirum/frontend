@@ -282,14 +282,16 @@ const FooterMenu = () => {
                   >
                     {user ? (
                       <div>
-                        <NavLink
-                          to={`/profile/${user.id}`}
-                          className={({ isActive }) =>
-                            `link ${isActive ? "active" : ""}`
-                          }
-                        >
-                          <User />
-                        </NavLink>
+                        <Link to={`/profile/${user.id}`}>
+                          <Avatar
+                            sx={{
+                              height: 25,
+                              width: 25,
+                            }}
+                            alt="Avatar"
+                            src={user.avatar.formats.small.url || ""}
+                          />
+                        </Link>
                       </div>
                     ) : (
                       <div>

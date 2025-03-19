@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { ReactComponent as Search } from "../../images/search.svg";
 import { Modal, Skeleton } from "@mui/material";
 
-export default function GuideImage({ imageUrl, isLoading, setImageHeight }) {
+export default function GuideImage({ imageUrl, isLoading, setImageHeight, imageHeight }) {
   const [open, setOpen] = useState(false);
   const imgRef = useRef(null);
 
@@ -21,6 +21,7 @@ export default function GuideImage({ imageUrl, isLoading, setImageHeight }) {
       style={{
         position: "relative",
         width: "500px",
+        height: imageHeight ? `${imageHeight}px` : "auto",
         // Можно не задавать высоту, если хотим, чтобы контейнер подстраивался
       }}
     >
@@ -35,7 +36,7 @@ export default function GuideImage({ imageUrl, isLoading, setImageHeight }) {
           }}
         />
       ) : (
-        <div>
+        <>
           {imageUrl && (
             <img
               ref={imgRef}
@@ -43,7 +44,8 @@ export default function GuideImage({ imageUrl, isLoading, setImageHeight }) {
               alt="Illustration of the guide content"
               onLoad={onImageLoad}
               style={{
-                maxWidth: "100%",
+                display: "block",
+                width: "100%",
                 borderRadius: "30px",
                 border: "1px solid #DDDDDD",
               }}
@@ -66,7 +68,7 @@ export default function GuideImage({ imageUrl, isLoading, setImageHeight }) {
               <Search className="icon" />
             </button>
           )}
-        </div>
+        </>
       )}
       <Modal
         open={open}
