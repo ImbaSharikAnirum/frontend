@@ -67,7 +67,7 @@ export default function PortfolioSkillTree({ id }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2 className="h4">Мои ветки развития</h2>
+      <h2 className="h4">Личные ветки развития</h2>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
         {renderList(myTrees, isMyLoading)}
       </div>

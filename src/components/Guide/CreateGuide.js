@@ -107,7 +107,10 @@ export default function CreateGuide() {
     }
   };
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div
+      className="padding"
+      style={{ display: "flex", justifyContent: "center" }}
+    >
       {loading ? (
         <div
           style={{
