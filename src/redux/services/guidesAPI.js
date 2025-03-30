@@ -146,7 +146,7 @@ export const guidesAPI = createApi({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["Guide"],
+      invalidatesTags: ["Guide", "SkillTree"],
     }),
   }),
 });

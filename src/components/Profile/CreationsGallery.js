@@ -99,7 +99,7 @@ const CreationsGallery = ({ id, showSkeleton }) => {
           ))}
       </Masonry>
       {!isLoading && !isFetching && creations.length === 0 && (
-        <div style={{ width: "100%" }}>
+        <div style={{ width: "100%", padding: "0px 24px" }}>
           <div className="h4" style={{ width: "100%", fontSize: "24px" }}>
             На данный момент креативностей нет
           </div>

@@ -3,9 +3,10 @@ import React, { useRef, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useMediaQuery } from "react-responsive";
 import { hideFooterMenu, showFooterMenu } from "../../redux/footerMenuSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDeleteCreationMutation } from "../../redux/services/creationAPI";
+import { useLazyGetSkillTreeByIdQuery } from "../../redux/services/skillTreeAPI";
 
 export default function CreationDeleteModal({ onClose, user }) {
   const { id } = useParams(); // Используем id из URL
@@ -16,6 +17,8 @@ export default function CreationDeleteModal({ onClose, user }) {
   const navigate = useNavigate();
 
   const [deleteCreation] = useDeleteCreationMutation();
+  const [refetchSkillTree] = useLazyGetSkillTreeByIdQuery();
+  const skillTreeId = useSelector((state) => state.skillTree.activeSkillTreeId);
 
   // Скрываем футер при открытии модального окна
   useEffect(() => {
@@ -41,6 +44,10 @@ export default function CreationDeleteModal({ onClose, user }) {
     try {
       await deleteCreation(id);
       toast.success("Создание успешно удалено");
+      const fallbackId = skillTreeId || localStorage.getItem("lastBranchId");
+      if (fallbackId) {
+        await refetchSkillTree({ id: fallbackId });
+      }
       onClose();
       navigate(`/profile/${user?.id}`);
     } catch (error) {

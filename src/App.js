@@ -29,6 +29,7 @@ import Guide from "./pages/Guide";
 import Profile from "./pages/Profile";
 import Creation from "./pages/Creation";
 import Settings from "./pages/Settings";
+import SkillTree from "./pages/SkillTree";
 
 function App() {
   useInitializeUser();
@@ -58,6 +59,8 @@ function App() {
           <Route path="/create/course" element={<CreateCourse />} />
           <Route path="/create/guide" element={<CreateGuide />} />
           <Route path="/conditions" element={<Conditions />} />
+          <Route path="/skill-tree" element={<SkillTree />} />
+          <Route path="/skill-tree/:branchId" element={<SkillTree />} />
           <Route path="/requisites" element={<Requisites />} />
           <Route path="/confidentiality" element={<Confidentiality />} />
           <Route path="/sucsess-payment" element={<SucsessCourse />} />

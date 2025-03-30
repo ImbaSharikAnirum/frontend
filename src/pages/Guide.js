@@ -93,7 +93,10 @@ export default function Guide() {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div
+      style={{ display: "flex", justifyContent: "center" }}
+      className="padding"
+    >
       {/* Рендерим модальные окна */}
       {isComplainModalOpen && (
         <GuideComplainModal

@@ -4,9 +4,10 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMediaQuery } from "react-responsive";
 import { hideFooterMenu, showFooterMenu } from "../../redux/footerMenuSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useCreateCreationMutation } from "../../redux/services/guidesAPI";
 import { ReactComponent as Download } from "../../images/Download.svg";
+import { useLazyGetSkillTreeByIdQuery } from "../../redux/services/skillTreeAPI";
 
 export default function CreationUploadModal({ guideId, onClose }) {
   const modalRef = useRef(null);
@@ -17,6 +18,8 @@ export default function CreationUploadModal({ guideId, onClose }) {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [createCreation] = useCreateCreationMutation();
+  const skillTreeId = useSelector((state) => state.skillTree.activeSkillTreeId);
+  const [refetchSkillTree] = useLazyGetSkillTreeByIdQuery();
 
   // Скрываем футер при открытии модального окна
   useEffect(() => {
@@ -83,10 +86,16 @@ export default function CreationUploadModal({ guideId, onClose }) {
     const formData = new FormData();
     // Ключ "files" используется, как в примере CreateGuide
     formData.append("files", fileObject);
+
     // Передаём id родительской записи (relation) напрямую
     formData.append("guide", guideId);
     try {
       await createCreation(formData).unwrap();
+      const fallbackId = skillTreeId || localStorage.getItem("lastBranchId");
+      if (fallbackId) {
+        await refetchSkillTree({ id: fallbackId });
+      }
+
       toast.success("Работа успешно загружена");
       onClose();
     } catch (error) {

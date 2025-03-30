@@ -64,6 +64,7 @@ export default function Booking() {
         display: "flex",
         justifyContent: "center",
       }}
+      className="padding"
     >
       <div
         style={{

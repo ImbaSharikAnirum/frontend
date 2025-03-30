@@ -36,7 +36,10 @@ function Course() {
     };
   }, [dispatch]);
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div
+      style={{ display: "flex", justifyContent: "center" }}
+      className="padding"
+    >
       <div style={{ maxWidth: "1120px", width: "100%", margin: "0 auto" }}>
         {isStudentDataModalOpen && (
           <StudentDataModal
@@ -60,8 +63,8 @@ function Course() {
         <Info data={data} isLoading={isLoading} />
         <Table />
         <CourseEdit />
-        <Location isLoading={isLoading}/>
-        <Rules isLoading={isLoading}/>
+        <Location isLoading={isLoading} />
+        <Rules isLoading={isLoading} />
       </div>
     </div>
   );

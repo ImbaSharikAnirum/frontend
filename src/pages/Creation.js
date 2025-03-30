@@ -67,6 +67,7 @@ export default function CreationDetails() {
         flexDirection: isMobile ? "column" : "row",
         gap: isMobile ? "16px" : "0",
       }}
+      className="padding"
     >
       {/* Левая колонка – изображение создания */}
       <div

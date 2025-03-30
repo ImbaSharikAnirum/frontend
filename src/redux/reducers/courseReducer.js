@@ -104,7 +104,7 @@ export const selectCurrentCourse = createSelector(
       teacher: teacherData,
       images:
         attributes.images?.data?.map((image) => ({
-          original: image.attributes.url, // Оригинальное изображение
+          original: image?.attributes?.url, // Оригинальное изображение
           large: image.attributes.formats?.large?.url || image.attributes.url,
           medium: image.attributes.formats?.medium?.url || image.attributes.url,
           small: image.attributes.formats?.small?.url || image.attributes.url,

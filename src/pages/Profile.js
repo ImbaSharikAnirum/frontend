@@ -10,6 +10,7 @@ import PortfolioGallery from "../components/Profile/PortfolioGallery";
 import { useMediaQuery } from "react-responsive";
 import { ReactComponent as SettingsIcon } from "../images/settings.svg";
 import { useNavigate } from "react-router-dom";
+import PortfolioSkillTree from "../components/Profile/PortfolioSkillTree";
 
 export default function Profile() {
   const user = useSelector(selectCurrentUser);
@@ -34,134 +35,156 @@ export default function Profile() {
       style={{
         display: "flex",
         flexDirection: "column",
-        width: "100%",
       }}
     >
-      {user && user.id === Number(id) && isMobile && (
+      <div style={{ padding: "24px 24px 0px 24px" }}>
+        {user && user.id === Number(id) && isMobile && (
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "left",
+            }}
+          >
+            {!isLoading ? (
+              <button
+                className="button_icon"
+                onClick={handleClickSettings}
+                style={{ width: "30px", height: "30px" }}
+              >
+                <SettingsIcon style={{ width: "15px", height: "15px" }} />
+              </button>
+            ) : (
+              <Skeleton
+                variant="circular"
+                style={{
+                  width: "30px",
+                  height: "30px",
+                }}
+              />
+            )}
+          </div>
+        )}
+
         <div
           style={{
             width: "100%",
             display: "flex",
-            alignItems: "left",
+            flexDirection: "column",
+            alignItems: "center",
+            marginTop: "30px",
           }}
         >
+          <div>
+            {!isLoading ? (
+              <Avatar
+                sx={{
+                  height: 100,
+                  width: 100,
+                }}
+                alt="Avatar"
+                src={
+                  profile?.avatar?.formats?.small?.url ||
+                  profile?.avatar?.url ||
+                  ""
+                }
+              />
+            ) : (
+              <Skeleton
+                variant="rectangular"
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  borderRadius: "50%",
+                }}
+              />
+            )}
+          </div>
           {!isLoading ? (
-            <button
-              className="button_icon"
-              onClick={handleClickSettings}
-              style={{ width: "30px", height: "30px" }}
-            >
-              <SettingsIcon style={{ width: "15px", height: "15px" }} />
-            </button>
-          ) : (
-            <Skeleton
-              variant="circular"
-              style={{
-                width: "30px",
-                height: "30px",
-              }}
-            />
-          )}
-        </div>
-      )}
-
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          marginTop: "30px",
-        }}
-      >
-        <div>
-          {!isLoading ? (
-            <Avatar
-              sx={{
-                height: 100,
-                width: 100,
-              }}
-              alt="Avatar"
-              src={
-                profile?.avatar?.formats?.small?.url ||
-                profile?.avatar?.url ||
-                ""
-              }
-            />
+            <div className="Body-3" style={{ marginTop: "16px" }}>
+              0 LVL
+            </div>
           ) : (
             <Skeleton
               variant="rectangular"
               style={{
-                width: "100px",
-                height: "100px",
-                borderRadius: "50%",
+                width: "15%",
+                height: "16px",
+                borderRadius: "4px",
+                marginTop: "16px",
+              }}
+            />
+          )}
+          {!isLoading ? (
+            <div className="Body-3" style={{ marginTop: "16px" }}>
+              nickname
+            </div>
+          ) : (
+            <Skeleton
+              variant="rectangular"
+              style={{
+                width: "30%",
+                height: "16px",
+                borderRadius: "4px",
+                marginTop: "16px",
               }}
             />
           )}
         </div>
-        {!isLoading ? (
-          <div className="Body-3" style={{ marginTop: "16px" }}>
-            0 LVL
-          </div>
-        ) : (
-          <Skeleton
-            variant="rectangular"
+        <div
+          style={{
+            width: "100%",
+            overflowX: "auto",
+            marginTop: "40px",
+          }}
+        >
+          <div
             style={{
-              width: "15%",
-              height: "16px",
-              borderRadius: "4px",
-              marginTop: "16px",
+              display: "flex",
+              justifyContent: isLoading ? "center" : "center", // всегда по центру
+              minWidth: "min-content",
+              paddingBottom: "16px",
+              // padding: "0 8px", // добавляем симметричный отступ
             }}
-          />
-        )}
-        {!isLoading ? (
-          <div className="Body-3" style={{ marginTop: "16px" }}>
-            nickname
+          >
+            <div style={{ padding: "4px" }} className="button-group">
+              <button
+                onClick={() => setActiveTab("Креативы")}
+                className={
+                  activeTab === "Креативы"
+                    ? "selected button-animate Body-3"
+                    : "button-animate Body-3"
+                }
+              >
+                Креативы
+              </button>
+            </div>
+            <div style={{ padding: "4px" }} className="button-group">
+              <button
+                onClick={() => setActiveTab("Портфолио")}
+                className={
+                  activeTab === "Портфолио"
+                    ? "selected button-animate Body-3"
+                    : "button-animate Body-3"
+                }
+              >
+                Портфолио
+              </button>
+            </div>
+            <div style={{ padding: "4px" }} className="button-group">
+              <button
+                onClick={() => setActiveTab("Древо навыков")}
+                className={
+                  activeTab === "Древо навыков"
+                    ? "selected button-animate Body-3"
+                    : "button-animate Body-3"
+                }
+                style={{ whiteSpace: "nowrap" }}
+              >
+                Древо навыков
+              </button>
+            </div>
           </div>
-        ) : (
-          <Skeleton
-            variant="rectangular"
-            style={{
-              width: "30%",
-              height: "16px",
-              borderRadius: "4px",
-              marginTop: "16px",
-            }}
-          />
-        )}
-      </div>
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "center",
-          marginTop: "40px",
-        }}
-      >
-        <div style={{ padding: "4px" }} className="button-group">
-          <button
-            onClick={() => setActiveTab("Креативы")}
-            className={
-              activeTab === "Креативы"
-                ? "selected button-animate Body-3"
-                : "button-animate Body-3"
-            }
-          >
-            Креативы
-          </button>
-        </div>
-        <div style={{ padding: "4px" }} className="button-group">
-          <button
-            onClick={() => setActiveTab("Портфолио")}
-            className={
-              activeTab === "Портфолио"
-                ? "selected button-animate Body-3"
-                : "button-animate Body-3"
-            }
-          >
-            Портфолио
-          </button>
         </div>
       </div>
       {/* <div
@@ -177,14 +200,12 @@ export default function Profile() {
       </div> */}
       <div
         style={{
-          marginTop: "24px",
+          marginTop: "12px",
         }}
       >
-        {activeTab === "Креативы" ? (
-          <CreationsGallery id={id} />
-        ) : (
-          <PortfolioGallery id={id} />
-        )}
+        {activeTab === "Креативы" && <CreationsGallery id={id} />}
+        {activeTab === "Портфолио" && <PortfolioGallery id={id} />}
+        {activeTab === "Древо навыков" && <PortfolioSkillTree id={id} />}
       </div>
     </div>
   );

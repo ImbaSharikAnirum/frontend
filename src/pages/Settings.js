@@ -19,7 +19,7 @@ export default function Settings() {
 
   if (!user) return null;
   return (
-    <div>
+    <div className="padding">
       <div
         className="Body-3"
         onClick={handleLogout}

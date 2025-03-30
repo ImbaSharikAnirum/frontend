@@ -10,7 +10,7 @@ import { selectCurrentUser } from "../redux/reducers/authReducer";
 
 function Header() {
   const user = useSelector(selectCurrentUser);
-  
+
   return (
     <div className="header" style={{ zIndex: "1" }}>
       <Logo style={{ height: "25px", width: "auto" }} />
@@ -36,6 +36,17 @@ function Header() {
         >
           <button className="button_white button-animate-filter">
             <div className="h5">Гайды</div>
+          </button>
+        </Link>
+        <Link
+          to="/skill-tree"
+          style={{
+            textDecoration: "none",
+            color: "black",
+          }}
+        >
+          <button className="button_white button-animate-filter">
+            <div className="h5">Древо навыков</div>
           </button>
         </Link>
       </div>

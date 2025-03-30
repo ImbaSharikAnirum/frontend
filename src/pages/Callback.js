@@ -53,7 +53,7 @@ const Callback = () => {
     return <div>Ошибка: {error}</div>; // Ошибка
   }
 
-  return <div>Успешно авторизовались через Pinterest!</div>; // Успешная авторизация
+  return <div className="padding">Успешно авторизовались через Pinterest!</div>; // Успешная авторизация
 };
 
 export default Callback;

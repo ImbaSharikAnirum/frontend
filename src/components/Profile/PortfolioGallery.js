@@ -98,7 +98,7 @@ export default function PortfolioGallery({ id, showSkeleton }) {
           ))}
       </Masonry>
       {!isLoading && !isFetching && portfolios.length === 0 && (
-        <div style={{ width: "100%" }}>
+        <div style={{ width: "100%", padding: "0px 24px" }}>
           <div className="h4" style={{ width: "100%", fontSize: "24px" }}>
             На данный момент в портфолио работ нет
           </div>

@@ -194,6 +194,7 @@ export default function Guides() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        padding: "32px 12px",
       }}
     >
       <GuidesSearch
@@ -211,7 +212,6 @@ export default function Guides() {
         DEFAULT_QUERIES={DEFAULT_QUERIES}
         user={user}
         handleRemoveRecentQuery={handleRemoveRecentQuery} // Передаём функцию удаления
-   
       />
 
       {isPinterestSearch ? (

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../styles/footerMenu.css";
 import { ReactComponent as Vector } from "../images/Vector.svg";
 import { ReactComponent as GridIcon } from "../images/grid.svg";
+import { ReactComponent as ShareIcon } from "../images/share.svg";
 import { ReactComponent as User } from "../images/user.svg";
 import { NavLink, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -266,6 +267,39 @@ const FooterMenu = () => {
                       >
                         <div className="Body-2" style={{ marginTop: "4px" }}>
                           Гайды
+                        </div>
+                      </NavLink>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      width: "120px",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <NavLink
+                        to="/skill-tree"
+                        className={({ isActive }) =>
+                          `link ${isActive ? "active" : ""}`
+                        }
+                      >
+                        <ShareIcon />
+                      </NavLink>
+                    </div>
+                    <div style={{ marginTop: "4px" }}>
+                      <NavLink
+                        to="/skill-tree"
+                        style={{ fontSize: "12px" }}
+                        className={({ isActive }) =>
+                          `link ${isActive ? "active" : ""}`
+                        }
+                      >
+                        <div className="Body-2" style={{ marginTop: "4px" }}>
+                          Древо
                         </div>
                       </NavLink>
                     </div>

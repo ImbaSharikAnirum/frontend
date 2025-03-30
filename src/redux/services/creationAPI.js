@@ -39,6 +39,7 @@ export const creationAPI = createApi({
         url: `/creations/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["SkillTree"],
     }),
   }),
 });

@@ -28,6 +28,10 @@ import pinterestReducer from "./reducers/pinterestReducer";
 import { pinterestAPI } from "./services/pinterestApi";
 import { userProfileAPI } from "./services/userProfileAPI";
 import { creationAPI } from "./services/creationAPI";
+import { directionAPI } from "./services/directionAPI";
+import { skillAPI } from "./services/skillAPI";
+import { skillTreeAPI } from "./services/skillTreeAPI";
+import skillTreeReducer from "./reducers/skillTreeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -49,6 +53,7 @@ export const store = configureStore({
     userProfile: userProfileReducer,
     creation: creationReducer,
     portfolio: portfolioReducer,
+    skillTree: skillTreeReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,
@@ -59,6 +64,9 @@ export const store = configureStore({
     [userProfileAPI.reducerPath]: userProfileAPI.reducer,
     [creationAPI.reducerPath]: creationAPI.reducer,
     [portfolioAPI.reducerPath]: portfolioAPI.reducer,
+    [directionAPI.reducerPath]: directionAPI.reducer,
+    [skillAPI.reducerPath]: skillAPI.reducer,
+    [skillTreeAPI.reducerPath]: skillTreeAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -71,6 +79,9 @@ export const store = configureStore({
       pinterestAPI.middleware,
       userProfileAPI.middleware,
       creationAPI.middleware,
-      portfolioAPI.middleware
+      portfolioAPI.middleware,
+      directionAPI.middleware,
+      skillAPI.middleware,
+      skillTreeAPI.middleware
     ),
 });
