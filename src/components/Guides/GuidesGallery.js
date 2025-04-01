@@ -68,20 +68,20 @@ const GuidesGallery = ({
         columnClassName="my-masonry-grid_column"
       >
         {images.map((item) => {
-          const imageAttributes = item.attributes?.image?.data?.attributes;
+          const imageAttributes = item?.image;
           const url =
             imageAttributes?.formats?.medium?.url ||
             imageAttributes?.formats?.small?.url ||
             imageAttributes?.url;
           if (!url) return null;
           const alternativeText =
-            item.attributes?.image?.data?.attributes?.alternativeText ||
-            item.attributes.title ||
+            item?.image?.alternativeText ||
+            item.title ||
             "Gallery image";
           const isImageSaved =
             saveGuideStatus.includes(item.id) ||
-            (item.attributes?.savedBy?.data &&
-              item.attributes.savedBy.data.some((u) => u.id === user.id));
+            (item?.savedBy &&
+              item.savedBy.some((u) => u.id === user.id));
 
           return (
             <div key={item.id} className="gallery-item">
@@ -89,7 +89,7 @@ const GuidesGallery = ({
                 <img
                   src={url}
                   alt={
-                    alternativeText || item.attributes.title || "Gallery image"
+                    alternativeText || item.title || "Gallery image"
                   }
                   className="gallery-image"
                 />

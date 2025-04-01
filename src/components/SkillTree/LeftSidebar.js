@@ -44,9 +44,9 @@ export default function LeftSidebar({
   }, [fetchedMySkillTrees, fetchedSavedSkillTrees]);
   // Обработчик клика по блоку "2D Рисование"
   const handle2DClick = async () => {
-    onLoadBranch("4");
+    onLoadBranch(5);
   };
-  const isActive2D = activeBranchId === 4;
+  const isActive2D = activeBranchId === 5;
 
   // Стиль для выделенного пункта
   const activeStyle = {

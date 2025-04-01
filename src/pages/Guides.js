@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as Create } from "../images/Create.svg";
-import { useGetGuidesQuery } from "../redux/services/guidesAPI";
-import { useFetchPinsQuery } from "../redux/services/pinterestApi";
+// import { useGetGuidesQuery } from "../redux/services/guidesAPI";
+// import { useFetchPinsQuery } from "../redux/services/pinterestApi";
 import { useMediaQuery } from "react-responsive";
 import { useSelector } from "react-redux";
 import {
@@ -13,6 +13,7 @@ import GuidesGallery from "../components/Guides/GuidesGallery";
 import GuidesPinGallery from "../components/Guides/GuidesPinGallery";
 import GuidesSearch from "../components/Guides/GuidesSearch";
 import "../styles/gallery.css";
+import { useSearchGuidesByTextQuery } from "../redux/services/guidesAPI";
 const LOCAL_STORAGE_KEY = "recentQueries";
 const DEFAULT_QUERIES = ["Формы", "Как рисовать голову"];
 
@@ -104,15 +105,24 @@ export default function Guides() {
   const handleQueryClick = (query) => {
     const trimmedQuery = query.trim();
     setSearchQuery(trimmedQuery);
-    // Сбрасываем массив гайдов и пагинацию сразу при выборе пункта
+
+    // Обновляем recentQueries (без дубликатов и максимум 10)
+    if (trimmedQuery) {
+      const updated = [
+        trimmedQuery,
+        ...recentQueries.filter((q) => q !== trimmedQuery),
+      ].slice(0, 10);
+      setRecentQueries(updated);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    }
+
+    // Сброс состояния
     setImages([]);
     setPage(1);
     setHasMore(true);
-    if (trimmedQuery && !recentQueries.includes(trimmedQuery)) {
-      setRecentQueries([trimmedQuery, ...recentQueries]);
-    }
     setShowSearchSuggestions(false);
   };
+
   // Функция удаления запроса из recentQueries
   const handleRemoveRecentQuery = (index) => {
     const updatedQueries = recentQueries.filter((_, i) => i !== index);
@@ -125,9 +135,16 @@ export default function Guides() {
     if (e.key === "Enter") {
       e.preventDefault();
       const trimmedQuery = searchQuery.trim();
-      if (trimmedQuery && !recentQueries.includes(trimmedQuery)) {
-        setRecentQueries([trimmedQuery, ...recentQueries]);
+
+      if (trimmedQuery) {
+        const updated = [
+          trimmedQuery,
+          ...recentQueries.filter((q) => q !== trimmedQuery),
+        ].slice(0, 10);
+        setRecentQueries(updated);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
       }
+
       setShowSearchSuggestions(false);
     }
   };
@@ -148,20 +165,18 @@ export default function Guides() {
   }, [translatedQuery, isPinterestSearch]);
 
   // запрашиваем гайды
-  const { data, isLoading, isFetching } = useGetGuidesQuery(
+  const { data, isLoading, isFetching } = useSearchGuidesByTextQuery(
     {
-      search: isPinterestSearch ? "" : translatedQuery,
+      query: translatedQuery,
       userId: user?.id,
       page,
     },
     {
       skip: !isInitialized || isPinterestSearch,
-      refetchOnMountOrArgChange: true,
     }
   );
-
   const loadMore = () => {
-    if (!isLoading && !isFetching) {
+    if (hasMore && !isLoading && !isFetching) {
       setPage((prev) => prev + 1);
     }
   };
@@ -170,20 +185,21 @@ export default function Guides() {
 
   // Обновление галереи только если ответ соответствует текущему запросу
   useEffect(() => {
-    if (data && data.data && currentQueryRef.current === translatedQuery) {
+    if (data && data?.results && currentQueryRef.current === translatedQuery) {
       if (page === 1) {
-        setImages(data.data);
+        setImages(data?.results);
       } else {
         setImages((prevImages) => {
-          // Фильтруем новые данные, исключая те, которые уже есть в prevImages
-          const newUniqueImages = data.data.filter(
+          const newUniqueImages = data?.results.filter(
             (item) => !prevImages.some((prev) => prev.id === item.id)
           );
           return [...prevImages, ...newUniqueImages];
         });
       }
-      setHasMore(data.data.length > 0);
-    } else if (!data) {
+      setHasMore(data?.results.length > 0);
+    } else if (!data?.results && page === 1) {
+      // Обязательно очищаем при пустом результате
+      setImages([]);
       setHasMore(false);
     }
   }, [data, page, translatedQuery]);
@@ -233,6 +249,7 @@ export default function Guides() {
             isLoading={isLoading}
             isFetching={isFetching}
             user={user}
+            showSkeleton={images.length === 0 && (isLoading || isFetching)}
           />
         </div>
       )}

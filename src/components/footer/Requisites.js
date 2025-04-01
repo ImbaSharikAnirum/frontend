@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Requisites() {
   return (
-    <div>
+    <div className="padding">
       <div className="h4">Реквизиты Компании</div>
       <div style={{ marginTop: "16px" }}>
         <div className="Body-2">

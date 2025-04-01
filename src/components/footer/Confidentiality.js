@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Confidentiality() {
   return (
-    <div>
+    <div className="padding">
       <div className="h4">Политика конфиденциальности</div>
       <div style={{ marginTop: "16px" }}>
         <div className="Body-3">Сбор и использование данных:</div>

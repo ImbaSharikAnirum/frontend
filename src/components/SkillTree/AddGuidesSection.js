@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Avatar, Skeleton } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useLocation } from "react-router-dom";
-import { useGetGuidesQuery } from "../../redux/services/guidesAPI";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../redux/reducers/authReducer";
+import { useSearchGuidesByTextQuery } from "../../redux/services/guidesAPI";
+// import { useGetGuidesQuery } from "../../redux/services/guidesAPI";
 
 const LOCAL_STORAGE_KEY = "recentQueries";
 const DEFAULT_QUERIES = ["Формы", "Как рисовать голову"];
@@ -135,26 +138,33 @@ export default function AddGuidesSection({ onAddNode }) {
 
   // Если для запроса есть сопоставление — используем его
   const translatedQuery = queryMapping[debouncedQuery] || debouncedQuery;
+  const user = useSelector(selectCurrentUser);
 
   // Формируем аргументы запроса
   const queryArgs = useMemo(
     () => ({
-      search: translatedQuery,
+      query: translatedQuery,
+      userId: user?.id,
       page,
-      _ts: Date.now(),
     }),
-    [translatedQuery, page]
+    [translatedQuery, user?.id, page]
   );
 
-  const { data, isLoading, isFetching } = useGetGuidesQuery(queryArgs, {
-    refetchOnMountOrArgChange: true,
-    refetchOnFocus: true,
-  });
-
+  const { data, isLoading, isFetching } = useSearchGuidesByTextQuery(
+    queryArgs,
+    {
+      skip: !user?.id,
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+    }
+  );
+  console.log(data, "data");
+  console.log("🔍 translatedQuery:", translatedQuery);
+  console.log("📦 queryArgs:", queryArgs);
   // Обновление списка гайдов при получении данных
   useEffect(() => {
     if (data) {
-      const newData = data.data || data;
+      const newData = data.results || data;
       if (newData && Array.isArray(newData)) {
         if (page === 1) {
           setGuides(newData);
@@ -183,13 +193,21 @@ export default function AddGuidesSection({ onAddNode }) {
     const trimmedQuery = query.trim();
     setSearchQuery(trimmedQuery);
     setShowSearchSuggestions(false);
-    if (trimmedQuery && !recentQueries.includes(trimmedQuery)) {
-      setRecentQueries([trimmedQuery, ...recentQueries]);
+
+    if (trimmedQuery) {
+      const updated = [
+        trimmedQuery,
+        ...recentQueries.filter((q) => q !== trimmedQuery),
+      ].slice(0, 10);
+      setRecentQueries(updated);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
     }
+
     setPage(1);
     setGuides([]);
     setHasMore(true);
   };
+  const [hoveredGuideId, setHoveredGuideId] = useState(null);
 
   // Удаление запроса из списка недавних
   const handleRemoveRecentQuery = (index) => {
@@ -373,7 +391,7 @@ export default function AddGuidesSection({ onAddNode }) {
           }}
         >
           {guides.map((guide) => {
-            const imageAttributes = guide.attributes?.image?.data?.attributes;
+            const imageAttributes = guide?.image;
             const url =
               imageAttributes?.formats?.medium?.url ||
               imageAttributes?.formats?.small?.url ||
@@ -382,6 +400,8 @@ export default function AddGuidesSection({ onAddNode }) {
             return (
               <div
                 key={guide.id}
+                onMouseEnter={() => setHoveredGuideId(guide.id)}
+                onMouseLeave={() => setHoveredGuideId(null)}
                 style={{
                   width: "70px",
                   height: "90px",
@@ -394,7 +414,7 @@ export default function AddGuidesSection({ onAddNode }) {
               >
                 <Avatar
                   src={url}
-                  alt={guide.attributes.title || "Guide"}
+                  alt={guide.title || "Guide"}
                   sx={{
                     width: 60,
                     height: 60,
@@ -413,8 +433,34 @@ export default function AddGuidesSection({ onAddNode }) {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {guide.attributes.title || "Без названия"}
+                  {guide.title || "Без названия"}
                 </div>
+                {hoveredGuideId === guide.id && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                      left: "80px",
+                      zIndex: 1000,
+                      backgroundColor: "#fff",
+                      border: "1px solid #ccc",
+                      borderRadius: "8px",
+                      padding: "4px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    }}
+                  >
+                    <img
+                      src={url}
+                      alt="preview"
+                      style={{
+                        width: "200px",
+                        height: "auto",
+                        borderRadius: "4px",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}

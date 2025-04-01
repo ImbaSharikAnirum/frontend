@@ -9,7 +9,7 @@ export default function GuidesSearchMobileModal({
   onClose,
   setParentSearchQuery,
   industries,
-  DEFAULT_QUERIES
+  DEFAULT_QUERIES,
 }) {
   const [searchValue, setSearchValue] = useState("");
   const [recentQueries, setRecentQueries] = useState(DEFAULT_QUERIES);
@@ -47,15 +47,21 @@ export default function GuidesSearchMobileModal({
 
   const addQueryAndClose = (query) => {
     const trimmedQuery = query.trim();
-    let newRecentQueries = recentQueries;
-    if (trimmedQuery && !recentQueries.includes(trimmedQuery)) {
-      newRecentQueries = [trimmedQuery, ...recentQueries];
-      setRecentQueries(newRecentQueries);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newRecentQueries));
-    }
+    if (!trimmedQuery) return;
+
+    // Удаляем дубликаты, добавляем новый, ограничиваем до 10
+    const newRecentQueries = [
+      trimmedQuery,
+      ...recentQueries.filter((q) => q !== trimmedQuery),
+    ].slice(0, 10);
+
+    setRecentQueries(newRecentQueries);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newRecentQueries));
+
     if (setParentSearchQuery) {
       setParentSearchQuery(trimmedQuery);
     }
+
     onClose();
   };
 

@@ -43,27 +43,34 @@ export const guidesAPI = createApi({
         method: "DELETE",
       }),
     }),
-    getGuides: builder.query({
-      query: ({ search = "", userId, page = 1 } = {}) => {
-        let url = `/guides?populate[image]=*&populate[savedBy]=*&pagination[page]=${page}&pagination[pageSize]=30`;
-        const trimmedSearch = search.trim();
-        if (trimmedSearch) {
-          if (trimmedSearch === "Созданные гайды" && userId) {
-            url += `&filters[users_permissions_user][id][$eq]=${userId}`;
-          } else if (trimmedSearch === "Сохраненные" && userId) {
-            url += `&filters[savedBy][id][$eq]=${userId}`;
-          } else {
-            url += `&filters[tags][$containsi]=${encodeURIComponent(
-              trimmedSearch
-            )}`;
-          }
-        }
-        return {
-          url,
-          method: "GET",
-        };
-      },
-      providesTags: ["Guide"],
+    // getGuides: builder.query({
+    //   query: ({ search = "", userId, page = 1 } = {}) => {
+    //     let url = `/guides?populate[image]=*&populate[savedBy]=*&pagination[page]=${page}&pagination[pageSize]=30`;
+    //     const trimmedSearch = search.trim();
+    //     if (trimmedSearch) {
+    //       if (trimmedSearch === "Созданные гайды" && userId) {
+    //         url += `&filters[users_permissions_user][id][$eq]=${userId}`;
+    //       } else if (trimmedSearch === "Сохраненные" && userId) {
+    //         url += `&filters[savedBy][id][$eq]=${userId}`;
+    //       } else {
+    //         url += `&filters[tags][$containsi]=${encodeURIComponent(
+    //           trimmedSearch
+    //         )}`;
+    //       }
+    //     }
+    //     return {
+    //       url,
+    //       method: "GET",
+    //     };
+    //   },
+    //   providesTags: ["Guide"],
+    // }),
+    searchGuidesByText: builder.query({
+      query: ({ query, userId, page = 1 }) => ({
+        url: `/guides/search-by-text`,
+        method: "POST",
+        body: { query, userId, page },
+      }),
     }),
     saveGuide: builder.mutation({
       query: ({ guideId, userId, action }) => ({
@@ -155,7 +162,8 @@ export const {
   useCreateGuideMutation,
   useGetGuideByIdQuery,
   useDeleteGuideMutation,
-  useGetGuidesQuery,
+  // useGetGuidesQuery,
+  useSearchGuidesByTextQuery,
   useSaveGuideMutation,
   useCreateComplainMutation,
   useCreateCreationMutation,

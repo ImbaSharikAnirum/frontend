@@ -90,7 +90,7 @@ export default function GuidesPinGallery({
         title,
         text: pin.description || "",
         link: `https://www.pinterest.com/pin/${pin.id}/`,
-        tags: englishTags.length > 0 ? englishTags.join(", ") : "Pinterest",
+        tags: englishTags.length > 0 && englishTags,
         approved,
       };
 

@@ -79,11 +79,11 @@ export default function SkillTree() {
   const navigate = useNavigate();
 
   const [branchId, setBranchId] = useState(
-    paramBranchId || localStorage.getItem("lastBranchId") || "4"
+    paramBranchId || localStorage.getItem("lastBranchId") || 5
   );
   const { data: branchResult, isLoading: isLoadingBranch } =
     useGetSkillTreeByIdQuery(
-      { id: branchId },
+      { id: Number(branchId) },
       { skip: !branchId || !isUserReady }
     );
   const [isCreatingNewBranch, setIsCreatingNewBranch] = useState(false);
@@ -150,7 +150,7 @@ export default function SkillTree() {
   const [rfInstance, setRfInstance] = useState(null);
   useEffect(() => {
     if (branchId) {
-      localStorage.setItem("lastBranchId", branchId);
+      localStorage.setItem("lastBranchId", Number(branchId));
     } else {
       localStorage.removeItem("lastBranchId");
     }
@@ -175,7 +175,7 @@ export default function SkillTree() {
     (guide) => {
       if (!editMode) return;
 
-      const imageAttributes = guide.attributes?.image?.data?.attributes;
+      const imageAttributes = guide?.image;
       const url =
         imageAttributes?.formats?.medium?.url ||
         imageAttributes?.formats?.small?.url ||
@@ -187,8 +187,8 @@ export default function SkillTree() {
         type: "customNode",
         position: center,
         data: {
-          label: guide.attributes.title || "Без названия",
-          text: guide.attributes.text || "Без описания",
+          label: guide.title || "Без названия",
+          text: guide.text || "Без описания",
           completed: false,
           imageUrl: url,
           guideId: guide.id,
@@ -219,22 +219,6 @@ export default function SkillTree() {
     setBranchAuthorId(branchData.authorId);
     localStorage.setItem("lastBranchId", branchData.skillTreeId);
   };
-
-  // Создание новой связи (source → target)
-  // const onConnect = useCallback(
-  //   (params) => {
-  //     setEdges((eds) => addEdge({ ...params, animated: true }, eds));
-  //   },
-  //   [setEdges]
-  // );
-
-  // // Разрешаем «перетягивать» существующие связи
-  // const onEdgeUpdate = useCallback(
-  //   (oldEdge, newConnection) => {
-  //     setEdges((els) => updateEdge(oldEdge, newConnection, els));
-  //   },
-  //   [setEdges]
-  // );
 
   // Удаляем связь по двойному клику
   const onEdgeDoubleClick = useCallback(
@@ -352,13 +336,16 @@ export default function SkillTree() {
         dispatch(addToSavedSkillTrees(skillTreePayload));
 
         // 2️⃣ А потом отправляем запрос
-        await saveSkillTree({ id: branchId, userId: user.id }).unwrap();
+        await saveSkillTree({ id: Number(branchId), userId: user.id }).unwrap();
       } else {
         // 1️⃣ Удаляем из Redux сразу
         dispatch(removeFromSavedSkillTrees(Number(branchId)));
 
         // 2️⃣ А потом отправляем запрос
-        await unsaveSkillTree({ id: branchId, userId: user.id }).unwrap();
+        await unsaveSkillTree({
+          id: Number(branchId),
+          userId: user.id,
+        }).unwrap();
       }
     } catch (err) {
       // 🔁 Откатим optimistic update, если ошибка
@@ -383,7 +370,7 @@ export default function SkillTree() {
 
     setIsDeleting(true);
     try {
-      await deleteSkillTree(branchId).unwrap();
+      await deleteSkillTree(Number(branchId)).unwrap();
       setBranchId(null);
       setBranchTitle("Новая ветка");
       setBranchImageUrl(null);

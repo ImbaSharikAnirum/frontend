@@ -2,11 +2,14 @@ import React from "react";
 
 export default function Conditions() {
   return (
-    <div>
+    <div className="padding">
       <div className="h4">Условия предоставления услуг</div>
       <div style={{ marginTop: "16px" }}>
-        <div className="Body-3" style={{ marginTop: "8px" }}> Оплата:</div>
-        <div className="Body-2" > Оплата производится ежемесячно.</div>
+        <div className="Body-3" style={{ marginTop: "8px" }}>
+          {" "}
+          Оплата:
+        </div>
+        <div className="Body-2"> Оплата производится ежемесячно.</div>
         <div className="Body-2"> Частичная оплата не предусмотрена.</div>
         <div className="Body-3" style={{ marginTop: "8px" }}>
           Возврат и отмена:
