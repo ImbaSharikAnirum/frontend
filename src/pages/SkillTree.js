@@ -82,10 +82,7 @@ export default function SkillTree() {
     paramBranchId || localStorage.getItem("lastBranchId") || 5
   );
   const { data: branchResult, isLoading: isLoadingBranch } =
-    useGetSkillTreeByIdQuery(
-      { id: Number(branchId) },
-      { skip: !branchId || !isUserReady }
-    );
+    useGetSkillTreeByIdQuery({ id: Number(branchId) }, { skip: !branchId });
   const [isCreatingNewBranch, setIsCreatingNewBranch] = useState(false);
 
   const [backupNodes, setBackupNodes] = useState([]);
