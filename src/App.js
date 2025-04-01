@@ -30,6 +30,7 @@ import Profile from "./pages/Profile";
 import Creation from "./pages/Creation";
 import Settings from "./pages/Settings";
 import SkillTree from "./pages/SkillTree";
+import Portfolio from "./pages/Portfolio";
 
 function App() {
   useInitializeUser();
@@ -49,6 +50,7 @@ function App() {
           <Route path="/auth/pinterest/callback" element={<Callback />} />
           <Route path="/" element={<Courses />} />
           <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/portfolio/:id" element={<Portfolio/>} />
           <Route path="/settings/:id" element={<Settings />} />
           <Route path="/creation/:id" element={<Creation />} />
           <Route path="/team" element={<Team />} />

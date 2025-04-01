@@ -17,7 +17,7 @@ export default function PortfolioGallery({ id, showSkeleton }) {
     { userId: id, page },
     { refetchOnMountOrArgChange: true }
   );
-
+  console.log(data, "data");
   // Обновляем галерею при получении новых данных
   useEffect(() => {
     if (data && data.data) {
@@ -66,15 +66,15 @@ export default function PortfolioGallery({ id, showSkeleton }) {
       >
         {portfolios.map((item) => {
           // Предполагаем, что портфолио имеет поле images с массивом картинок
-          const imageData = item.attributes?.images?.data;
-          if (!imageData || imageData.length === 0) return null;
+          const imageData = item.attributes?.image?.data;
+          if (!imageData) return null;
           // Берём первую картинку для превью
           const imageUrl =
-            imageData[0].attributes?.formats?.medium?.url ||
-            imageData[0].attributes?.formats?.small?.url ||
-            imageData[0].attributes?.url;
+            imageData.attributes?.formats?.medium?.url ||
+            imageData.attributes?.formats?.small?.url ||
+            imageData.attributes?.url;
           const altText =
-            imageData[0].attributes?.alternativeText ||
+            imageData.attributes?.alternativeText ||
             item.attributes?.title ||
             "Portfolio image";
           return (

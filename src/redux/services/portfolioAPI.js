@@ -21,7 +21,7 @@ export const portfolioAPI = createApi({
       query: ({ userId, page = 1 } = {}) => {
         let url =
           `/portfolios?pagination[page]=${page}&pagination[pageSize]=30` +
-          `&populate[images]=*&sort=publishedAt:desc`;
+          `&populate[image]=*&sort=publishedAt:desc`;
         if (userId) {
           url += `&filters[users_permissions_user][id][$eq]=${userId}`;
         }
@@ -32,7 +32,36 @@ export const portfolioAPI = createApi({
       },
       providesTags: ["portfolio"],
     }),
+    getPortfolio: builder.query({
+      query: (id) =>
+        `/portfolios/${id}?populate[image]=*&populate[users_permissions_user][populate][avatar]=*`,
+    }),
+    createPortfolio: builder.mutation({
+      query: (formData) => ({
+        url: "/portfolios",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["portfolio"],
+    }),
+    deletePortfolio: builder.mutation({
+      query: (id) => ({
+        url: `/portfolios/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["portfolio"],
+    }),
+    getPortfolioById: builder.query({
+      query: (id) =>
+        `/portfolios/${id}?populate[image]=*&populate[users_permissions_user][populate][avatar]=*`,
+    }),
   }),
 });
 
-export const { useGetPortfoliosQuery } = portfolioAPI;
+export const {
+  useGetPortfoliosQuery,
+  useGetPortfolioQuery,
+  useCreatePortfolioMutation,
+  useDeletePortfolioMutation,
+  useGetPortfolioByIdQuery,
+} = portfolioAPI;

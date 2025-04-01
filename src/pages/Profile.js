@@ -11,6 +11,8 @@ import { useMediaQuery } from "react-responsive";
 import { ReactComponent as SettingsIcon } from "../images/settings.svg";
 import { useNavigate } from "react-router-dom";
 import PortfolioSkillTree from "../components/Profile/PortfolioSkillTree";
+import PortfolioUploadModal from "../components/Profile/PortfolioUploadModal";
+import { ReactComponent as Create } from "../images/Create.svg";
 
 export default function Profile() {
   const user = useSelector(selectCurrentUser);
@@ -21,6 +23,7 @@ export default function Profile() {
 
   // По умолчанию выбран компонент "Креативы"
   const [activeTab, setActiveTab] = useState("Креативы");
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   if (error) {
     return <div>Ошибка загрузки профиля.</div>;
@@ -37,6 +40,9 @@ export default function Profile() {
         flexDirection: "column",
       }}
     >
+      {isUploadModalOpen && (
+        <PortfolioUploadModal onClose={() => setIsUploadModalOpen(false)} />
+      )}
       <div style={{ padding: "24px 24px 0px 24px" }}>
         {user && user.id === Number(id) && isMobile && (
           <div
@@ -186,18 +192,37 @@ export default function Profile() {
             </div>
           </div>
         </div>
-      </div>
-      {/* <div
-        style={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "right",
-          marginTop: "40px",
-        }}
-      >
-        <div style={{ marginRight: "40px" }}>+</div>
-      </div> */}
+      </div>{" "}
+      {user && user.id === Number(id) && activeTab === "Портфолио" && (
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "right",
+            marginTop: "40px",
+          }}
+        >
+          <div style={{ marginRight: "40px" }}>
+            <button
+              className="button-create"
+              style={{
+                marginLeft: "12px",
+                padding: 0,
+                borderRadius: "50%",
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => setIsUploadModalOpen(true)}
+            >
+              <Create />
+            </button>
+          </div>
+        </div>
+      )}
       <div
         style={{
           marginTop: "12px",
