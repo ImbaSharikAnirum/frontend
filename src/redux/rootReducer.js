@@ -18,6 +18,7 @@ import coursesCountReducer from "./coursesCountSlice";
 import filterForCountReducer from "./filterForCountSlice";
 import footerMenuReducer from "./footerMenuSlice";
 import skillTreeReducer from "./reducers/skillTreeSlice";
+import chatReducer from "./reducers/chatReducer";
 
 // Прямое использование configureStore не требует явного использования combineReducers
 const rootReducer = combineReducers({
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
   creation: creationReducer,
   portfolio: portfolioReducer,
   skillTree: skillTreeReducer,
+  chat: chatReducer,
 });
 
 export default rootReducer; // Не нужно экспортировать, если используете configureStore

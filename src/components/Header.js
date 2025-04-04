@@ -10,7 +10,7 @@ import { selectCurrentUser } from "../redux/reducers/authReducer";
 
 function Header() {
   const user = useSelector(selectCurrentUser);
-
+  const ManagerId = process.env.REACT_APP_MANAGER;
   return (
     <div className="header" style={{ zIndex: "1" }}>
       <Logo style={{ height: "25px", width: "auto" }} />
@@ -49,6 +49,19 @@ function Header() {
             <div className="h5">Древо навыков</div>
           </button>
         </Link>
+        {user?.role?.id === Number(ManagerId) && (
+          <Link
+            to="/chat"
+            style={{
+              textDecoration: "none",
+              color: "black",
+            }}
+          >
+            <button className="button_white button-animate-filter">
+              <div className="h5">Чат</div>
+            </button>
+          </Link>
+        )}
       </div>
 
       {/* <AuthButtons /> */}

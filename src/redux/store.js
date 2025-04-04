@@ -11,6 +11,7 @@ import { invoiceAPI } from "./services/invoiceAPI";
 import { activityApi } from "./services/activityApi";
 import { guidesAPI } from "./services/guidesAPI";
 import { portfolioAPI } from "./services/portfolioAPI";
+import { chatAPI } from "./services/chatAPI";
 import authReducer from "./reducers/authReducer";
 import courseReducer from "./reducers/courseReducer";
 import studentReducer from "./reducers/studentReducer";
@@ -24,6 +25,7 @@ import monthReducer from "./reducers/monthReducer";
 import portfolioReducer from "./reducers/portfolioReducer";
 import userProfileReducer from "./reducers/userProfileReducer";
 import pinterestReducer from "./reducers/pinterestReducer";
+import chatReducer from "./reducers/chatReducer";
 
 import { pinterestAPI } from "./services/pinterestApi";
 import { userProfileAPI } from "./services/userProfileAPI";
@@ -54,6 +56,7 @@ export const store = configureStore({
     creation: creationReducer,
     portfolio: portfolioReducer,
     skillTree: skillTreeReducer,
+    chat: chatReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,
@@ -67,6 +70,7 @@ export const store = configureStore({
     [directionAPI.reducerPath]: directionAPI.reducer,
     [skillAPI.reducerPath]: skillAPI.reducer,
     [skillTreeAPI.reducerPath]: skillTreeAPI.reducer,
+    [chatAPI.reducerPath]: chatAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -82,6 +86,7 @@ export const store = configureStore({
       portfolioAPI.middleware,
       directionAPI.middleware,
       skillAPI.middleware,
-      skillTreeAPI.middleware
+      skillTreeAPI.middleware,
+      chatAPI.middleware
     ),
 });

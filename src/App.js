@@ -31,6 +31,8 @@ import Creation from "./pages/Creation";
 import Settings from "./pages/Settings";
 import SkillTree from "./pages/SkillTree";
 import Portfolio from "./pages/Portfolio";
+import Chat from "./pages/Chat";
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
   useInitializeUser();
@@ -50,7 +52,7 @@ function App() {
           <Route path="/auth/pinterest/callback" element={<Callback />} />
           <Route path="/" element={<Courses />} />
           <Route path="/profile/:id" element={<Profile />} />
-          <Route path="/portfolio/:id" element={<Portfolio/>} />
+          <Route path="/portfolio/:id" element={<Portfolio />} />
           <Route path="/settings/:id" element={<Settings />} />
           <Route path="/creation/:id" element={<Creation />} />
           <Route path="/team" element={<Team />} />
@@ -70,6 +72,14 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/error" element={<Error />} />
           <Route path="/authenticated/:service" element={<Authenticated />} />
+          <Route
+            path="/chat"
+            element={
+              <PrivateRoute>
+                <Chat />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </main>
       <Footer />
