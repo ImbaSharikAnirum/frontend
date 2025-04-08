@@ -33,6 +33,7 @@ import SkillTree from "./pages/SkillTree";
 import Portfolio from "./pages/Portfolio";
 import Chat from "./pages/Chat";
 import PrivateRoute from "./routes/PrivateRoute";
+import useChatSocket from "./hooks/useChatSocket";
 
 function App() {
   useInitializeUser();
@@ -41,6 +42,7 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+  useChatSocket();
   return (
     <div className="App">
       <Header />

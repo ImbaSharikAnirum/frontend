@@ -24,7 +24,6 @@ export default function Chat() {
           flexDirection: "column",
         }}
       >
-       
         <ChatList />
       </Paper>
 

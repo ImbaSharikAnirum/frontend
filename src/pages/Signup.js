@@ -54,11 +54,13 @@ export default function Signup() {
 
   return (
     <div
-      className="padding"
+      // className="padding"
       style={{
         display: "flex",
         width: "100%",
         height: "100%",
+        marginTop: "16px",
+        marginBottom: "16px",
       }}
     >
       <div

@@ -34,7 +34,6 @@ export default function CourseEdit() {
   const monthsWithActiveDays = useSelector(selectMonthsWithActiveDays);
   const nextMonth = useSelector(selectNextMonth);
 
-
   useEffect(() => {
     if (selectedMonth) {
       const selectedIndex = monthsWithActiveDays.findIndex(
@@ -45,17 +44,16 @@ export default function CourseEdit() {
         selectedIndex + 1 < monthsWithActiveDays.length
       ) {
         const nextMonth = monthsWithActiveDays[selectedIndex + 1];
+        const startDate = moment(nextMonth.activeDays[0], "DD MMMM YYYY");
+        const endDate = moment(
+          nextMonth.activeDays[nextMonth.activeDays.length - 1],
+          "DD MMMM YYYY"
+        );
+
         const details = {
           month: moment(nextMonth.month, "MMMM YYYY").format("MMMM YYYY"),
-          startDayOfMonth:
-            moment(nextMonth.activeDays[0], "DD MMMM YYYY").format(
-              "YYYY-MM-DD"
-            ) || "",
-          endDayOfMonth:
-            moment(
-              nextMonth.activeDays[nextMonth.activeDays.length - 1],
-              "DD-MMMM-YYYY"
-            ).format("YYYY-MM-DD") || "",
+          startDayOfMonth: startDate.format("YYYY-MM-DD"),
+          endDayOfMonth: endDate.format("YYYY-MM-DD"),
           sum: course.price_lesson * nextMonth.activeDays.length,
         };
         dispatch(setNextMonth(details));
@@ -108,13 +106,32 @@ export default function CourseEdit() {
 
     if (option === `Выставить всем счет за ${nextMonth.month}`) {
       try {
-        await createInvoice({
+        const payload = {
           courseId: course.id,
-          month: month,
-          nextMonth: nextMonth,
-        }).unwrap();
+          month: {
+            startOfMonth: moment(selectedMonth, "MMMM YYYY")
+              .startOf("month")
+              .format("YYYY-MM-DD"),
+            endOfMonth: moment(selectedMonth, "MMMM YYYY")
+              .endOf("month")
+              .format("YYYY-MM-DD"),
+          },
+          nextMonth: {
+            ...nextMonth,
+            startDayOfMonth: moment(nextMonth.startDayOfMonth).format(
+              "YYYY-MM-DD"
+            ),
+            endDayOfMonth: moment(nextMonth.endDayOfMonth).format("YYYY-MM-DD"),
+          },
+        };
+
+        console.log("Отправляем данные:", payload);
+        const response = await createInvoice(payload).unwrap();
+        console.log("Ответ сервера:", response);
+
         toast.success("Счета успешно выставлены!");
       } catch (error) {
+        console.error("Ошибка при выставлении счетов:", error);
         toast.error("Ошибка при выставлении счетов");
       }
     } else if (option === "Удалить счет") {

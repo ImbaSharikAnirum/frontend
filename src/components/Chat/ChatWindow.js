@@ -11,18 +11,30 @@ import {
   CircularProgress,
   Button,
   Alert,
+  Skeleton,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CloseIcon from "@mui/icons-material/Close";
+import LockIcon from "@mui/icons-material/Lock";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import { useUpdateChatMutation } from "../../redux/services/chatAPI";
+
 import {
   addMessage,
   markChatAsRead,
-  selectActiveChat,
-  selectActiveChatId,
   createNewChat,
   closeChat,
+  selectActiveChat,
+  selectActiveChatId,
+  setMessages,
+  addOrUpdateChat,
+  updateMessage,
 } from "../../redux/reducers/chatReducer";
+import {
+  useSendMessageMutation,
+  useGetMessagesByChatIdQuery,
+} from "../../redux/services/chatAPI";
 
 const MESSAGES_PER_PAGE = 10;
 
@@ -30,6 +42,18 @@ export default function ChatWindow() {
   const dispatch = useDispatch();
   const activeChat = useSelector(selectActiveChat);
   const activeChatId = useSelector(selectActiveChatId);
+  const allMessages = useSelector(
+    (state) => state.chat.messages[activeChat?.chatId] || []
+  );
+  const [updateChat] = useUpdateChatMutation();
+  const [sendMessage] = useSendMessageMutation();
+  const {
+    data: fetchedMessages,
+    isFetching,
+    isSuccess,
+  } = useGetMessagesByChatIdQuery(activeChat?.chatId, {
+    skip: !activeChat?.chatId,
+  });
 
   const [message, setMessage] = useState("");
   const [displayedMessagesCount, setDisplayedMessagesCount] =
@@ -38,105 +62,119 @@ export default function ChatWindow() {
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
-  const firstMessageRef = useRef(null);
-  const scrollPositionRef = useRef(0);
+
+  // ✅ Обновление сообщений: только если новых больше, или если нет сохраненных
+  useEffect(() => {
+    if (activeChat?.chatId && isSuccess && fetchedMessages) {
+      const existingMessages = allMessages;
+
+      const newUniqueMessages = fetchedMessages.filter(
+        (msg) => !existingMessages.some((m) => m.id === msg.id)
+      );
+
+      if (newUniqueMessages.length > 0 || existingMessages.length === 0) {
+        dispatch(
+          setMessages({
+            chatId: activeChat.chatId,
+            messages: [...existingMessages, ...newUniqueMessages].sort(
+              (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+            ),
+          })
+        );
+      }
+
+      setDisplayedMessagesCount(MESSAGES_PER_PAGE);
+      dispatch(markChatAsRead(activeChat.chatId));
+      setTimeout(() => scrollToBottom(), 0);
+    }
+  }, [fetchedMessages, isSuccess, activeChat?.chatId, dispatch]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ block: "end" });
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
     }
   };
 
   useEffect(() => {
-    if (activeChatId) {
-      setDisplayedMessagesCount(MESSAGES_PER_PAGE);
-      setTimeout(() => {
-        scrollToBottom();
-      }, 0);
-    }
-  }, [activeChatId]);
-
-  useEffect(() => {
     scrollToBottom();
-  }, [activeChat?.messages?.length]);
-
-  useEffect(() => {
-    if (activeChatId) {
-      dispatch(markChatAsRead(activeChatId));
-    }
-  }, [activeChatId, dispatch]);
+  }, [allMessages.length]);
 
   const handleScroll = () => {
-    if (!messagesContainerRef.current || !activeChat) return;
-
     const container = messagesContainerRef.current;
+    if (!container || !activeChat) return;
 
     if (
       container.scrollTop <= 100 &&
-      displayedMessagesCount < activeChat.messages.length &&
+      displayedMessagesCount < allMessages.length &&
       !isLoadingMore
     ) {
       setIsLoadingMore(true);
-
       const previousScrollHeight = container.scrollHeight;
 
       setTimeout(() => {
-        setDisplayedMessagesCount((prevCount) =>
-          Math.min(prevCount + MESSAGES_PER_PAGE, activeChat.messages.length)
+        setDisplayedMessagesCount((prev) =>
+          Math.min(prev + MESSAGES_PER_PAGE, allMessages.length)
         );
-
         setTimeout(() => {
-          const newScrollHeight = container.scrollHeight;
-          container.scrollTop = newScrollHeight - previousScrollHeight;
+          container.scrollTop = container.scrollHeight - previousScrollHeight;
           setIsLoadingMore(false);
         }, 0);
       }, 300);
     }
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (message.trim() && activeChatId) {
-      // Если чат закрыт, сначала отправляем системное сообщение для его открытия
-      if (activeChat.isClosed) {
-        dispatch(
-          addMessage({
-            chatId: activeChatId,
-            message: {
-              id: Date.now(),
-              text: "",
-              sender: "system",
-              timestamp: new Date().toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-            },
-          })
-        );
-      }
+    if (!message.trim() || !activeChatId) return;
 
-      const newMessage = {
-        id: Date.now(),
-        text: message,
-        sender: "manager",
-        timestamp: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
+    const optimisticId = Date.now();
 
-      dispatch(addMessage({ chatId: activeChatId, message: newMessage }));
-      setMessage("");
+    const newMessage = {
+      id: optimisticId,
+      text: message.trim(),
+      direction: "outgoing",
+      timestamp: new Date().toISOString(),
+      sender: "manager",
+      status: "sent",
+    };
+    if (activeChat.isClosed) {
+      dispatch(
+        addOrUpdateChat({
+          ...activeChat,
+          isClosed: false,
+        })
+      );
     }
-  };
+    dispatch(addMessage({ chatId: activeChat.chatId, message: newMessage }));
+    setMessage("");
 
-  const handleCreateNewChat = () => {
-    dispatch(createNewChat());
-  };
+    try {
+      const res = await sendMessage({
+        chatId: activeChat.id,
+        message: newMessage.text,
+      }).unwrap();
 
-  const handleCloseChat = () => {
-    if (activeChatId) {
-      dispatch(closeChat(activeChatId));
+      // ✅ Обновляем сообщение с messageId
+      dispatch(
+        updateMessage({
+          chatId: activeChat.chatId,
+          messageId: optimisticId,
+          newMessage: {
+            id: res.id,
+            messageId: res.messageId,
+          },
+        })
+      );
+
+      // ✅ Если чат был закрыт — обновим
+      if (activeChat.isClosed) {
+        await updateChat({
+          id: activeChat.id,
+          data: { isClosed: false },
+        });
+      }
+    } catch (error) {
+      console.error("❌ Ошибка при отправке:", error);
     }
   };
 
@@ -146,35 +184,45 @@ export default function ChatWindow() {
         sx={{
           height: "100%",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          bgcolor: "background.default",
-          gap: 2,
         }}
       >
-        <Typography variant="h6" color="text.secondary">
-          Выберите чат для начала общения
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleCreateNewChat}
-        >
-          Создать новый чат
-        </Button>
+        <Typography>Выберите чат</Typography>
       </Box>
     );
   }
 
-  const displayedMessages = activeChat.messages.slice(
-    activeChat.messages.length - displayedMessagesCount
-  );
+  const displayedMessages = allMessages.slice(-displayedMessagesCount);
 
-  // Проверяем, есть ли хотя бы одно сообщение от менеджера
-  const hasManagerMessage = activeChat.messages.some(
-    (msg) => msg.sender === "manager"
-  );
+  const handleToggleChatStatus = async () => {
+    if (!activeChat) return;
+
+    // ✅ Мгновенно обновляем в UI (оптимистично)
+    dispatch(
+      addOrUpdateChat({
+        ...activeChat,
+        isClosed: !activeChat.isClosed,
+      })
+    );
+
+    // Потом отправляем PATCH-запрос на бэкенд
+    try {
+      await updateChat({
+        id: activeChat.id,
+        data: { isClosed: !activeChat.isClosed },
+      });
+    } catch (e) {
+      console.error("Ошибка обновления статуса чата", e);
+      // 👉 при ошибке можно вернуть обратно, если хочешь
+      dispatch(
+        addOrUpdateChat({
+          ...activeChat,
+          isClosed: activeChat.isClosed, // откатываем
+        })
+      );
+    }
+  };
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -185,120 +233,155 @@ export default function ChatWindow() {
           borderColor: "divider",
           display: "flex",
           alignItems: "center",
-          gap: 2,
         }}
       >
         <Avatar alt={activeChat.name} src={activeChat.avatar} />
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, ml: 2 }}>
           <Typography variant="h6">{activeChat.name}</Typography>
           <Typography variant="body2" color="text.secondary">
             {activeChat.isClosed ? "Чат закрыт" : "В сети"}
           </Typography>
         </Box>
-        <Button variant="outlined" size="small" onClick={handleCreateNewChat}>
-          Новый чат
-        </Button>
         <Button
-          variant="outlined"
-          color={activeChat.isClosed ? "success" : "error"}
-          size="small"
-          startIcon={<CloseIcon />}
-          onClick={handleCloseChat}
+          onClick={handleToggleChatStatus}
+          startIcon={activeChat.isClosed ? <LockOpenIcon /> : <LockIcon />}
+          sx={{ textTransform: "none" }}
         >
           {activeChat.isClosed ? "Открыть чат" : "Закрыть чат"}
         </Button>
       </Box>
 
-      {activeChat.isClosed && (
-        <Alert severity="info" sx={{ mx: 2, mt: 2 }}>
-          Этот чат закрыт. Отправьте сообщение, чтобы автоматически открыть его.
-        </Alert>
+      {isFetching ? (
+        <Box sx={{ flex: 1, p: 2 }}>
+          {[...Array(5)].map((_, idx) => (
+            <Skeleton key={idx} height={32} sx={{ mb: 1, borderRadius: 2 }} />
+          ))}
+        </Box>
+      ) : (
+        <Box
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {displayedMessages.map((msg, i) => {
+            const prevMsg = displayedMessages[i - 1];
+            const isNewDay =
+              i === 0 ||
+              new Date(msg.timestamp).toDateString() !==
+                new Date(prevMsg?.timestamp).toDateString();
+
+            return (
+              <React.Fragment key={msg.id || i}>
+                {isNewDay && (
+                  <Typography
+                    variant="caption"
+                    align="center"
+                    color="text.secondary"
+                    sx={{ my: 1 }}
+                  >
+                    {new Date(msg.timestamp).toLocaleDateString()}
+                  </Typography>
+                )}
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent:
+                      msg.direction === "outgoing" ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 2,
+                      maxWidth: "70%",
+                      bgcolor:
+                        msg.direction === "outgoing"
+                          ? "primary.main"
+                          : "grey.100",
+                      color:
+                        msg.direction === "outgoing" ? "white" : "text.primary",
+                      opacity: msg.text === "" && msg.emoji ? 0.8 : 1,
+                      fontStyle:
+                        msg.text === "" && msg.emoji ? "italic" : "normal",
+                    }}
+                  >
+                    {msg.text && <Typography>{msg.text}</Typography>}
+
+                    {/* Реакция на сообщение */}
+                    {!msg.text && msg.emoji && msg.reactionToMessageId && (
+                      <Typography fontStyle="italic" color="text.secondary">
+                        {msg.sender} отреагировал {msg.emoji} на сообщение: "
+                        {allMessages.find(
+                          (m) => m.messageId === msg.reactionToMessageId
+                        )?.text || "…"}
+                        "
+                      </Typography>
+                    )}
+
+                    {/* Просто emoji, не реакция */}
+                    {!msg.text && msg.emoji && !msg.reactionToMessageId && (
+                      <Typography>{msg.emoji}</Typography>
+                    )}
+                    {msg.mediaUrl && (
+                      <Box sx={{ mt: 1 }}>
+                        <img
+                          src={msg.mediaUrl}
+                          alt="image"
+                          style={{
+                            maxWidth: "200px",
+                            borderRadius: "8px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Box>
+                    )}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textAlign: "right",
+                        opacity: 0.7,
+                      }}
+                    >
+                      {new Date(msg.timestamp).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </Typography>
+                  </Paper>
+                </Box>
+              </React.Fragment>
+            );
+          })}
+
+          <div ref={messagesEndRef} />
+        </Box>
       )}
-
-      <Box
-        ref={messagesContainerRef}
-        onScroll={handleScroll}
-        sx={{
-          flex: 1,
-          overflow: "auto",
-          p: 2,
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
-        {isLoadingMore && (
-          <Box sx={{ display: "flex", justifyContent: "center", my: 1 }}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
-
-        {displayedMessagesCount < activeChat.messages.length && (
-          <Typography variant="caption" color="text.secondary" align="center">
-            Показано {displayedMessagesCount} из {activeChat.messages.length}{" "}
-            сообщений
-          </Typography>
-        )}
-
-        {displayedMessages.map((msg, index) => (
-          <Box
-            key={msg.id}
-            ref={index === 0 ? firstMessageRef : null}
-            sx={{
-              display: "flex",
-              justifyContent:
-                msg.sender === "manager" ? "flex-end" : "flex-start",
-            }}
-          >
-            <Paper
-              elevation={1}
-              sx={{
-                p: 2,
-                maxWidth: "70%",
-                bgcolor: msg.sender === "manager" ? "primary.main" : "grey.100",
-                color: msg.sender === "manager" ? "white" : "text.primary",
-              }}
-            >
-              <Typography variant="body1">{msg.text}</Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  textAlign: "right",
-                  mt: 0.5,
-                  opacity: 0.7,
-                }}
-              >
-                {msg.timestamp}
-              </Typography>
-            </Paper>
-          </Box>
-        ))}
-        <div ref={messagesEndRef} />
-      </Box>
 
       <Divider />
 
       <Box
         component="form"
         onSubmit={handleSendMessage}
-        sx={{
-          p: 2,
-          display: "flex",
-          gap: 1,
-          alignItems: "center",
-        }}
+        sx={{ p: 2, display: "flex", alignItems: "center", gap: 1 }}
       >
-        <IconButton size="small">
+        <IconButton>
           <AttachFileIcon />
         </IconButton>
         <TextField
           fullWidth
-          variant="outlined"
-          placeholder="Введите сообщение..."
+          size="small"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          size="small"
+          placeholder="Введите сообщение..."
         />
         <IconButton type="submit" color="primary" disabled={!message.trim()}>
           <SendIcon />
