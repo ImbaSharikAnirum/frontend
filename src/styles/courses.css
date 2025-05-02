@@ -10,7 +10,7 @@
         display: none;
     }
     .filters_mobile_placeholder {
-      height: 20px;
+      height: 70px;
     }
     
 }
@@ -39,7 +39,6 @@
 .courses_filters {
     position: relative;
     /* display: inline-block; */
-    z-index: 10000;
   }
   
   

@@ -1,13 +1,17 @@
-import React, { useEffect, useCallback, useMemo } from "react"; // Импортируем useMemo
+import React, { useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useJsApiLoader } from "@react-google-maps/api";
 import DiscordIcon from "../../images/DiscordIcon";
 import { Link } from "react-router-dom";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import { useMediaQuery, useTheme, Skeleton } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { selectLanguageCode } from "../../redux/reducers/languageReducer";
 
 export default function Location({ isLoading }) {
+  const { t } = useTranslation();
   const course = useSelector(selectCurrentCourse);
+  const languageCode = useSelector(selectLanguageCode);
 
   const containerStyle = {
     width: "100%",
@@ -16,22 +20,22 @@ export default function Location({ isLoading }) {
 
   const center = useMemo(
     () =>
-      course && course.location
+      course
         ? {
-            lat: parseFloat(course.location.lat),
-            lng: parseFloat(course.location.lng),
+            lat: parseFloat(course.lat),
+            lng: parseFloat(course.lng),
           }
         : null,
-    [course] // Зависимость от course
+    [course]
   );
+
   const { isLoaded } = useJsApiLoader({
     id: "anirum",
     googleMapsApiKey: "AIzaSyBG3-McnhGanJsLu8AzA2TyXmdA4Ea6sSc",
   });
 
-  // Используем useCallback для инициализации карты
   const initMap = useCallback(async () => {
-    if (!center) return; // Проверяем наличие центра
+    if (!center) return;
 
     const { Map } = await window.google.maps.importLibrary("maps");
     const { AdvancedMarkerElement } = await window.google.maps.importLibrary(
@@ -39,9 +43,7 @@ export default function Location({ isLoading }) {
     );
 
     const mapDiv = document.getElementById("map");
-    if (!mapDiv) {
-      return; // Прекращаем выполнение, если элемент не найден
-    }
+    if (!mapDiv) return;
 
     const map = new Map(mapDiv, {
       zoom: 15,
@@ -49,23 +51,61 @@ export default function Location({ isLoading }) {
       minZoom: 4,
       maxZoom: 20,
       mapId: "YOUR_MAP_ID",
+      language: languageCode,
     });
 
-    // Создание маркера
     new AdvancedMarkerElement({
       map: map,
       position: center,
-      title: "Место проведения занятий",
+      title: t("course.location"),
     });
-  }, [center]); // Добавляем center в зависимости
+  }, [center, t, languageCode]);
 
   useEffect(() => {
     if (isLoaded) {
       initMap();
     }
-  }, [isLoaded, initMap]); // Добавляем initMap в зависимости
+  }, [isLoaded, initMap]);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const getFormattedAddress = () => {
+    if (course.format !== "Оффлайн") return t("filters.format.online");
+
+    // Определяем, нужно ли использовать английскую версию
+    const shouldUseEnglish =
+      languageCode === "en" || course.original_language !== languageCode;
+
+    // Получаем компоненты адреса в зависимости от языка
+    const city = shouldUseEnglish
+      ? course.city_en
+      : course.city_original_language;
+    const district = shouldUseEnglish
+      ? course.district_en
+      : course.district_original_language;
+    const street = shouldUseEnglish
+      ? course.route_en
+      : course.route_original_language;
+    const streetNumber = shouldUseEnglish
+      ? course.streetNumber_en
+      : course.streetNumber_original_language;
+
+    // Формируем адрес
+    const addressParts = [];
+
+    if (city) addressParts.push(shouldUseEnglish ? city : `г. ${city}`);
+    if (district) addressParts.push(district);
+    if (street || streetNumber) {
+      const streetAddress = [street, streetNumber].filter(Boolean).join(" ");
+      addressParts.push(
+        shouldUseEnglish ? streetAddress : `ул. ${streetAddress}`
+      );
+    }
+
+    return addressParts.join(", ");
+  };
+
   return (
     <div>
       <div
@@ -92,7 +132,7 @@ export default function Location({ isLoading }) {
             marginTop: "32px",
           }}
         >
-          Где пройдут занятия
+          {t("course.location")}
         </div>
       )}
       {isLoading ? (
@@ -108,7 +148,6 @@ export default function Location({ isLoading }) {
           />
           <Skeleton
             variant="rectangular"
-            // width={isMobile ? "90%" : "60%"}
             height={250}
             style={{
               marginTop: "12px",
@@ -127,13 +166,20 @@ export default function Location({ isLoading }) {
                   marginTop: "8px",
                 }}
               >
-                г. {course.city}, {course.district}, ул. {course.address}
+                {getFormattedAddress()}
               </div>
               <div style={{ marginTop: "16px" }}>
                 {isLoaded && center ? (
                   <div id="map" style={containerStyle}></div>
                 ) : (
-                  <div>Loading map...</div>
+                  <Skeleton
+                    variant="rectangular"
+                    width="100%"
+                    height={400}
+                    style={{
+                      borderRadius: "8px",
+                    }}
+                  />
                 )}
               </div>
             </div>
@@ -149,7 +195,7 @@ export default function Location({ isLoading }) {
                   marginTop: "8px",
                 }}
               >
-                {course.format}, приложение Discord
+                {t("course.online")}, {t("course.discord")}
               </div>
               <Link
                 to={`https://discord.com/`}

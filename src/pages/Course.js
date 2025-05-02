@@ -16,6 +16,7 @@ import Rules from "../components/Course/Rules";
 import { useParams } from "react-router-dom";
 import { useFetchCourseByIdQuery } from "../redux/services/courseAPI";
 import { showFooterMenu } from "../redux/footerMenuSlice";
+import { CircularProgress } from "@mui/material";
 
 function Course() {
   const dispatch = useDispatch();
@@ -35,6 +36,22 @@ function Course() {
       dispatch(showFooterMenu(false));
     };
   }, [dispatch]);
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress size={60} />
+      </div>
+    );
+  }
+
   return (
     <div
       style={{ display: "flex", justifyContent: "center" }}

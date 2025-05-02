@@ -1,0 +1,112 @@
+{
+  "language": "Language",
+  "currency": "Currency",
+  "languageAndRegion": "Language & Region",
+  "translation": "Translation",
+  "autoTranslate": "Automatically translate to {{language}}",
+  "recommendedLanguages": "Recommended Languages",
+  "selectLanguage": "Select language",
+  "selectCurrency": "Select currency",
+  "english": "English - United States",
+  "russian": "Russian - Russia",
+  "header": {
+    "courses": "Courses",
+    "guides": "Guides",
+    "skillTree": "Skill Tree",
+    "chat": "Chat",
+    "logout": "Logout"
+  },
+  "common": {
+    "loading": "Loading map...",
+    "share": "Share",
+    "sharingNotSupported": "Sharing is not supported on this browser"
+  },
+  "filters": {
+    "title": "Filters",
+    "reset": "Reset",
+    "showResults": "Show Results",
+    "notSelected": "Not Selected",
+    "direction": {
+      "title": "Direction",
+      "select": "Select Direction",
+      "available": "Available Directions",
+      "sketching": "Sketching",
+      "2dDrawing": "2D Drawing",
+      "3dModeling": "3D Modeling",
+      "animation": "Animation"
+    },
+    "format": {
+      "title": "Format",
+      "select": "Select Learning Format",
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "location": {
+      "title": "Location",
+      "placeholder": "Enter city or district"
+    },
+    "age": {
+      "title": "Age",
+      "select": "Specify Age",
+      "placeholder": "Enter age",
+      "years": "years"
+    },
+    "priceRange": "Price range per lesson",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "daysOfWeek": "Days of week",
+    "any": "Any",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "timeOfDay": "Time of day",
+    "firstHalf": "Morning",
+    "secondHalf": "Afternoon",
+    "evening": "Evening",
+    "teacherSearch": "Search teacher",
+    "teacherPlaceholder": "Enter teacher's name",
+    "clearAll": "Clear all"
+  },
+  "days": {
+    "monday": {
+      "full": "Monday",
+      "short": "Mon"
+    },
+    "tuesday": {
+      "full": "Tuesday",
+      "short": "Tue"
+    },
+    "wednesday": {
+      "full": "Wednesday",
+      "short": "Wed"
+    },
+    "thursday": {
+      "full": "Thursday",
+      "short": "Thu"
+    },
+    "friday": {
+      "full": "Friday",
+      "short": "Fri"
+    },
+    "saturday": {
+      "full": "Saturday",
+      "short": "Sat"
+    },
+    "sunday": {
+      "full": "Sunday",
+      "short": "Sun"
+    }
+  },
+  "course": {
+    "noLessons": "No lessons",
+    "lesson": "lesson",
+    "total": "Total",
+    "location": "Where classes will be held",
+    "online": "Online",
+    "discord": "Discord app"
+  }
+}

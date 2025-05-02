@@ -26,6 +26,8 @@ import portfolioReducer from "./reducers/portfolioReducer";
 import userProfileReducer from "./reducers/userProfileReducer";
 import pinterestReducer from "./reducers/pinterestReducer";
 import chatReducer from "./reducers/chatReducer";
+import currencyReducer from "./reducers/currencyReducer";
+import languageReducer from "./reducers/languageReducer";
 
 import { pinterestAPI } from "./services/pinterestApi";
 import { userProfileAPI } from "./services/userProfileAPI";
@@ -57,6 +59,8 @@ export const store = configureStore({
     portfolio: portfolioReducer,
     skillTree: skillTreeReducer,
     chat: chatReducer,
+    currency: currencyReducer,
+    language: languageReducer,
     [authAPI.reducerPath]: authAPI.reducer,
     [courseAPI.reducerPath]: courseAPI.reducer,
     [studentAPI.reducerPath]: studentAPI.reducer,

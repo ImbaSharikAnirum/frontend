@@ -11,7 +11,9 @@ import FormatFilter from "../components/courses/FormatFilter";
 import AgeInput from "../components/courses/AgeInput";
 import FilterGroup from "../components/courses/FilterGroup";
 import SkeletonCardCourse from "../components/courses/SkeletonCardCourse";
-import FilterMoblie from "../components/courses/FilterMoblie";
+import FilterMobile from "../components/courses/FilterMobile";
+import { useMediaQuery } from "react-responsive";
+import { selectCurrentUser } from "../redux/reducers/authReducer";
 
 export default function Courses() {
   const dispatch = useDispatch();
@@ -21,7 +23,9 @@ export default function Courses() {
   const [currentPage, setCurrentPage] = useState(1);
   const [fetching, setFetching] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
-
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const user = useSelector(selectCurrentUser);
+  const ManagerId = process.env.REACT_APP_MANAGER;
   useEffect(() => {
     if (fetching) {
       dispatch(fetchCoursesFromAPI(currentPage))
@@ -71,22 +75,26 @@ export default function Courses() {
         <div className=" desktop courses_filters">
           <AgeInput loading={loading} />
         </div>
-        <div className="courses_filters">
-          <FilterGroup loading={loading} />
-        </div>
-        {/* <Link
-          to="/create/course"
-          className="button_only_icon"
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Create />
-        </Link> */}
+        {!isMobile && (
+          <div className="courses_filters">
+            <FilterGroup loading={loading} />
+          </div>
+        )}
+        {user?.role?.id === Number(ManagerId) && (
+          <Link
+            to="/create/course"
+            className="button_only_icon"
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Create />
+          </Link>
+        )}
       </div>
       <div className="filters_mobile">
-        <FilterMoblie />
+        <FilterMobile />
       </div>
       <div className="filters_mobile_placeholder"></div>
 

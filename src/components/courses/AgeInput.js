@@ -1,10 +1,12 @@
 import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { setAge, clearAge } from "../../redux/filterSlice";
 import "../../styles/inputs.css";
 import { Skeleton } from "@mui/material";
 
 export default function AgeInput({ loading }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { age } = useSelector((state) => state.filter);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
@@ -67,14 +69,18 @@ export default function AgeInput({ loading }) {
           }}
           onClick={handleAgeClick}
         >
-          {age && <div style={{ fontSize: 10, color: "black" }}>Возраст</div>}
+          {age && (
+            <div style={{ fontSize: 10, color: "black" }}>
+              {t("filters.age.title")}
+            </div>
+          )}
 
           <div>
             <input
               type="number"
               value={age}
               onChange={handleAgeChange}
-              placeholder="Возраст"
+              placeholder={t("filters.age.title")}
               className="input-age Body-3"
               style={{
                 paddingRight: age ? "12px" : "0px",

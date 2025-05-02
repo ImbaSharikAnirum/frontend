@@ -19,6 +19,8 @@ import filterForCountReducer from "./filterForCountSlice";
 import footerMenuReducer from "./footerMenuSlice";
 import skillTreeReducer from "./reducers/skillTreeSlice";
 import chatReducer from "./reducers/chatReducer";
+import currencyReducer from "./reducers/currencyReducer";
+import languageReducer from "./reducers/languageReducer";
 
 // Прямое использование configureStore не требует явного использования combineReducers
 const rootReducer = combineReducers({
@@ -42,6 +44,8 @@ const rootReducer = combineReducers({
   portfolio: portfolioReducer,
   skillTree: skillTreeReducer,
   chat: chatReducer,
+  currency: currencyReducer,
+  language: languageReducer,
 });
 
 export default rootReducer; // Не нужно экспортировать, если используете configureStore

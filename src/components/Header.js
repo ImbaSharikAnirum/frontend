@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/buttons.css";
 import "../styles/header.css";
 import { ReactComponent as Logo } from "../images/AnirumLogo.svg";
@@ -7,12 +7,34 @@ import { useSelector } from "react-redux";
 import AuthButtons from "./Header/AuthButtons";
 import UserProfile from "./Header/UserProfile";
 import { selectCurrentUser } from "../redux/reducers/authReducer";
+import LanguageCurrencySelector from "./LanguageCurrencySelector";
+import { IconButton } from "@mui/material";
+import LanguageIcon from "@mui/icons-material/Language";
+import { useTranslation } from "react-i18next";
+import useLanguageAndCurrency from "../hooks/useLanguageAndCurrency";
+import { selectLanguageCode } from "../redux/reducers/languageReducer";
 
 function Header() {
+  const { t } = useTranslation();
   const user = useSelector(selectCurrentUser);
   const ManagerId = process.env.REACT_APP_MANAGER;
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const { selectedCurrency } = useLanguageAndCurrency();
+  const languageCode = useSelector(selectLanguageCode);
+
+  const handleCloseLanguageModal = () => {
+    setIsLanguageModalOpen(false);
+  };
+
   return (
-    <div className="header" style={{ zIndex: "1" }}>
+    <div
+      className="header"
+      style={{
+        zIndex: 1000,
+        position: "relative",
+        backgroundColor: "#fff",
+      }}
+    >
       <Logo style={{ height: "25px", width: "auto" }} />
       <div>
         {" "}
@@ -24,7 +46,7 @@ function Header() {
           }}
         >
           <button className="button_white button-animate-filter">
-            <div className="h5">Курсы</div>
+            <div className="h5">{t("header.courses")}</div>
           </button>
         </Link>
         <Link
@@ -35,7 +57,7 @@ function Header() {
           }}
         >
           <button className="button_white button-animate-filter">
-            <div className="h5">Гайды</div>
+            <div className="h5">{t("header.guides")}</div>
           </button>
         </Link>
         <Link
@@ -46,7 +68,7 @@ function Header() {
           }}
         >
           <button className="button_white button-animate-filter">
-            <div className="h5">Древо навыков</div>
+            <div className="h5">{t("header.skillTree")}</div>
           </button>
         </Link>
         {user?.role?.id === Number(ManagerId) && (
@@ -58,14 +80,34 @@ function Header() {
             }}
           >
             <button className="button_white button-animate-filter">
-              <div className="h5">Чат</div>
+              <div className="h5">{t("header.chat")}</div>
             </button>
           </Link>
         )}
       </div>
 
-      {/* <AuthButtons /> */}
-      {user ? <UserProfile /> : <AuthButtons />}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <IconButton
+          onClick={() => setIsLanguageModalOpen(true)}
+          sx={{
+            color: "black",
+            "&:hover": {
+              backgroundColor: "rgba(0, 0, 0, 0.04)",
+            },
+          }}
+          style={{ marginRight: "12px" }}
+        >
+          <LanguageIcon />
+        </IconButton>
+        {user ? <UserProfile /> : <AuthButtons />}
+      </div>
+
+      <LanguageCurrencySelector
+        open={isLanguageModalOpen}
+        onClose={handleCloseLanguageModal}
+        selectedCurrency={selectedCurrency}
+        selectedLanguage={languageCode}
+      />
     </div>
   );
 }

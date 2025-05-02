@@ -1,19 +1,53 @@
 // src/components/courses/CardCourse.js
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Slider from "../Slider";
 import "../../styles/courses.css";
 import moment from "moment-timezone";
+import { useSelector } from "react-redux";
+import { selectLanguageCode } from "../../redux/reducers/languageReducer";
 
 const CardCourse = ({ course }) => {
+  const { t } = useTranslation();
+  const languageCode = useSelector(selectLanguageCode);
+
   const dayOfWeek = [
-    { fullName: "Понедельник", shortName: "Пн", value: course.monday },
-    { fullName: "Вторник", shortName: "Вт", value: course.tuesday },
-    { fullName: "Среда", shortName: "Ср", value: course.wednesday },
-    { fullName: "Четверг", shortName: "Чт", value: course.thursday },
-    { fullName: "Пятница", shortName: "Пт", value: course.friday },
-    { fullName: "Суббота", shortName: "Сб", value: course.saturday },
-    { fullName: "Воскресенье", shortName: "Вс", value: course.sunday },
+    {
+      fullName: t("days.monday.full"),
+      shortName: t("days.monday.short"),
+      value: course.monday,
+    },
+    {
+      fullName: t("days.tuesday.full"),
+      shortName: t("days.tuesday.short"),
+      value: course.tuesday,
+    },
+    {
+      fullName: t("days.wednesday.full"),
+      shortName: t("days.wednesday.short"),
+      value: course.wednesday,
+    },
+    {
+      fullName: t("days.thursday.full"),
+      shortName: t("days.thursday.short"),
+      value: course.thursday,
+    },
+    {
+      fullName: t("days.friday.full"),
+      shortName: t("days.friday.short"),
+      value: course.friday,
+    },
+    {
+      fullName: t("days.saturday.full"),
+      shortName: t("days.saturday.short"),
+      value: course.saturday,
+    },
+    {
+      fullName: t("days.sunday.full"),
+      shortName: t("days.sunday.short"),
+      value: course.sunday,
+    },
   ];
 
   const activeDays = dayOfWeek.filter((day) => day.value);
@@ -39,10 +73,28 @@ const CardCourse = ({ course }) => {
 
   // Отображение времени группы и таймзоны пользователя
   const timeRange = `${userStartTime} - ${userEndTime}`;
-  const location =
-    course.format === "Оффлайн"
-      ? `${course.city}, ${course.district}`
-      : "Онлайн";
+
+  const getLocation = () => {
+    if (course.format !== "Оффлайн") return t("filters.format.online");
+
+    // Определяем, нужно ли использовать английскую версию
+    const shouldUseEnglish =
+      languageCode === "en" || course.original_language !== languageCode;
+
+    const city = shouldUseEnglish
+      ? course.city_en
+      : course.city_original_language;
+
+    const district = shouldUseEnglish
+      ? course.district_en
+      : course.district_original_language;
+    if (district) {
+      return `${city}, ${district}`;
+    }
+    return `${city}`;
+  };
+
+  const location = getLocation();
 
   // Функция для подсчета количества занятий в следующем месяце
   const countLessonsInNextMonth = (course) => {
@@ -89,6 +141,23 @@ const CardCourse = ({ course }) => {
 
   const lessonsInNextMonth = countLessonsInNextMonth(course);
   const totalCost = lessonsInNextMonth * course.price_lesson;
+
+  // Функция для получения переведенного названия направления
+  const getTranslatedDirection = (direction) => {
+    switch (direction) {
+      case "Скетчинг":
+        return t("filters.direction.sketching");
+      case "2D Рисование":
+        return t("filters.direction.2dDrawing");
+      case "3D Моделирование":
+        return t("filters.direction.3dModeling");
+      case "Анимация":
+        return t("filters.direction.animation");
+      default:
+        return direction;
+    }
+  };
+
   return (
     <div className="card">
       <Slider images={course.image_url} course={course} />
@@ -125,15 +194,17 @@ const CardCourse = ({ course }) => {
             <div
               style={{ display: "grid", flexDirection: "column", gap: "4px" }}
             >
-              <div className="Body-3">{course.direction}</div>
+              <div className="Body-3">
+                {getTranslatedDirection(course.direction)}
+              </div>
               <div
                 className="Body-1"
                 style={{
                   marginRight: "12px",
                   color: "#5F5F5F",
-                  overflow: "hidden", // Обрезает содержимое, если оно не помещается
-                  textOverflow: "ellipsis", // Добавляет многоточие в конце обрезанного текста
-                  whiteSpace: "nowrap", // Предотвращает перенос текста на новую строку
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {location}
@@ -145,11 +216,10 @@ const CardCourse = ({ course }) => {
               display: "flex",
               flexDirection: "column",
               gap: "4px",
-              // marginTop: "26px",
             }}
           >
             <div className="Body-1" style={{ color: "#5F5F5F" }}>
-              {courseDays || "Нет занятий"}
+              {courseDays || t("course.noLessons")}
             </div>
             <div className="Body-1" style={{ color: "#5F5F5F" }}>
               {timeRange} ({userTimeZone})
@@ -158,13 +228,13 @@ const CardCourse = ({ course }) => {
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: "4px" }}>
               <div className="Body-3">{course.price_lesson} р</div>
-              <div className="Body-2">занятие</div>
+              <div className="Body-2">{t("course.lesson")}</div>
             </div>
             <div
               className="Body-1"
               style={{ color: "#5F5F5F", textDecoration: "underline" }}
             >
-              Всего {totalCost} р
+              {t("course.total")} {totalCost} р
             </div>
           </div>
         </div>

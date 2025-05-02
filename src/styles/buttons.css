@@ -230,3 +230,19 @@
 .button_icon:active {
     transform: scale(0.95); /* Slightly reduce size */
 }
+
+.button_select {
+    padding: 8px 16px;
+    border-radius: 30px;
+    border: 2px solid #E6E6E6;
+    background-color: white;
+    color: #757575;
+    font-size: 16px;
+    text-align: center;
+    min-width: 100px;
+    cursor: pointer;
+}
+
+.button_select:hover {
+    border: 2px solid #C2C2C2;
+}

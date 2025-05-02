@@ -3,9 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   chats: [],
   activeChatId: null,
+  activeContactId: null,
   chatFilter: "open",
   messages: {},
   unread: {},
+  activeContactPreview: null,
+  // Новые поля для хранения загруженного contactInfo и invoices
+  contactsById: {}, // { [contactId]: { id, name, phone, email, notes, avatarUrl } }
+  invoicesByPhone: {}, // { [phone]: [ invoiceObjects ] }
 };
 
 const chatSlice = createSlice({
@@ -15,11 +20,27 @@ const chatSlice = createSlice({
     setChats: (state, action) => {
       state.chats = action.payload;
     },
-    setActiveChat: (state, action) => {
-      state.activeChatId = action.payload;
-      const chat = state.chats.find((c) => c.id === action.payload);
+    setActiveSession: (state, action) => {
+      const { chatId, contact } = action.payload;
+
+      // 1) активный чат
+      state.activeChatId = chatId;
+
+      // 2) сбрасываем счётчик непрочитанных
+      const chat = state.chats.find((c) => c.id === chatId);
       if (chat?.chatId) {
         state.unread[chat.chatId] = 0;
+      }
+
+      // 3) выставляем контакт
+      if (contact) {
+        // если contact — объект с id и остальными полями
+        state.activeContactId = contact.id;
+        state.activeContactPreview = contact;
+      } else {
+        // если нет полного объекта — сбрасываем
+        state.activeContactId = null;
+        state.activeContactPreview = null;
       }
     },
     createNewChat: (state) => {
@@ -67,13 +88,17 @@ const chatSlice = createSlice({
         ...message,
         id: message.id || Date.now(),
         emoji: message.emoji || null,
-        sender: message.sender || message.senderName || "пользователь",
+        sender:
+          message.senderName ||
+          message.sender ||
+          (message.direction === "outgoing" ? "manager" : "client"),
+        direction: message.direction,
         messageId: message.messageId || null,
         reactionToMessageId: message.reactionToMessageId || null,
-        mediaUrl: message.mediaUrl || null, // ✅ добавлено
+        mediaUrl: message.mediaUrl || null,
       };
 
-      // ✅ 1. Если это реакция — обновляем оригинальное сообщение
+      // Если это реакция — обновляем оригинальное сообщение
       if (isReaction) {
         const originalMessageIndex = state.messages[chatId].findIndex(
           (msg) => msg.messageId === finalMessage.reactionToMessageId
@@ -95,10 +120,10 @@ const chatSlice = createSlice({
         }
       }
 
-      // ✅ 2. Добавляем любое сообщение, включая реакцию, как отдельную запись
+      // Добавляем любое сообщение, включая реакцию, как отдельную запись
       state.messages[chatId].push(finalMessage);
 
-      // ✅ 3. Обновление данных чата (но не если это реакция или только emoji)
+      // Обновление данных чата (но не если это реакция или только emoji)
       const chatIndex = state.chats.findIndex((chat) => chat.chatId === chatId);
       if (chatIndex !== -1) {
         const isEmojiOnly = !finalMessage.text && finalMessage.emoji;
@@ -123,7 +148,6 @@ const chatSlice = createSlice({
         state.chats.unshift(updated);
       }
     },
-
     updateMessage: (state, action) => {
       const { chatId, messageId, newMessage } = action.payload;
       const messages = state.messages[chatId];
@@ -134,10 +158,16 @@ const chatSlice = createSlice({
       );
 
       if (index !== -1) {
-        state.messages[chatId][index] = {
-          ...state.messages[chatId][index],
+        const existing = state.messages[chatId][index];
+
+        // 👇 Восстанавливаем direction, если его нет в newMessage
+        const updated = {
+          ...existing,
           ...newMessage,
+          direction: newMessage.direction || existing.direction || "outgoing",
         };
+
+        state.messages[chatId][index] = updated;
       }
     },
     setMessages: (state, action) => {
@@ -190,12 +220,20 @@ const chatSlice = createSlice({
       const chatId = action.payload;
       state.messages[chatId] = [];
     },
+    setContactInfo: (state, action) => {
+      const contact = action.payload;
+      state.contactsById[contact.id] = contact;
+    },
+    setInvoices: (state, action) => {
+      const { phone, invoices } = action.payload;
+      state.invoicesByPhone[phone] = invoices;
+    },
   },
 });
 
 export const {
   setChats,
-  setActiveChat,
+  setActiveSession,
   createNewChat,
   addOrUpdateChat,
   addMessage,
@@ -208,6 +246,8 @@ export const {
   reorderChats,
   closeChat,
   setChatFilter,
+  setContactInfo,
+  setInvoices,
 } = chatSlice.actions;
 
 export const selectAllChats = (state) => state.chat.chats;
@@ -230,4 +270,11 @@ export const selectFilteredChats = (state) => {
   return chats;
 };
 
+export const selectActiveContactId = (state) => state.chat.activeContactId;
+export const selectActiveContactPreview = (state) =>
+  state.chat.activeContactPreview;
+export const selectContactById = (state, contactId) =>
+  state.chat.contactsById[contactId];
+export const selectInvoicesByPhone = (state, phone) =>
+  state.chat.invoicesByPhone[phone] || [];
 export default chatSlice.reducer;

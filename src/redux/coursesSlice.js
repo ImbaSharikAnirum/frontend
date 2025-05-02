@@ -36,6 +36,24 @@ const transformDataFromAPI = (data) => {
       teacher: teacherData,
       image_url: attributes.images.data.map((image) => image.attributes.url),
       time_zone: attributes.time_zone,
+      city_en: attributes.city_en || "",
+      district_en: attributes.district_en || "",
+      administrativeArea_en: attributes.administrativeArea_en || "",
+      route_en: attributes.route_en || "",
+      name_en: attributes.name_en || "",
+      streetNumber_en: attributes.streetNumber_en || "",
+      country_en: attributes.country_en || "",
+      city_original_language: attributes.city_original_language || "",
+      district_original_language: attributes.district_original_language || "",
+      administrativeArea_original_language:
+        attributes.administrativeArea_original_language || "",
+      route_original_language: attributes.route_original_language || "",
+      name_original_language: attributes.name_original_language || "",
+      streetNumber_original_language:
+        attributes.streetNumber_original_language || "",
+      country_original_language: attributes.country_original_language || "",
+      original_language: attributes.original_language || "ru",
+      display_location_name: attributes.display_location_name || "",
     };
   });
 };
@@ -91,10 +109,21 @@ export const fetchCoursesFromAPI =
       query += `&filters[format][$eq]=${filter.format}`;
     }
     if (filter.city) {
-      query += `&filters[city][title][$eq]=${filter.city}`;
+      const cityValue =
+        filter.city.city_en || filter.city.city_original_language;
+      if (cityValue) {
+        query += `&filters[$or][0][city_en][$eq]=${cityValue}`;
+        query += `&filters[$or][1][city_original_language][$eq]=${cityValue}`;
+      }
     }
     if (filter.district) {
-      query += `&filters[district][title][$eq]=${filter.district}`; // Фильтр по району
+      const districtValue =
+        filter.district.district_en ||
+        filter.district.district_original_language;
+      if (districtValue) {
+        query += `&filters[$or][0][district_en][$eq]=${districtValue}`;
+        query += `&filters[$or][1][district_original_language][$eq]=${districtValue}`;
+      }
     }
     if (filter.minPrice) {
       query += `&filters[price_lesson][$gte]=${filter.minPrice}`;

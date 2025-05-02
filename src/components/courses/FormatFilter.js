@@ -10,27 +10,80 @@ import { ReactComponent as MapIcon } from "../../images/map.svg";
 import "../../styles/dropdown.css";
 import "../../styles/inputs.css";
 import { Skeleton } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-// Данные городов и их районов
+// Данные городов и их районов с локализацией
 const citiesWithDistricts = {
-  Москва: ["Калужская", "Дмитровская", "Алтуфьево"],
-  "Санкт-Петербург": [
-    "м.Невский проспект",
-    "м.Петроградская",
-    "м.Адмиралтейская",
-  ],
-  Якутск: [],
-  Владивосток: ["Заря", "Светланская"],
-  Астана: ["Алматинский", "Есильский", "Сарыаркинский"],
-  Алматы: ["Алмалинский", "Ауэзовский", "Бостандыкский"],
+  ru: {
+    Москва: ["Калужская", "Дмитровская", "Алтуфьево"],
+    "Санкт-Петербург": ["Невский проспект", "Петроградская", "Адмиралтейская"],
+    Якутск: [],
+    Владивосток: ["Заря", "Светланская"],
+    Астана: ["Алматинский", "Есильский", "Сарыаркинский"],
+    Алматы: ["Алмалинский", "Ауэзовский", "Бостандыкский"],
+  },
+  en: {
+    Moscow: ["Kaluzhskaya", "Dmitrovskaya", "Altufevo"],
+    "Saint Petersburg": [
+      "Nevsky Prospekt",
+      "Petrogradskaya",
+      "Admiralteyskaya",
+    ],
+    Yakutsk: [],
+    Vladivostok: ["Zarya", "Svetlanskaya"],
+    Astana: ["Almaty", "Esil", "Saryarka"],
+    Almaty: ["Almaly", "Auezov", "Bostandyk"],
+  },
+};
+
+// Маппинг отображаемых названий на значения для фильтрации
+const cityFilterMapping = {
+  en: {
+    Moscow: "Moskva",
+    "Saint Petersburg": "Sankt-Peterburg",
+    Yakutsk: "Yakutsk",
+    Vladivostok: "Vladivostok",
+    Astana: "Astana",
+    Almaty: "Almaty",
+  },
+  ru: {
+    Москва: "Москва",
+    "Санкт-Петербург": "Санкт-Петербург",
+    Якутск: "Якутск",
+    Владивосток: "Владивосток",
+    Астана: "Астана",
+    Алматы: "Алматы",
+  },
+};
+
+// Маппинг значений для фильтрации на отображаемые названия
+const cityDisplayMapping = {
+  en: {
+    Moskva: "Moscow",
+    "Sankt-Peterburg": "Saint Petersburg",
+    Yakutsk: "Yakutsk",
+    Vladivostok: "Vladivostok",
+    Astana: "Astana",
+    Almaty: "Almaty",
+  },
+  ru: {
+    Москва: "Москва",
+    "Санкт-Петербург": "Санкт-Петербург",
+    Якутск: "Якутск",
+    Владивосток: "Владивосток",
+    Астана: "Астана",
+    Алматы: "Алматы",
+  },
 };
 
 export default function FormatFilter({ loading }) {
   const dispatch = useDispatch();
-  const { format, city } = useSelector((state) => state.filter);
+  const { format, city, district } = useSelector((state) => state.filter);
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedCity, setSelectedCity] = useState(city);
+  const [selectedCity, setSelectedCity] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [isCitySelected, setIsCitySelected] = useState(false);
@@ -38,6 +91,24 @@ export default function FormatFilter({ loading }) {
 
   const formatRef = useRef(null);
   const cityInputRef = useRef(null);
+
+  // Инициализация значений из Redux
+  useEffect(() => {
+    if (city) {
+      const cityValue =
+        currentLanguage === "en" ? city.city_en : city.city_original_language;
+      const displayCity =
+        cityDisplayMapping[currentLanguage][cityValue] || cityValue;
+      setSelectedCity(displayCity);
+    }
+    if (district) {
+      setSelectedDistrict(
+        currentLanguage === "en"
+          ? district.district_en
+          : district.district_original_language
+      );
+    }
+  }, [city, district, currentLanguage]);
 
   const toggleFormat = () => {
     setIsOpen((prev) => !prev);
@@ -51,23 +122,22 @@ export default function FormatFilter({ loading }) {
     setIsCitySelected(false);
 
     if (value) {
-      const filtered = Object.entries(citiesWithDistricts).reduce(
-        (acc, [city, districts]) => {
-          const cityLowerCase = city.toLowerCase();
-          if (cityLowerCase.includes(value.toLowerCase())) {
-            acc.push(city); // Добавляем город
-            acc.push(...districts.map((district) => `${city}, ${district}`)); // Добавляем районы города
-          } else {
-            districts.forEach((district) => {
-              if (district.toLowerCase().includes(value.toLowerCase())) {
-                acc.push(`${city}, ${district}`);
-              }
-            });
-          }
-          return acc;
-        },
-        []
-      );
+      const filtered = Object.entries(
+        citiesWithDistricts[currentLanguage]
+      ).reduce((acc, [city, districts]) => {
+        const cityLowerCase = city.toLowerCase();
+        if (cityLowerCase.includes(value.toLowerCase())) {
+          acc.push(city);
+          acc.push(...districts.map((district) => `${city}, ${district}`));
+        } else {
+          districts.forEach((district) => {
+            if (district.toLowerCase().includes(value.toLowerCase())) {
+              acc.push(`${city}, ${district}`);
+            }
+          });
+        }
+        return acc;
+      }, []);
 
       setFilteredOptions(filtered.slice(0, 5));
     } else {
@@ -75,44 +145,121 @@ export default function FormatFilter({ loading }) {
     }
   };
 
-  // В handleOptionSelect добавьте отправку выбранного района в Redux:
   const handleOptionSelect = (option) => {
     const [city, district] = option.split(", ").map((str) => str.trim());
-    setSelectedCity(city);
+
+    // Получаем отображаемое название города
+    const displayCity = cityDisplayMapping[currentLanguage][city] || city;
+    setSelectedCity(displayCity);
     setSelectedDistrict(district || "");
     setFilteredOptions([]);
 
-    dispatch(setCity(city));
-    dispatch(setDistrict(district || "")); // Отправляем район, если он выбран
+    // Получаем значения для фильтрации
+    const cityForFilter =
+      cityFilterMapping[currentLanguage][displayCity] || city;
+
+    // Получаем значения на обоих языках
+    const cityEn =
+      currentLanguage === "en"
+        ? cityForFilter
+        : Object.keys(cityFilterMapping.en).find(
+            (key) => cityFilterMapping.ru[key] === cityForFilter
+          );
+    const cityRu =
+      currentLanguage === "ru"
+        ? cityForFilter
+        : Object.keys(cityFilterMapping.ru).find(
+            (key) => cityFilterMapping.en[key] === cityForFilter
+          );
+
+    const districtEn = district
+      ? citiesWithDistricts.en[city]?.includes(district)
+        ? district
+        : citiesWithDistricts.en[city]?.find(
+            (d, i) => citiesWithDistricts.ru[city]?.[i] === district
+          )
+      : "";
+
+    const districtRu = district
+      ? citiesWithDistricts.ru[city]?.includes(district)
+        ? district
+        : citiesWithDistricts.ru[city]?.find(
+            (d, i) => citiesWithDistricts.en[city]?.[i] === district
+          )
+      : "";
+
+    // Отправляем локализованные значения в Redux
+    dispatch(
+      setCity({
+        city_en: cityEn || cityForFilter,
+        city_original_language: cityRu || cityForFilter,
+      })
+    );
+
+    if (district) {
+      dispatch(
+        setDistrict({
+          district_en: districtEn || district,
+          district_original_language: districtRu || district,
+        })
+      );
+    } else {
+      dispatch(
+        setDistrict({
+          district_en: "",
+          district_original_language: "",
+        })
+      );
+    }
 
     dispatch(setFormat("Оффлайн"));
     setIsCitySelected(true);
-    toggleFormat(); // Закрываем модалку после выбора
+    toggleFormat();
   };
 
   const handleFormatSelect = (selectedFormat) => {
     if (selectedFormat === "Онлайн") {
-      dispatch(setFormat("Онлайн")); // Устанавливаем формат как "Онлайн"
-      dispatch(setCity(""));
+      dispatch(setFormat("Онлайн"));
+      dispatch(
+        setCity({
+          city_en: "",
+          city_original_language: "",
+        })
+      );
+      dispatch(
+        setDistrict({
+          district_en: "",
+          district_original_language: "",
+        })
+      );
       setSelectedCity("");
       setSelectedDistrict("");
       setFilteredOptions([]);
       setIsCitySelected(false);
     } else {
       dispatch(setFormat(selectedFormat));
-      dispatch(setCity(""));
+      dispatch(
+        setCity({
+          city_en: "",
+          city_original_language: "",
+        })
+      );
+      dispatch(
+        setDistrict({
+          district_en: "",
+          district_original_language: "",
+        })
+      );
       setSelectedCity("");
       setSelectedDistrict("");
       setFilteredOptions([]);
       setIsCitySelected(false);
     }
-    toggleFormat(); // Закрытие модального окна после выбора формата
+    toggleFormat();
   };
 
   const handleFormatRemove = () => {
     dispatch(clearFormat());
-    dispatch(setCity(""));
-    dispatch(setDistrict(""));
     setSelectedCity("");
     setSelectedDistrict("");
     setFilteredOptions([]);
@@ -121,7 +268,7 @@ export default function FormatFilter({ loading }) {
 
   const handleClickOutside = useCallback((event) => {
     if (!formatRef.current?.contains(event.target)) {
-      setIsOpen(false); // Закрываем модалку при клике вне её
+      setIsOpen(false);
     }
   }, []);
 
@@ -148,7 +295,7 @@ export default function FormatFilter({ loading }) {
           <Skeleton
             variant="rectangular"
             width={"100%"}
-            sx={{ borderRadius: "8px" }} // Скругляем углы
+            sx={{ borderRadius: "8px" }}
           />
         </button>
       ) : (
@@ -166,10 +313,12 @@ export default function FormatFilter({ loading }) {
                   alignItems: "flex-start",
                 }}
               >
-                <div style={{ fontSize: 10, color: "black" }}>Формат</div>
+                <div style={{ fontSize: 10, color: "black" }}>
+                  {t("filters.format.title")}
+                </div>
                 <div>
                   {format === "Онлайн"
-                    ? format
+                    ? t("filters.format.online")
                     : selectedCity +
                       (selectedDistrict ? `, ${selectedDistrict}` : "")}
                 </div>
@@ -183,7 +332,7 @@ export default function FormatFilter({ loading }) {
               </span>
             </div>
           ) : (
-            "Формат"
+            t("filters.format.title")
           )}
         </button>
       )}
@@ -197,7 +346,7 @@ export default function FormatFilter({ loading }) {
           ref={formatRef}
         >
           <div className="dropdown-header">
-            <div className="h5">Выберите формат обучения</div>
+            <div className="h5">{t("filters.format.select")}</div>
           </div>
           <div
             style={{
@@ -216,7 +365,7 @@ export default function FormatFilter({ loading }) {
                   height: "44px",
                 }}
               >
-                Онлайн
+                {t("filters.format.online")}
               </button>
             </div>
             <div style={{ position: "relative" }}>
@@ -237,16 +386,16 @@ export default function FormatFilter({ loading }) {
                         (selectedDistrict ? `, ${selectedDistrict}` : "")
                       }
                       onChange={handleInputChange}
-                      placeholder="Оффлайн - Выбрать город"
+                      placeholder={t("filters.location.placeholder")}
                       className="input_with_icon Body-3"
                       ref={cityInputRef}
                       style={{
                         border: isCitySelected ? "1px solid black" : "",
                         marginLeft: "22px",
                         width: "270px",
-                        overflow: "hidden", 
+                        overflow: "hidden",
                         textOverflow: "ellipsis",
-                        whiteSpace: "nowrap", 
+                        whiteSpace: "nowrap",
                       }}
                     />
 
@@ -259,7 +408,6 @@ export default function FormatFilter({ loading }) {
                           setSelectedDistrict("");
                           setFilteredOptions([]);
                           dispatch(clearFormat());
-                          dispatch(setCity(""));
                           setIsCitySelected(false);
                         }}
                       >
@@ -282,7 +430,7 @@ export default function FormatFilter({ loading }) {
                 <li
                   key={index}
                   onClick={(event) => {
-                    event.stopPropagation(); // Останавливаем всплытие события
+                    event.stopPropagation();
                     handleOptionSelect(option);
                   }}
                   onMouseEnter={() => handleCityHover(index)}

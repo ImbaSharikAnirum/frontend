@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { setDirection, clearDirection } from "../../redux/filterSlice";
 import "../../styles/courses.css";
 import "../../styles/dropdown.css";
@@ -8,23 +9,28 @@ import { Skeleton } from "@mui/material";
 const directionsList = [
   {
     name: "Скетчинг",
+    displayName: "sketching",
     imgSrc: require("../../images/directions/scetching.jpg"),
   },
   {
     name: "2D Рисование",
+    displayName: "2dDrawing",
     imgSrc: require("../../images/directions/2D.png"),
   },
   {
     name: "3D Моделирование",
+    displayName: "3dModeling",
     imgSrc: require("../../images/directions/3D.png"),
   },
   {
     name: "Анимация",
+    displayName: "animation",
     imgSrc: require("../../images/directions/Animation.jpg"),
   },
 ];
 
 export default function DirectionFilter({ loading }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { direction } = useSelector((state) => state.filter);
 
@@ -91,8 +97,17 @@ export default function DirectionFilter({ loading }) {
                   alignItems: "flex-start",
                 }}
               >
-                <div style={{ fontSize: 10, color: "black" }}>Направление</div>
-                <div>{direction}</div>
+                <div style={{ fontSize: 10, color: "black" }}>
+                  {t("filters.direction.title")}
+                </div>
+                <div>
+                  {t(
+                    `filters.direction.${
+                      directionsList.find((dir) => dir.name === direction)
+                        ?.displayName || direction
+                    }`
+                  )}
+                </div>
               </div>
               <span
                 className="remove-direction"
@@ -103,14 +118,14 @@ export default function DirectionFilter({ loading }) {
               </span>
             </div>
           ) : (
-            "Направления"
+            t("filters.direction.title")
           )}
         </button>
       )}
       {isDirectionsOpen && (
         <div className="dropdown" ref={directionsRef}>
           <div className="dropdown-header">
-            <div className="h5">Доступные направления</div>
+            <div className="h5">{t("filters.direction.available")}</div>
           </div>
           <div className="dropdown-content">
             {directionsList.map((dir, index) => (
@@ -119,8 +134,13 @@ export default function DirectionFilter({ loading }) {
                 className="direction"
                 onClick={() => handleDirectionSelect(dir.name)}
               >
-                <img src={dir.imgSrc} alt={dir.name} />
-                <div className="Body-3">{dir.name}</div>
+                <img
+                  src={dir.imgSrc}
+                  alt={t(`filters.direction.${dir.displayName}`)}
+                />
+                <div className="Body-3">
+                  {t(`filters.direction.${dir.displayName}`)}
+                </div>
               </div>
             ))}
           </div>

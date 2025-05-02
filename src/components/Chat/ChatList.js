@@ -7,7 +7,6 @@ import {
   ListItemText,
   Avatar,
   Typography,
-  Badge,
   Box,
   Divider,
   CircularProgress,
@@ -15,17 +14,35 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  ListItemButton,
+  Chip,
 } from "@mui/material";
 import {
-  setActiveChat,
+  setActiveSession,
   setChatFilter,
   reorderChats,
   markChatAsRead,
+  setChats,
+  addMessage,
+  updateMessage,
   selectActiveChatId,
   selectChatFilter,
   selectFilteredChats,
+  selectActiveContactPreview,
 } from "../../redux/reducers/chatReducer";
-import { useGetChatsQuery } from "../../redux/services/chatAPI";
+import {
+  useGetChatsQuery,
+  useCreateChatMutation,
+} from "../../redux/services/chatAPI";
+import { formatDistanceToNow } from "date-fns";
+import { ru } from "date-fns/locale";
+import AddIcon from "@mui/icons-material/Add";
 
 const CHATS_PER_PAGE = 20;
 
@@ -35,8 +52,13 @@ export default function ChatList() {
   const chatFilter = useSelector(selectChatFilter);
   const chats = useSelector(selectFilteredChats) || [];
   const unread = useSelector((state) => state.chat.unread || {});
+  const preview = useSelector(selectActiveContactPreview);
 
   const { data: chatsData, isLoading, error } = useGetChatsQuery();
+  const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [createChat] = useCreateChatMutation();
 
   const listRef = useRef(null);
   const [displayedChatsCount, setDisplayedChatsCount] =
@@ -44,24 +66,26 @@ export default function ChatList() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
-    if (chatsData) {
-      dispatch(reorderChats(chatsData));
-    }
+    if (chatsData) dispatch(reorderChats(chatsData));
   }, [chatsData, dispatch]);
 
   useEffect(() => {
-    const savedChatId = localStorage.getItem("lastChatId");
-    if (savedChatId && chats.length > 0) {
-      const found = chats.find((c) => c.id === +savedChatId);
-      if (found) {
-        dispatch(setActiveChat(+savedChatId));
-      }
+    const last = localStorage.getItem("lastChatId");
+    if (last && chats.length) {
+      const found = chats.find((c) => c.id === +last);
+      if (found)
+        dispatch(setActiveSession({ chatId: +last, contact: found.contact }));
     }
   }, [chats, dispatch]);
 
   useEffect(() => {
-    if (chatsData?.length > 0 && !activeChatId) {
-      dispatch(setActiveChat(chatsData[0].id));
+    if (chatsData?.length && !activeChatId) {
+      dispatch(
+        setActiveSession({
+          chatId: chatsData[0].id,
+          contact: chatsData[0].contact,
+        })
+      );
     }
   }, [chatsData, activeChatId, dispatch]);
 
@@ -69,27 +93,21 @@ export default function ChatList() {
     setDisplayedChatsCount(CHATS_PER_PAGE);
   }, [chats.length, chatFilter]);
 
-  const handleChatClick = (chatId) => {
-    dispatch(setActiveChat(chatId));
-    localStorage.setItem("lastChatId", chatId);
-    const selectedChat = chats.find((chat) => chat.id === chatId);
-    if (selectedChat?.chatId) {
-      dispatch(markChatAsRead(selectedChat.chatId));
-    }
+  const handleChatClick = (chat) => {
+    dispatch(
+      setActiveSession({ chatId: chat.id, contact: chat.contact || null })
+    );
+    localStorage.setItem("lastChatId", chat.id);
+    if (chat.chatId) dispatch(markChatAsRead(chat.chatId));
   };
 
-  const handleFilterChange = (event) => {
-    dispatch(setChatFilter(event.target.value));
-  };
+  const handleFilterChange = (e) => dispatch(setChatFilter(e.target.value));
 
   const handleScroll = () => {
     const el = listRef.current;
     if (!el) return;
-
     const { scrollTop, scrollHeight, clientHeight } = el;
-    const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
-
-    if (isAtBottom && displayedChatsCount < chats.length && !isLoadingMore) {
+    if (scrollHeight - scrollTop - clientHeight < 100 && !isLoadingMore) {
       setIsLoadingMore(true);
       setTimeout(() => {
         setDisplayedChatsCount((prev) =>
@@ -100,9 +118,88 @@ export default function ChatList() {
     }
   };
 
-  const displayedChats = chats.slice(0, displayedChatsCount);
+  const handleCreateChat = async () => {
+    const time = new Date().toISOString();
+    const optId = Date.now();
+    const optChatId = `local-${optId}`;
+    const optimistic = {
+      id: optId,
+      chatId: optChatId,
+      name: phone,
+      avatar: "#f44336",
+      lastMessage: {
+        text: message,
+        direction: "outgoing",
+        timestamp: time,
+        sender: "Менеджер",
+      },
+      time,
+      isClosed: false,
+      contact: { id: null, name: phone, phone },
+    };
 
-  if (isLoading) {
+    dispatch(setChats([optimistic, ...chats]));
+    dispatch(setActiveSession({ chatId: optId, contact: null }));
+    dispatch(
+      addMessage({
+        chatId: optChatId,
+        message: {
+          id: optId + 1,
+          text: message,
+          direction: "outgoing",
+          sender: "Менеджер",
+          timestamp: time,
+          status: "sending",
+        },
+      })
+    );
+
+    setOpen(false);
+    setPhone("");
+    setMessage("");
+
+    try {
+      const result = await createChat({
+        data: {
+          chatId: `${phone}@c.us`,
+          contact: phone,
+          shannel: 1,
+          lastMessage: time,
+          isClosed: false,
+          message: {
+            text: message,
+            direction: "outgoing",
+            senderName: "Менеджер",
+            timestamp: time,
+            status: "sent",
+          },
+        },
+      }).unwrap();
+      const updated = chats.filter((c) => c.id !== optId);
+      dispatch(setChats([result, ...updated]));
+      dispatch(
+        setActiveSession({ chatId: result.id, contact: result.contact })
+      );
+      if (result.lastMessage) {
+        dispatch(
+          updateMessage({
+            chatId: result.chatId,
+            messageId: optId + 1,
+            newMessage: {
+              id: result.lastMessage.id,
+              messageId: result.lastMessage.messageId,
+              status: result.lastMessage.status || "sent",
+              direction: "outgoing",
+            },
+          })
+        );
+      }
+    } catch {
+      dispatch(setChats(chats.filter((c) => c.id !== optId)));
+    }
+  };
+
+  if (isLoading)
     return (
       <Box
         sx={{
@@ -115,35 +212,45 @@ export default function ChatList() {
         <CircularProgress />
       </Box>
     );
-  }
-
-  if (error) {
+  if (error)
     return (
       <Box sx={{ p: 2, textAlign: "center" }}>
-        <Typography color="error">
-          Ошибка загрузки чатов: {error.message}
-        </Typography>
+        <Typography color="error">Ошибка: {error.message}</Typography>
       </Box>
     );
-  }
 
   return (
     <Box
-      sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
+      sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
     >
       <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-        <Typography variant="h6" gutterBottom>
-          Чаты
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6">Чаты</Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            size="small"
+            onClick={() => setOpen(true)}
+          >
+            Новый чат
+          </Button>
+        </Box>
         <FormControl fullWidth size="small">
-          <InputLabel id="chat-filter-label">Фильтр чатов</InputLabel>
+          <InputLabel id="filter-label">Фильтр</InputLabel>
           <Select
-            labelId="chat-filter-label"
+            labelId="filter-label"
             value={chatFilter}
-            label="Фильтр чатов"
+            label="Фильтр"
             onChange={handleFilterChange}
           >
-            <MenuItem value="all">Все чаты</MenuItem>
+            <MenuItem value="all">Все</MenuItem>
             <MenuItem value="open">Открытые</MenuItem>
             <MenuItem value="closed">Закрытые</MenuItem>
           </Select>
@@ -153,144 +260,145 @@ export default function ChatList() {
       <Box
         ref={listRef}
         onScroll={handleScroll}
-        sx={{ flex: 1, overflowY: "auto", position: "relative" }}
+        sx={{ flex: 1, overflowY: "auto" }}
       >
-        {displayedChats.length === 0 ? (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ mt: 4 }}
-          >
+        {!chats.length ? (
+          <Typography sx={{ mt: 4 }} align="center" color="text.secondary">
             Нет чатов
           </Typography>
         ) : (
           <List disablePadding>
-            {displayedChats.map((chat, index) => {
+            {chats.slice(0, displayedChatsCount).map((chat) => {
+              const contact =
+                preview?.id === chat.contact?.id
+                  ? preview
+                  : chat.contact || { name: chat.name, avatarUrl: chat.avatar };
               const isActive = activeChatId === chat.id;
               const unreadCount = unread[chat.chatId] || 0;
-
               return (
                 <React.Fragment key={chat.id}>
                   <ListItem
-                    alignItems="flex-start"
-                    onClick={() => handleChatClick(chat.id)}
-                    sx={{
-                      cursor: "pointer",
-                      bgcolor: isActive ? "action.selected" : "transparent",
-                      "&:hover": { bgcolor: "action.hover" },
-                    }}
+                    disablePadding
+                    sx={{ mb: 1, "&:hover": { bgcolor: "action.hover" } }}
                   >
-                    <ListItemAvatar>
-                      <Avatar alt={chat.name} src={chat.avatar} />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box
+                    <ListItemButton
+                      selected={isActive}
+                      onClick={() => handleChatClick(chat)}
+                      sx={{ py: 1, px: 2, borderRadius: 1 }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar
+                          src={contact.avatarUrl}
                           sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
+                            width: 48,
+                            height: 48,
+                            bgcolor: chat.avatar || "primary.main",
                           }}
                         >
-                          <Typography variant="subtitle1">
-                            {chat.name}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ ml: 1 }}
-                          >
-                            {chat.lastMessage?.timestamp
-                              ? new Date(
-                                  chat.lastMessage.timestamp
-                                ).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
-                              : ""}
-                          </Typography>
-                        </Box>
-                      }
-                      secondary={
-                        <Typography
-                          component="div"
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
+                          {contact.name?.[0]?.toUpperCase()}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
                           <Box
                             sx={{
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              maxWidth: "180px",
-                              fontStyle:
-                                !chat.lastMessage?.text &&
-                                (chat.lastMessage?.emoji ||
-                                  chat.lastMessage?.mediaUrl)
-                                  ? "italic"
-                                  : "normal",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
                             }}
                           >
-                            {chat.lastMessage?.text ||
-                              (chat.lastMessage?.mediaUrl && "[Изображение]") ||
-                              (chat.lastMessage?.emoji &&
-                                `Реакция ${chat.lastMessage.emoji}`) ||
-                              "Нет сообщений"}
+                            <Typography
+                              variant="subtitle1"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              {contact.name}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {formatDistanceToNow(new Date(chat.time), {
+                                addSuffix: true,
+                                locale: ru,
+                              })}
+                            </Typography>
                           </Box>
-
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            {chat.isClosed && (
-                              <Typography
-                                variant="caption"
-                                color="error"
-                                sx={{ ml: 1 }}
-                              >
-                                Закрыт
-                              </Typography>
-                            )}
+                        }
+                        secondary={
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography
+                              noWrap
+                              maxWidth={200}
+                              variant="body2"
+                              color="text.secondary"
+                            >
+                              {chat.lastMessage?.text || "Нет сообщений"}
+                            </Typography>
                             {unreadCount > 0 && (
-                              <Badge
-                                badgeContent={unreadCount}
+                              <Chip
+                                label={unreadCount}
+                                size="small"
                                 color="primary"
-                                sx={{ ml: 1 }}
                               />
                             )}
                           </Box>
-                        </Typography>
-                      }
-                      disableTypography
-                    />
+                        }
+                      />
+                    </ListItemButton>
                   </ListItem>
-                  {index < displayedChats.length - 1 && <Divider />}
+                  <Divider />
                 </React.Fragment>
               );
             })}
           </List>
         )}
-
         {isLoadingMore && (
           <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
             <CircularProgress size={24} />
           </Box>
         )}
-
-        {displayedChatsCount < chats.length && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            align="center"
-            sx={{ display: "block", py: 1 }}
-          >
-            Показано {displayedChatsCount} из {chats.length} чатов
-          </Typography>
-        )}
       </Box>
+
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Создать новый чат</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Номер телефона"
+            type="tel"
+            variant="outlined"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="79991234567"
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Сообщение"
+            multiline
+            rows={4}
+            variant="outlined"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Отмена</Button>
+          <Button
+            onClick={handleCreateChat}
+            variant="contained"
+            disabled={!phone || !message}
+          >
+            Создать
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

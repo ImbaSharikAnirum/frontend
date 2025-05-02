@@ -2,6 +2,7 @@ import { Skeleton, useMediaQuery, useTheme } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
+import { selectLanguageCode } from "../../redux/reducers/languageReducer";
 import moment from "moment";
 import "moment/locale/ru";
 import { ReactComponent as Smile } from "../../images/information/smile.svg";
@@ -12,12 +13,51 @@ import { ReactComponent as Flag } from "../../images/information/flag.svg";
 import { ReactComponent as Highlight } from "../../images/information/highlight.svg";
 import { ReactComponent as Trendingup } from "../../images/information/trendingup.svg";
 import { ReactComponent as Clipboard } from "../../images/information/clipboard.svg";
+import { useTranslation } from "react-i18next";
 
 export default function Details({ isLoading }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const course = useSelector(selectCurrentCourse);
+  const languageCode = useSelector(selectLanguageCode);
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const { t } = useTranslation();
+
+  const getFormattedAddress = () => {
+    if (course.format !== "Оффлайн") return t("filters.format.online");
+
+    // Определяем, нужно ли использовать английскую версию
+    const shouldUseEnglish =
+      languageCode === "en" || course.original_language !== languageCode;
+
+    // Получаем компоненты адреса в зависимости от языка
+    const city = shouldUseEnglish
+      ? course.city_en
+      : course.city_original_language;
+    const district = shouldUseEnglish
+      ? course.district_en
+      : course.district_original_language;
+    const street = shouldUseEnglish
+      ? course.route_en
+      : course.route_original_language;
+    const streetNumber = shouldUseEnglish
+      ? course.streetNumber_en
+      : course.streetNumber_original_language;
+
+    // Формируем адрес
+    const addressParts = [];
+
+    if (city) addressParts.push(shouldUseEnglish ? city : `г. ${city}`);
+    if (district) addressParts.push(district);
+    if (street || streetNumber) {
+      const streetAddress = [street, streetNumber].filter(Boolean).join(" ");
+      addressParts.push(
+        shouldUseEnglish ? streetAddress : `ул. ${streetAddress}`
+      );
+    }
+
+    return addressParts.join(", ");
+  };
 
   const userStartTime = moment
     .tz(course.start_time, "HH:mm:ss.SSS", course.time_zone)
@@ -68,27 +108,14 @@ export default function Details({ isLoading }) {
               }}
             />
           ) : (
-            <>
-              {course.format === "Оффлайн" ? (
-                <div
-                  className="Body-1"
-                  style={{
-                    display: "flex",
-                  }}
-                >
-                  г. {course.city}, {course.district}, ул. {course.address}
-                </div>
-              ) : (
-                <div
-                  className="Body-1"
-                  style={{
-                    alignItems: "center",
-                  }}
-                >
-                  {course.format}
-                </div>
-              )}
-            </>
+            <div
+              className="Body-1"
+              style={{
+                display: "flex",
+              }}
+            >
+              {getFormattedAddress()}
+            </div>
           )}
         </div>
       )}

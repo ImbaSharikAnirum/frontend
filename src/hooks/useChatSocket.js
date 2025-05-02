@@ -15,22 +15,91 @@ export default function useChatSocket() {
 
   useEffect(() => {
     socket.on("chat:message", (msg) => {
-      // Проверяем, существует ли сообщение с таким messageId в Redux
+      const isReaction = !!msg.reactionToMessageId;
+
+      if (isReaction) {
+        // Найди сообщение, к которому относится реакция
+        const baseMessage = messages[msg.chatId]?.find(
+          (m) => m.messageId === msg.reactionToMessageId
+        );
+
+        if (baseMessage) {
+          const updatedReactions = [
+            ...(baseMessage.reactions || []),
+            {
+              emoji: msg.emoji,
+              sender: msg.senderName || "client",
+              timestamp: msg.timestamp,
+            },
+          ];
+
+          dispatch(
+            updateMessage({
+              chatId: msg.chatId,
+              messageId: baseMessage.messageId,
+              newMessage: { reactions: updatedReactions },
+            })
+          );
+        }
+
+        // Добавляем сообщение с реакцией в чат
+        dispatch(
+          addMessage({
+            chatId: msg.chatId,
+            message: {
+              text: msg.text || null,
+              emoji: msg.emoji || null,
+              direction: msg.direction,
+              timestamp: msg.timestamp,
+              sender: msg.senderName || "client",
+              messageId: msg.messageId || null,
+              mediaUrl: msg.mediaUrl || null,
+              reactionToMessageId: msg.reactionToMessageId,
+              reactions: [],
+            },
+          })
+        );
+
+        // обновляем lastMessage для отображения в ChatList
+        dispatch((dispatch, getState) => {
+          const state = getState();
+          const chat = state.chat.chats.find((c) => c.chatId === msg.chatId);
+
+          if (chat) {
+            dispatch(
+              addOrUpdateChat({
+                ...chat,
+                isClosed: false,
+                lastMessage: {
+                  text: msg.text || `Реакция ${msg.emoji}`,
+                  emoji: msg.emoji,
+                  timestamp: msg.timestamp,
+                  sender: msg.senderName || "client",
+                },
+                time: msg.timestamp,
+              })
+            );
+          }
+        });
+
+        return;
+      }
+
+      // если это обычное сообщение
       const existingMessage = msg.messageId
         ? messages[msg.chatId]?.find((m) => m.messageId === msg.messageId)
         : null;
 
       if (existingMessage) {
-        // Если сообщение найдено, обновляем его
         dispatch(
           updateMessage({
             chatId: msg.chatId,
             messageId: msg.messageId,
+            direction: msg.direction,
             newMessage: msg,
           })
         );
       } else {
-        // Если сообщение не найдено, добавляем новое
         dispatch(
           addMessage({
             chatId: msg.chatId,
@@ -43,12 +112,13 @@ export default function useChatSocket() {
               messageId: msg.messageId || null,
               mediaUrl: msg.mediaUrl || null,
               reactionToMessageId: msg.reactionToMessageId || null,
+              reactions: [],
             },
           })
         );
       }
 
-      // Обновляем чат (чтобы, например, isClosed стал false)
+      // обновляем чат
       dispatch((dispatch, getState) => {
         const state = getState();
         const chat = state.chat.chats.find((c) => c.chatId === msg.chatId);
@@ -57,7 +127,7 @@ export default function useChatSocket() {
           dispatch(
             addOrUpdateChat({
               ...chat,
-              isClosed: false, // Если нужно форсить открытие
+              isClosed: false,
               lastMessage: {
                 text:
                   msg.text ||

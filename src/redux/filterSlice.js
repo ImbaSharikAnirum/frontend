@@ -3,11 +3,17 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   direction: "", // Направление курса
   format: "", // Формат курса (онлайн/офлайн)
-  city: "", // Город проведения
+  city: {
+    city_en: "",
+    city_original_language: "",
+  },
   age: "", // Возраст участников
   minPrice: "", // Минимальная цена
   maxPrice: "", // Максимальная цена
-  district: "", // Добавляем поле для района
+  district: {
+    district_en: "",
+    district_original_language: "",
+  },
   classesPerWeek: "Неважно", // Количество занятий в неделю
   daysOfWeek: ["Неважно"], // Дни недели
   timeOfDay: "Неважно", // Время занятий
@@ -35,6 +41,14 @@ const filterSlice = createSlice({
     },
     clearFormat(state) {
       state.format = "";
+      state.city = {
+        city_en: "",
+        city_original_language: "",
+      };
+      state.district = {
+        district_en: "",
+        district_original_language: "",
+      };
     },
     setTimezone(state, action) {
       state.time_zone = action.payload;
@@ -46,7 +60,10 @@ const filterSlice = createSlice({
       state.city = action.payload;
     },
     clearCity(state) {
-      state.city = "";
+      state.city = {
+        city_en: "",
+        city_original_language: "",
+      };
     },
     setAge(state, action) {
       state.age = action.payload;
@@ -113,7 +130,7 @@ export const {
   setPriceRange,
   clearPriceRange,
   setTimezone,
-  clearimezone,
+  clearTimezone,
   setClassesPerWeek,
   clearClassesPerWeek,
   setDaysOfWeek,

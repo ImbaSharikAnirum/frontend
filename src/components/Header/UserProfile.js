@@ -4,16 +4,20 @@ import { selectCurrentUser, logout } from "../../redux/reducers/authReducer";
 import { Button, Box, Avatar } from "@mui/material";
 import { clearStudents } from "../../redux/reducers/studentReducer";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function UserProfile() {
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
+  const { t } = useTranslation();
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     dispatch(clearStudents());
     dispatch(logout());
   };
+
   if (!user) return null;
 
   return (
@@ -30,10 +34,15 @@ function UserProfile() {
         />
       </Link>
       <button
-        className="button_secondary Body-3 button-animate-filter"
+        className="button_white"
         onClick={handleLogout}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
       >
-        Выйти
+        <div className="h5">{t("header.logout")}</div>
       </button>
     </div>
   );

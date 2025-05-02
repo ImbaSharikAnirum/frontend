@@ -1,0 +1,112 @@
+{
+  "language": "Язык",
+  "currency": "Валюта",
+  "languageAndRegion": "Язык и регион",
+  "translation": "Перевод",
+  "autoTranslate": "Автоматически переводить на {{language}}",
+  "recommendedLanguages": "Рекомендуемые языки",
+  "selectLanguage": "Выберите язык",
+  "selectCurrency": "Выберите валюту",
+  "english": "Английский - США",
+  "russian": "Русский - Россия",
+  "header": {
+    "courses": "Курсы",
+    "guides": "Гайды",
+    "skillTree": "Древо навыков",
+    "chat": "Чат",
+    "logout": "Выйти"
+  },
+  "common": {
+    "loading": "Загрузка карты...",
+    "share": "Поделиться",
+    "sharingNotSupported": "Поделиться нельзя в этом браузере"
+  },
+  "filters": {
+    "title": "Фильтры",
+    "reset": "Сбросить",
+    "showResults": "Показать результаты",
+    "notSelected": "Не выбрано",
+    "direction": {
+      "title": "Направление",
+      "select": "Выберите направление",
+      "available": "Доступные направления",
+      "sketching": "Скетчинг",
+      "2dDrawing": "2D Рисование",
+      "3dModeling": "3D Моделирование",
+      "animation": "Анимация"
+    },
+    "format": {
+      "title": "Формат",
+      "select": "Выберите формат обучения",
+      "online": "Онлайн",
+      "offline": "Оффлайн"
+    },
+    "location": {
+      "title": "Местоположение",
+      "placeholder": "Введите город или район"
+    },
+    "age": {
+      "title": "Возраст",
+      "select": "Укажите возраст",
+      "placeholder": "Введите возраст",
+      "years": "лет"
+    },
+    "priceRange": "Ценовой диапазон за занятие",
+    "minimum": "Минимум",
+    "maximum": "Максимум",
+    "daysOfWeek": "Дни недели",
+    "any": "Неважно",
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье",
+    "timeOfDay": "Время занятий",
+    "firstHalf": "1 половина дня",
+    "secondHalf": "2 половина дня",
+    "evening": "Вечер",
+    "teacherSearch": "Поиск преподавателя",
+    "teacherPlaceholder": "Введите имя преподавателя",
+    "clearAll": "Очистить все"
+  },
+  "days": {
+    "monday": {
+      "full": "Понедельник",
+      "short": "Пн"
+    },
+    "tuesday": {
+      "full": "Вторник",
+      "short": "Вт"
+    },
+    "wednesday": {
+      "full": "Среда",
+      "short": "Ср"
+    },
+    "thursday": {
+      "full": "Четверг",
+      "short": "Чт"
+    },
+    "friday": {
+      "full": "Пятница",
+      "short": "Пт"
+    },
+    "saturday": {
+      "full": "Суббота",
+      "short": "Сб"
+    },
+    "sunday": {
+      "full": "Воскресенье",
+      "short": "Вс"
+    }
+  },
+  "course": {
+    "noLessons": "Нет занятий",
+    "lesson": "занятие",
+    "total": "Всего",
+    "location": "Где пройдут занятия",
+    "online": "Онлайн",
+    "discord": "приложение Discord"
+  }
+}
