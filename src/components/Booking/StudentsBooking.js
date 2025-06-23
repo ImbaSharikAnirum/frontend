@@ -333,7 +333,7 @@ export default function StudentsBooking() {
       };
 
       const response = await createTinkoffPayment(payload).unwrap();
-
+      console.log("Ответ от createTinkoffPayment:", response);
       if (response?.paymentUrl) {
         window.location.href = response.paymentUrl;
       } else {
