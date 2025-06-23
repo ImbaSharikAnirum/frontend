@@ -69,7 +69,7 @@ function App() {
           <Route path="/skill-tree/:branchId" element={<SkillTree />} />
           <Route path="/requisites" element={<Requisites />} />
           <Route path="/confidentiality" element={<Confidentiality />} />
-          <Route path="/sucsess-payment" element={<SucsessCourse />} />
+          <Route path="/sucsess" element={<SucsessCourse />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/error" element={<Error />} />
