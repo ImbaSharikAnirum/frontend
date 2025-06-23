@@ -292,14 +292,6 @@ export default function StudentsBooking() {
       return;
     }
 
-    // Выводим данные в консоль для отладки
-    // console.log("=== ДАННЫЕ ДЛЯ СОЗДАНИЯ СЧЕТА ===");
-    // console.log("Текущий счет:", currentInvoice);
-    // console.log("Выбранный студент:", selectedStudent);
-    // console.log("Пользователь:", user);
-    // console.log("Валюта пользователя:", userCurrency);
-    // console.log("================================");
-
     if (currentInvoice) {
       createInvoice(currentInvoice)
         .unwrap()
@@ -316,7 +308,6 @@ export default function StudentsBooking() {
   };
 
   const status = useSelector(selectStudentStatus);
-  console.log("currentInvoice", currentInvoice);
   const createPaymentLink = async () => {
     if (!selectedStudent) {
       toast.error("Выберите ученика перед оплатой");
@@ -336,7 +327,6 @@ export default function StudentsBooking() {
         start_day: new Date(currentInvoice?.start_day).toISOString(),
         end_day: new Date(currentInvoice?.end_day).toISOString(),
       };
-      console.log("Отправляем invoice payload:", invoicePayload);
       const invoiceResponse = await createInvoice(invoicePayload).unwrap();
       const invoiceId =
         invoiceResponse?.data?.id || invoiceResponse?.invoice?.id;
@@ -659,13 +649,20 @@ export default function StudentsBooking() {
                 </p>
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <button
-                  className="button Body-3 button-animate-filter"
-                  style={{ marginTop: "20px", maxWidth: "240px" }}
-                  onClick={createPaymentLink}
-                >
-                  Подтвердить и оплатить
-                </button>
+                {userCurrency === "RUB" ? (
+                  <button
+                    className="button Body-3 button-animate-filter"
+                    style={{ marginTop: "20px", maxWidth: "240px" }}
+                    onClick={createPaymentLink}
+                  >
+                    Подтвердить и оплатить
+                  </button>
+                ) : (
+                  <div className="Body-2" style={{ marginTop: "20px" }}>
+                    На текущий момент оплата только в рублях. Поменяйте валюту в
+                    настройках.
+                  </div>
+                )}
                 {user?.role?.id === Number(ManagerId) && (
                   <button
                     className="button Body-3 button-animate-filter"

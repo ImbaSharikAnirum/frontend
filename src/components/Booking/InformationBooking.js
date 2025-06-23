@@ -207,7 +207,7 @@ export default function InformationBooking() {
       {course.end_day ? (
         <div className="Body-2" style={{ marginTop: "8px" }}>
           Старт обучения:{" "}
-          {firstActiveDay && firstActiveDay.format("DD MMMM YYYY")}
+          {firstActiveDay && firstActiveDay.locale("ru").format("DD MMMM YYYY")}
         </div>
       ) : (
         <Skeleton
