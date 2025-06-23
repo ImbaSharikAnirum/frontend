@@ -324,24 +324,38 @@ export default function StudentsBooking() {
     }
 
     try {
-      const payload = {
+      // 1. Сначала создаём счет (invoice)
+      const invoicePayload = {
+        name: selectedStudent.name,
+        family: selectedStudent.family,
+        phone: selectedStudent.phone,
+        sum: totalCost,
+        currency: userCurrency,
+        group: course.id,
+        status_payment: false, // не оплачено
+      };
+      const invoiceResponse = await createInvoice(invoicePayload).unwrap();
+      const invoiceId =
+        invoiceResponse?.data?.id || invoiceResponse?.invoice?.id;
+
+      // 2. Затем инициируем оплату
+      const paymentPayload = {
         users_permissions_user: user.id,
         student: selectedStudent.id,
         group: course.id,
         amount: totalCost,
         currency: userCurrency,
+        invoiceId, // если нужно связать платёж и счет
       };
-
-      const response = await createTinkoffPayment(payload).unwrap();
-      console.log("Ответ от createTinkoffPayment:", response);
+      const response = await createTinkoffPayment(paymentPayload).unwrap();
       if (response?.paymentUrl) {
         window.location.href = response.paymentUrl;
       } else {
         toast.error("Не удалось получить ссылку на оплату");
       }
     } catch (err) {
-      console.error("Ошибка при создании платежа:", err);
-      toast.error("Ошибка при создании платежа");
+      console.error("Ошибка при создании счета или платежа:", err);
+      toast.error("Ошибка при создании счета или платежа");
     }
   };
 
