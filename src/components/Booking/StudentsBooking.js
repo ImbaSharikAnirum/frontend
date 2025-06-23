@@ -333,6 +333,8 @@ export default function StudentsBooking() {
         currency: userCurrency,
         group: course.id,
         status_payment: false, // не оплачено
+        start_day: currentInvoice?.start_day || "",
+        end_day: currentInvoice?.end_day || "",
       };
       const invoiceResponse = await createInvoice(invoicePayload).unwrap();
       const invoiceId =
