@@ -34,6 +34,7 @@ import {
 } from "../../redux/services/invoiceAPI";
 import { selectCurrencyCode } from "../../redux/reducers/currencyReducer";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
+import moment from "moment";
 
 export default function StudentsBooking() {
   const theme = useTheme();
@@ -324,8 +325,8 @@ export default function StudentsBooking() {
         currency: userCurrency,
         group: course.id,
         status_payment: false,
-        start_day: new Date(currentInvoice?.start_day).toISOString(),
-        end_day: new Date(currentInvoice?.end_day).toISOString(),
+        start_day: moment(currentInvoice?.start_day).format("YYYY-MM-DD"),
+        end_day: moment(currentInvoice?.end_day).format("YYYY-MM-DD"),
       };
       const invoiceResponse = await createInvoice(invoicePayload).unwrap();
       const invoiceId =
