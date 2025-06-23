@@ -316,7 +316,7 @@ export default function StudentsBooking() {
   };
 
   const status = useSelector(selectStudentStatus);
-
+  console.log("currentInvoice", currentInvoice);
   const createPaymentLink = async () => {
     if (!selectedStudent) {
       toast.error("Выберите ученика перед оплатой");
@@ -332,10 +332,11 @@ export default function StudentsBooking() {
         sum: totalCost,
         currency: userCurrency,
         group: course.id,
-        status_payment: false, // не оплачено
-        start_day: currentInvoice?.start_day || "",
-        end_day: currentInvoice?.end_day || "",
+        status_payment: false,
+        start_day: new Date(currentInvoice?.start_day).toISOString(),
+        end_day: new Date(currentInvoice?.end_day).toISOString(),
       };
+      console.log("Отправляем invoice payload:", invoicePayload);
       const invoiceResponse = await createInvoice(invoicePayload).unwrap();
       const invoiceId =
         invoiceResponse?.data?.id || invoiceResponse?.invoice?.id;
