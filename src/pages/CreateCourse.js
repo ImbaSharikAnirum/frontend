@@ -19,7 +19,11 @@ import { LoadScript } from "@react-google-maps/api";
 import GoogleAddressInput from "../components/CreateCourse/GoogleAddressInput";
 import GoogleMap from "../components/CreateCourse/GoogleMap";
 import moment from "moment-timezone";
-import { selectCurrencySymbol } from "../redux/reducers/currencyReducer";
+import {
+  selectCurrencySymbol,
+  selectCurrency,
+  selectCurrencyCode,
+} from "../redux/reducers/currencyReducer";
 import LanguageCurrencySelector from "../components/LanguageCurrencySelector";
 import { selectLanguageCode } from "../redux/reducers/languageReducer";
 import LanguageSelect from "../components/CreateCourse/LanguageSelect";
@@ -71,6 +75,7 @@ const ageMarks = [
 export default function CreateCourse() {
   const { t } = useTranslation();
   const currencySymbol = useSelector(selectCurrencySymbol);
+  const currencyCode = useSelector(selectCurrencyCode);
   const [images, setImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [description, setDescription] = useState("");
@@ -178,7 +183,7 @@ export default function CreateCourse() {
     setImages(newImages);
     setImageFiles(newFiles);
   };
-
+  console.log("Код валюты:", currencyCode);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -311,6 +316,7 @@ export default function CreateCourse() {
         items: inventoryItems,
         language,
         price_lesson: parseInt(priceLesson),
+        currency: currencyCode,
         time_zone: timeZone,
         start_time: startTime,
         end_time: endTime,

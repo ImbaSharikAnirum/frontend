@@ -232,7 +232,11 @@ export default function FilterGroup({ loading }) {
     }
   }, [filterGroupMobile, openFilterModal]);
 
-  const coursesCount = useSelector((state) => state.coursesCount.count);
+  const coursesCount = useSelector((state) => {
+    const count = state.coursesCount.count;
+    return count;
+  });
+
   const handleApplyFilters = () => {
     // Обновление состояния фильтров
     dispatch(setPriceRange({ min: minPrice, max: maxPrice }));
@@ -250,7 +254,6 @@ export default function FilterGroup({ loading }) {
       timeStart,
       timeEnd,
     });
-    // closeFilterModal();
     dispatch(setFilterGroupMobile());
   };
   const handleMaxPriceChange = (event) => {

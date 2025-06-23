@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { selectCurrencyCode } from "./reducers/currencyReducer";
+import moment from "moment-timezone";
 // import { setCoursesCount } from "./coursesCountSlice";
 
 // Преобразование данных из API
@@ -63,25 +65,73 @@ const coursesSlice = createSlice({
   initialState: {
     courses: [],
     count: 0, // Добавлено для хранения количества
+    isLoading: false, // Добавляем состояние загрузки
   },
   reducers: {
     setCourses: (state, action) => {
       state.courses = action.payload.courses;
+      state.isLoading = false;
     },
     appendCourses: (state, action) => {
       state.courses = [...state.courses, ...action.payload.courses];
+      state.isLoading = false;
     },
     resetCourses: (state) => {
       state.courses = [];
     },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase("currency/setCurrency", (state, action) => {
+      // При смене валюты сбрасываем курсы и включаем состояние загрузки
+      state.courses = [];
+      state.isLoading = true;
+    });
   },
 });
 
-export const { setCourses, appendCourses, resetCourses } = coursesSlice.actions;
+export const { setCourses, appendCourses, resetCourses, setLoading } =
+  coursesSlice.actions;
+
+// Функция для проверки наличия занятий в следующем месяце
+const hasLessonsInNextMonth = (course) => {
+  const now = moment();
+  const startOfNextMonth = now.clone().add(1, "months").startOf("month");
+  const endOfNextMonth = now.clone().add(1, "months").endOf("month");
+  const courseStartDate = moment(course.start_day);
+  const courseEndDate = moment(course.end_day);
+
+  // Проверяем, что курс еще активен
+  if (courseEndDate.isBefore(now)) {
+    return false;
+  }
+
+  // Проверяем, что курс начинается до конца следующего месяца
+  if (courseStartDate.isAfter(endOfNextMonth)) {
+    return false;
+  }
+
+  // Проверяем наличие активных дней недели
+  const hasActiveDays =
+    course.monday ||
+    course.tuesday ||
+    course.wednesday ||
+    course.thursday ||
+    course.friday ||
+    course.saturday ||
+    course.sunday;
+
+  return hasActiveDays;
+};
 
 export const fetchCoursesFromAPI =
   (page = 1) =>
   async (dispatch, getState) => {
+    const state = getState();
+    const userCurrency = selectCurrencyCode(state);
+
     let query =
       `populate[district]=*` +
       `&populate[address]=*` +
@@ -89,7 +139,23 @@ export const fetchCoursesFromAPI =
       `&populate[images]=*` +
       `&populate[teacher][populate][photo]=*` +
       `&pagination[page]=${page}` +
-      `&pagination[pageSize]=15`;
+      `&pagination[pageSize]=15` +
+      `&currency=${userCurrency}`;
+
+    // Добавляем фильтр по дате окончания курса
+    const now = moment();
+    const endOfNextMonth = now.clone().add(1, "months").endOf("month");
+    query += `&filters[end_day][$gte]=${now.format("YYYY-MM-DD")}`;
+    query += `&filters[start_day][$lte]=${endOfNextMonth.format("YYYY-MM-DD")}`;
+
+    // Добавляем фильтр по наличию активных дней недели
+    query += `&filters[$or][0][monday][$eq]=true`;
+    query += `&filters[$or][1][tuesday][$eq]=true`;
+    query += `&filters[$or][2][wednesday][$eq]=true`;
+    query += `&filters[$or][3][thursday][$eq]=true`;
+    query += `&filters[$or][4][friday][$eq]=true`;
+    query += `&filters[$or][5][saturday][$eq]=true`;
+    query += `&filters[$or][6][sunday][$eq]=true`;
 
     // Применение фильтров, если они установлены
     const { filter } = getState();
@@ -159,18 +225,72 @@ export const fetchCoursesFromAPI =
       const result = await response.json();
       const transformedData = transformDataFromAPI(result.data);
 
-      const totalCount = result.meta?.pagination?.total || 0;
+      // Дополнительная фильтрация на клиенте для точного подсчета занятий
+      const filteredData = transformedData.filter((course) => {
+        const lessonsCount = countLessonsInNextMonth(course);
+        return lessonsCount > 0;
+      });
+
+      const totalCount = filteredData.length;
 
       if (page === 1) {
-        dispatch(setCourses({ courses: transformedData }));
+        dispatch(setCourses({ courses: filteredData }));
       } else {
-        dispatch(appendCourses({ courses: transformedData }));
+        dispatch(appendCourses({ courses: filteredData }));
       }
-      return { courses: transformedData, totalCount };
+      return { courses: filteredData, totalCount };
     } catch (error) {
       console.error("Failed to fetch courses: ", error);
       return { courses: [], totalCount: 0 };
     }
   };
+
+// Функция для подсчета занятий в следующем месяце
+const countLessonsInNextMonth = (course) => {
+  const now = moment();
+  const startOfNextMonth = now.clone().add(1, "months").startOf("month");
+  const endOfNextMonth = now.clone().add(1, "months").endOf("month");
+  const courseStartDate = moment(course.start_day);
+  const courseEndDate = moment(course.end_day);
+
+  const activeDays = {
+    monday: course.monday,
+    tuesday: course.tuesday,
+    wednesday: course.wednesday,
+    thursday: course.thursday,
+    friday: course.friday,
+    saturday: course.saturday,
+    sunday: course.sunday,
+  };
+
+  let lessonCount = 0;
+  for (
+    let day = startOfNextMonth.clone();
+    day.locale("en").isSameOrBefore(endOfNextMonth);
+    day.add(1, "days")
+  ) {
+    const dayOfWeek = day.locale("en").format("dddd").toLowerCase();
+    if (
+      day.locale("en").isSameOrAfter(courseStartDate, "day") &&
+      day.locale("en").isSameOrBefore(courseEndDate, "day") &&
+      activeDays[dayOfWeek]
+    ) {
+      lessonCount++;
+    }
+  }
+
+  return lessonCount;
+};
+
+// Добавляем middleware для автоматической загрузки курсов при смене валюты
+export const currencyMiddleware = (store) => (next) => (action) => {
+  const result = next(action);
+
+  if (action.type === "currency/setCurrency") {
+    store.dispatch(fetchCoursesFromAPI(1));
+  }
+
+  return result;
+};
 
 export default coursesSlice.reducer;

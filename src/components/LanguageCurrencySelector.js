@@ -23,6 +23,7 @@ import { LANGUAGE_MAP, CURRENCIES } from "../utils/constants";
 import { selectCurrency } from "../redux/reducers/currencyReducer";
 import TranslateIcon from "@mui/icons-material/Translate";
 import { styled } from "@mui/material/styles";
+import { fetchCoursesFromAPI } from "../redux/coursesSlice";
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -170,9 +171,10 @@ const LanguageCurrencySelector = ({
     dispatch(setTargetLanguage(event.target.value));
   };
 
-  const handleCurrencySelect = async (currency) => {
+  const handleCurrencySelect = (currency) => {
     dispatch(setCurrency(currency));
     setLocalSelectedCurrency(currency);
+    dispatch(fetchCoursesFromAPI(1));
     onClose();
   };
 

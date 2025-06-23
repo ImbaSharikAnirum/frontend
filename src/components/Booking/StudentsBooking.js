@@ -28,13 +28,21 @@ import {
   selectCurrentInvoice,
   setInvoice,
 } from "../../redux/reducers/invoiceBookingReducer";
-import { useCreateInvoiceMutation } from "../../redux/services/invoiceAPI";
+import {
+  useCreateInvoiceMutation,
+  useCreateTinkoffPaymentMutation,
+} from "../../redux/services/invoiceAPI";
+import { selectCurrencyCode } from "../../redux/reducers/currencyReducer";
+import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 
 export default function StudentsBooking() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const user = useSelector(selectCurrentUser);
   const dispatch = useDispatch();
+  const userCurrency = useSelector(selectCurrencyCode);
+  const course = useSelector(selectCurrentCourse);
+  const [createTinkoffPayment] = useCreateTinkoffPaymentMutation();
 
   const [createStudent, { isLoading: isCreatingStudent }] =
     useCreateStudentMutation();
@@ -276,12 +284,22 @@ export default function StudentsBooking() {
   const [createInvoice] = useCreateInvoiceMutation();
 
   const currentInvoice = useSelector(selectCurrentInvoice);
+  const totalCost = currentInvoice?.sum || 0;
 
   const handleConfirmAndPay = () => {
     if (!selectedStudent) {
       toast.error("Пожалуйста, выберите студента перед подтверждением.");
       return;
     }
+
+    // Выводим данные в консоль для отладки
+    // console.log("=== ДАННЫЕ ДЛЯ СОЗДАНИЯ СЧЕТА ===");
+    // console.log("Текущий счет:", currentInvoice);
+    // console.log("Выбранный студент:", selectedStudent);
+    // console.log("Пользователь:", user);
+    // console.log("Валюта пользователя:", userCurrency);
+    // console.log("================================");
+
     if (currentInvoice) {
       createInvoice(currentInvoice)
         .unwrap()
@@ -300,30 +318,33 @@ export default function StudentsBooking() {
   const status = useSelector(selectStudentStatus);
 
   const createPaymentLink = async () => {
-    // const response = await fetch("https://api.wata.pro/api/h2h/links", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer ваш_access_token",
-    //   },
-    //   body: JSON.stringify({
-    //     amount: 50.0,
-    //     currency: "RUB",
-    //     description: "Оплата заказа #12345",
-    //     orderId: "12345",
-    //     successRedirectUrl: "https://anirum.com/sucsess-payment",
-    //     failRedirectUrl: "https://anirum.com/error",
-    //   }),
-    // });
-    // const data = await response.json();
-    // if (response.ok) {
-    //   // Перенаправляем пользователя на страницу оплаты
-    //   window.location.href = data.url;
-    // } else {
-    //   // Обработка ошибок
-    //   console.error("Ошибка создания платежной ссылки:", data);
-    // }
+    if (!selectedStudent) {
+      toast.error("Выберите ученика перед оплатой");
+      return;
+    }
+
+    try {
+      const payload = {
+        users_permissions_user: user.id,
+        student: selectedStudent.id,
+        group: course.id,
+        amount: totalCost,
+        currency: userCurrency,
+      };
+
+      const response = await createTinkoffPayment(payload).unwrap();
+
+      if (response?.PaymentURL) {
+        window.location.href = response.PaymentURL;
+      } else {
+        toast.error("Не удалось получить ссылку на оплату");
+      }
+    } catch (err) {
+      console.error("Ошибка при создании платежа:", err);
+      toast.error("Ошибка при создании платежа");
+    }
   };
+
   return (
     <div style={{ marginTop: "24px" }}>
       {status === "loading" ? (

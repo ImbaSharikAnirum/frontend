@@ -17,11 +17,15 @@ import { useParams } from "react-router-dom";
 import { useFetchCourseByIdQuery } from "../redux/services/courseAPI";
 import { showFooterMenu } from "../redux/footerMenuSlice";
 import { CircularProgress } from "@mui/material";
+import { selectCurrencyCode } from "../redux/reducers/currencyReducer";
 
 function Course() {
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { data, isLoading } = useFetchCourseByIdQuery(id);
+  const userCurrency = useSelector(selectCurrencyCode);
+  const { data, isLoading, refetch } = useFetchCourseByIdQuery(id, {
+    currency: userCurrency,
+  });
   const isStudentDataModalOpen = useSelector(
     (state) => state.modals.studentDataModalOpen
   );
@@ -31,11 +35,16 @@ function Course() {
   const isEditSumModalOpen = useSelector(
     (state) => state.modals.editSumModalOpen
   );
+
   useEffect(() => {
     return () => {
       dispatch(showFooterMenu(false));
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    refetch();
+  }, [userCurrency, refetch]);
 
   if (isLoading) {
     return (

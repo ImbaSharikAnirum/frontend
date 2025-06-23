@@ -9,8 +9,12 @@ import {
   selectCurrentInvoice,
   setInvoice,
 } from "../../redux/reducers/invoiceBookingReducer";
+import {
+  selectCurrency,
+  selectCurrencyCode,
+} from "../../redux/reducers/currencyReducer";
 
-export default function Card() {
+export default function Card({ isLoading }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const course = useSelector(selectCurrentCourse);
@@ -23,7 +27,8 @@ export default function Card() {
     { fullName: "Суббота", shortName: "Сб", value: course.saturday },
     { fullName: "Воскресенье", shortName: "Вс", value: course.sunday },
   ];
-
+  const currency = useSelector(selectCurrency);
+  const userCurrency = useSelector(selectCurrencyCode);
   const activeDays = dayOfWeek.filter((day) => day.value);
 
   const courseDays =
@@ -136,13 +141,13 @@ export default function Card() {
   useEffect(() => {
     dispatch(
       setInvoice({
-        currency: "руб",
+        currency: userCurrency,
         sum: sum,
         status_payment: false,
         group: course.id,
       })
     );
-  }, [sum, dispatch, course, user]);
+  }, [sum, dispatch, course, user, userCurrency]);
 
   const handleSumChange = (e) => {
     const newSum = e.target.value;
@@ -173,7 +178,20 @@ export default function Card() {
             height: "150px",
           }}
         >
-          {course?.images[0] ? (
+          {isLoading ? (
+            <Skeleton
+              className="slide-image"
+              variant="rectangular"
+              style={{
+                marginTop: "0px",
+                boxShadow:
+                  "0 0 0 1px transparent, 0 0 0 4px transparent, 0 0 0 0.5px #E0E0E0",
+                border: "none",
+                borderRadius: "16px",
+                height: "150px",
+              }}
+            />
+          ) : course?.images[0] ? (
             <img
               src={`${course?.images[0].original}`}
               alt="Курс"
@@ -211,7 +229,16 @@ export default function Card() {
         >
           <div style={{ display: "flex", gap: "8px" }}>
             <div style={{ height: "35px", width: "40px" }}>
-              {urlAvatar ? (
+              {isLoading ? (
+                <Skeleton
+                  variant="rectangular"
+                  style={{
+                    width: "35px",
+                    height: "35px",
+                    borderRadius: "90px",
+                  }}
+                />
+              ) : urlAvatar ? (
                 <img
                   src={`${urlAvatar}`}
                   alt="Аватар"
@@ -235,7 +262,15 @@ export default function Card() {
               )}
             </div>
 
-            {course.direction ? (
+            {isLoading ? (
+              <Skeleton
+                variant="rectangular"
+                style={{
+                  width: "150px",
+                  // height: "100%",
+                }}
+              />
+            ) : course.direction ? (
               <div
                 style={{ display: "flex", flexDirection: "column", gap: "4px" }}
               >
@@ -254,7 +289,14 @@ export default function Card() {
               />
             )}
           </div>
-          {courseDays ? (
+          {isLoading ? (
+            <Skeleton
+              variant="rectangular"
+              style={{
+                width: "150px",
+              }}
+            />
+          ) : courseDays ? (
             <div
               style={{
                 display: "flex",
@@ -286,7 +328,15 @@ export default function Card() {
           marginTop: "16px",
         }}
       ></div>
-      {course.price_lesson ? (
+      {isLoading ? (
+        <Skeleton
+          variant="rectangular"
+          style={{
+            width: "150px",
+            marginTop: "16px",
+          }}
+        />
+      ) : course.price_lesson ? (
         <div className="Body-3" style={{ marginTop: "16px" }}>
           Детализация цены
         </div>
@@ -299,7 +349,15 @@ export default function Card() {
           }}
         />
       )}{" "}
-      {course.price_lesson ? (
+      {isLoading ? (
+        <Skeleton
+          variant="rectangular"
+          style={{
+            width: "100%",
+            marginTop: "16px",
+          }}
+        />
+      ) : course.price_lesson ? (
         <div
           style={{
             display: "flex",
@@ -311,7 +369,8 @@ export default function Card() {
             <div className="Body-2">Цена занятия</div>
           </div>
           <div className="Body-2">
-            {course.price_lesson} р{/* Всего {totalCost} р */}
+            {course.price_lesson} {currency.symbol}
+            {/* Всего {totalCost} р */}
           </div>
         </div>
       ) : (
@@ -323,7 +382,15 @@ export default function Card() {
           }}
         />
       )}{" "}
-      {course.price_lesson ? (
+      {isLoading ? (
+        <Skeleton
+          variant="rectangular"
+          style={{
+            width: "100%",
+            marginTop: "16px",
+          }}
+        />
+      ) : course.price_lesson ? (
         <div
           style={{
             display: "flex",
@@ -345,7 +412,15 @@ export default function Card() {
           }}
         />
       )}{" "}
-      {course.price_lesson ? (
+      {isLoading ? (
+        <Skeleton
+          variant="rectangular"
+          style={{
+            width: "100%",
+            marginTop: "16px",
+          }}
+        />
+      ) : course.price_lesson ? (
         <div
           style={{
             display: "flex",
@@ -355,10 +430,13 @@ export default function Card() {
         >
           <div style={{ display: "flex" }}>
             <div className="Body-2">
-              {course.price_lesson} р х {lessonsInNextMonth} занятия
+              {course.price_lesson} {currency.symbol} х {lessonsInNextMonth}{" "}
+              занятия
             </div>
           </div>
-          <div className="Body-2">{totalCost} р</div>
+          <div className="Body-2">
+            {totalCost} {currency.symbol}
+          </div>
         </div>
       ) : (
         <Skeleton
@@ -375,7 +453,15 @@ export default function Card() {
           marginTop: "16px",
         }}
       ></div>{" "}
-      {course.price_lesson ? (
+      {isLoading ? (
+        <Skeleton
+          variant="rectangular"
+          style={{
+            width: "100%",
+            marginTop: "16px",
+          }}
+        />
+      ) : course.price_lesson ? (
         <div
           style={{
             display: "flex",
@@ -386,7 +472,9 @@ export default function Card() {
           <div style={{ display: "flex" }}>
             <div className="Body-3">Всего</div>
           </div>
-          <div className="Body-3">{totalCost} р</div>
+          <div className="Body-3">
+            {totalCost} {currency.symbol}
+          </div>
         </div>
       ) : (
         <Skeleton
@@ -399,7 +487,15 @@ export default function Card() {
       )}{" "}
       {Number(ManagerId) === user?.role?.id && (
         <div>
-          {course.price_lesson ? (
+          {isLoading ? (
+            <Skeleton
+              variant="rectangular"
+              style={{
+                width: "100%",
+                marginTop: "16px",
+              }}
+            />
+          ) : course.price_lesson ? (
             <div
               style={{
                 display: "flex",

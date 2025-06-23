@@ -27,7 +27,7 @@ export const { setCoursesCount, setLoading, setError } =
 
 export const fetchCoursesCountFromAPI = () => async (dispatch, getState) => {
   const state = getState();
-  const filter = state.filterForCount; // Убедитесь, что это правильный ключ для фильтра
+  const filter = state.filterForCount;
 
   if (!filter) {
     dispatch(setError("Filter state is undefined"));

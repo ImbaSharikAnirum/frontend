@@ -8,6 +8,11 @@ import { ReactComponent as Down } from "../../images/down.svg";
 import moment from "moment";
 import { selectCurrentUser } from "../../redux/reducers/authReducer";
 import "moment/locale/ru";
+import {
+  selectCurrency,
+  selectCurrencyCode,
+} from "../../redux/reducers/currencyReducer";
+import { useFetchCourseByIdQuery } from "../../redux/services/courseAPI";
 
 export default function Form({ isLoading }) {
   const [scrollTop, setScrollTop] = useState(0);
@@ -22,6 +27,16 @@ export default function Form({ isLoading }) {
   const user = useSelector(selectCurrentUser);
   const ManagerId = process.env.REACT_APP_MANAGER;
   const [firstActiveDay, setFirstActiveDay] = useState("");
+  const currency = useSelector(selectCurrency);
+  const userCurrency = useSelector(selectCurrencyCode);
+  const [prevCurrency, setPrevCurrency] = useState(userCurrency);
+  const [isCurrencyLoading, setIsCurrencyLoading] = useState(false);
+
+  // Добавляем запрос данных курса с учетом валюты
+  const { data: courseData, isLoading: isCourseLoading } =
+    useFetchCourseByIdQuery(id, {
+      currency: userCurrency,
+    });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,6 +103,27 @@ export default function Form({ isLoading }) {
     ? moment(selectedMonth, "MMMM YYYY").locale("en").format("YYYY-MM")
     : null;
   const linkMonth = selectedenglishMonth && selectedenglishMonth;
+
+  // Обновляем эффект для обработки смены валюты
+  useEffect(() => {
+    if (prevCurrency !== userCurrency) {
+      setIsCurrencyLoading(true);
+      setSessionCountFirst(0);
+      setFirstActiveDay("");
+      setPrevCurrency(userCurrency);
+    }
+  }, [userCurrency, prevCurrency]);
+
+  // Эффект для сброса состояния загрузки после получения новых данных
+  useEffect(() => {
+    if (!isCourseLoading && courseData) {
+      setIsCurrencyLoading(false);
+    }
+  }, [isCourseLoading, courseData]);
+
+  const showSkeletons = isLoading || isCurrencyLoading || isCourseLoading;
+  const currentPrice = courseData?.price_lesson || course.price_lesson;
+
   return (
     <div
       className="box"
@@ -102,12 +138,12 @@ export default function Form({ isLoading }) {
       }}
     >
       <div style={{ width: "300px", display: "flex", flexDirection: "column" }}>
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton height={24} width={"100%"} variant="text" />
         ) : (
           <div style={{ display: "flex", alignItems: "end" }}>
             <div className="h4" style={{ fontSize: "20px" }}>
-              {course.price_lesson} р
+              {currentPrice} {currency.symbol}
             </div>
             <div className="Body-3" style={{ marginLeft: "8px" }}>
               занятие
@@ -116,7 +152,7 @@ export default function Form({ isLoading }) {
         )}
         {course.id && user?.role?.id === Number(ManagerId) && (
           <>
-            {isLoading ? (
+            {showSkeletons ? (
               <Skeleton height={70} width={"100%"} variant="text" />
             ) : (
               <div
@@ -217,7 +253,7 @@ export default function Form({ isLoading }) {
             )}
           </>
         )}
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton height={70} width={"100%"} variant="text" />
         ) : (
           <Link
@@ -236,7 +272,7 @@ export default function Form({ isLoading }) {
             </button>
           </Link>
         )}
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton
             height={24}
             variant="text"
@@ -260,7 +296,7 @@ export default function Form({ isLoading }) {
             Пока вы ни за что не платите
           </div>
         )}
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton
             height={24}
             variant="text"
@@ -283,7 +319,7 @@ export default function Form({ isLoading }) {
             <div className="Body-2">{firstActiveDay}</div>
           </div>
         )}
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton
             height={24}
             variant="text"
@@ -306,7 +342,7 @@ export default function Form({ isLoading }) {
             <div className="Body-2">{sessionCountFirst}</div>
           </div>
         )}
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton
             height={24}
             variant="text"
@@ -326,10 +362,10 @@ export default function Form({ isLoading }) {
             }}
           >
             <div className="Body-2">
-              {course.price_lesson} р х {sessionCountFirst} занятий
+              {currentPrice} {currency.symbol} х {sessionCountFirst} занятий
             </div>
             <div className="Body-2">
-              {course.price_lesson * sessionCountFirst} р
+              {currentPrice * sessionCountFirst} {currency.symbol}
             </div>
           </div>
         )}
@@ -339,7 +375,7 @@ export default function Form({ isLoading }) {
             marginTop: "12px",
           }}
         ></div>
-        {isLoading ? (
+        {showSkeletons ? (
           <Skeleton
             height={24}
             variant="text"
@@ -360,7 +396,7 @@ export default function Form({ isLoading }) {
           >
             <div className="Body-3">Всего</div>
             <div className="Body-3">
-              {course.price_lesson * sessionCountFirst} р
+              {currentPrice * sessionCountFirst} {currency.symbol}
             </div>
           </div>
         )}

@@ -7,10 +7,13 @@ import "../../styles/courses.css";
 import moment from "moment-timezone";
 import { useSelector } from "react-redux";
 import { selectLanguageCode } from "../../redux/reducers/languageReducer";
+import { selectCurrency } from "../../redux/reducers/currencyReducer";
 
 const CardCourse = ({ course }) => {
+  console.log("CardCourse received course:", course);
   const { t } = useTranslation();
   const languageCode = useSelector(selectLanguageCode);
+  const currency = useSelector(selectCurrency);
 
   const dayOfWeek = [
     {
@@ -141,7 +144,6 @@ const CardCourse = ({ course }) => {
 
   const lessonsInNextMonth = countLessonsInNextMonth(course);
   const totalCost = lessonsInNextMonth * course.price_lesson;
-
   // Функция для получения переведенного названия направления
   const getTranslatedDirection = (direction) => {
     switch (direction) {
@@ -157,7 +159,7 @@ const CardCourse = ({ course }) => {
         return direction;
     }
   };
-
+  // console.log(course, "course");
   return (
     <div className="card">
       <Slider images={course.image_url} course={course} />
@@ -227,14 +229,16 @@ const CardCourse = ({ course }) => {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: "4px" }}>
-              <div className="Body-3">{course.price_lesson} р</div>
+              <div className="Body-3">
+                {course.price_lesson} {currency.symbol}
+              </div>
               <div className="Body-2">{t("course.lesson")}</div>
             </div>
             <div
               className="Body-1"
               style={{ color: "#5F5F5F", textDecoration: "underline" }}
             >
-              {t("course.total")} {totalCost} р
+              {t("course.total")} {totalCost} {currency.symbol}
             </div>
           </div>
         </div>

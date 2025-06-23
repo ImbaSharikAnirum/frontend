@@ -18,6 +18,7 @@ import { selectCurrentUser } from "../redux/reducers/authReducer";
 export default function Courses() {
   const dispatch = useDispatch();
   const courses = useSelector((state) => state.courses.courses);
+  const isLoading = useSelector((state) => state.courses.isLoading);
   const filter = useSelector((state) => state.filter);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,17 +68,17 @@ export default function Courses() {
     <div className="padding">
       <div className="filters">
         <div className="desktop courses_filters">
-          <DirectionFilter loading={loading} />
+          <DirectionFilter loading={loading || isLoading} />
         </div>
         <div className="desktop courses_filters">
-          <FormatFilter loading={loading} />
+          <FormatFilter loading={loading || isLoading} />
         </div>
-        <div className=" desktop courses_filters">
-          <AgeInput loading={loading} />
+        <div className="desktop courses_filters">
+          <AgeInput loading={loading || isLoading} />
         </div>
         {!isMobile && (
           <div className="courses_filters">
-            <FilterGroup loading={loading} />
+            <FilterGroup loading={loading || isLoading} />
           </div>
         )}
         {user?.role?.id === Number(ManagerId) && (
@@ -100,7 +101,7 @@ export default function Courses() {
 
       {/* Courses */}
       <div className="card-container">
-        {loading
+        {loading || isLoading
           ? Array.from(new Array(12)).map((_, index) => (
               <SkeletonCardCourse key={index} />
             ))
@@ -110,7 +111,7 @@ export default function Courses() {
             ))
           : null}
       </div>
-      {!loading && courses.length === 0 && (
+      {!loading && !isLoading && courses.length === 0 && (
         <div className="no-courses">
           <div
             className="h4"

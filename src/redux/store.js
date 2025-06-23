@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import filterReducer from "./filterSlice";
-import coursesReducer from "./coursesSlice";
+import coursesReducer, { currencyMiddleware } from "./coursesSlice";
 import coursesCountReducer from "./coursesCountSlice";
 import filterForCountReducer from "./filterForCountSlice";
 import footerMenuReducer from "./footerMenuSlice";
@@ -91,6 +91,7 @@ export const store = configureStore({
       directionAPI.middleware,
       skillAPI.middleware,
       skillTreeAPI.middleware,
-      chatAPI.middleware
+      chatAPI.middleware,
+      currencyMiddleware
     ),
 });

@@ -78,6 +78,13 @@ export const invoiceAPI = createApi({
       }),
       invalidatesTags: ["Invoice"],
     }),
+    createTinkoffPayment: builder.mutation({
+      query: (body) => ({
+        url: "/invoices/tinkoff/payment",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -88,4 +95,5 @@ export const {
   useUpdateInvoicePaymentStatusMutation,
   useUpdateInvoiceSumMutation,
   useDeleteInvoiceMutation,
+  useCreateTinkoffPaymentMutation,
 } = invoiceAPI;

@@ -7,7 +7,7 @@ import {
   CircularProgress,
   Box,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Card from "../components/Booking/Card";
 import InformationBooking from "../components/Booking/InformationBooking";
 import { selectCurrentUser } from "../redux/reducers/authReducer";
@@ -22,16 +22,47 @@ import {
   setError,
   setStudents,
 } from "../redux/reducers/studentReducer";
-import { useDispatch } from "react-redux";
 import StudentsBooking from "../components/Booking/StudentsBooking";
 import { selectCurrentCourse } from "../redux/reducers/courseReducer";
 import ManagerForm from "../components/Booking/ManagerForm";
+import { selectCurrency } from "../redux/reducers/currencyReducer";
+import { useFetchCourseByIdQuery } from "../redux/services/courseAPI";
+import { useParams } from "react-router-dom";
 
 export default function Booking() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const ManagerId = process.env.REACT_APP_MANAGER;
   const [scrollTop, setScrollTop] = useState(0);
+  const { id } = useParams();
+  const currency = useSelector(selectCurrency);
+  const [isCurrencyLoading, setIsCurrencyLoading] = useState(false);
+  const [prevCurrency, setPrevCurrency] = useState(currency.code);
+
+  const {
+    data: courseData,
+    isLoading: isCourseLoading,
+    refetch,
+  } = useFetchCourseByIdQuery(id, {
+    skip: !id,
+    currency: currency.code,
+  });
+
+  useEffect(() => {
+    if (prevCurrency !== currency.code) {
+      setIsCurrencyLoading(true);
+      setPrevCurrency(currency.code);
+      // Делаем новый запрос при смене валюты
+      refetch();
+    }
+  }, [currency.code, prevCurrency, refetch]);
+
+  useEffect(() => {
+    if (courseData) {
+      setIsCurrencyLoading(false);
+    }
+  }, [courseData]);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollTop(window.scrollY);
@@ -43,6 +74,7 @@ export default function Booking() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
   const user = useSelector(selectCurrentUser);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(true);
@@ -58,6 +90,8 @@ export default function Booking() {
   };
 
   const course = useSelector(selectCurrentCourse);
+  const showSkeletons = isCurrencyLoading || isCourseLoading;
+
   return (
     <div
       style={{
@@ -91,7 +125,7 @@ export default function Booking() {
                 width: "36px",
                 border: "none",
                 cursor: "pointer",
-                zIndex: 1000, // Убедитесь, что кнопка находится поверх других элементов
+                zIndex: 1000,
               }}
             >
               <Left style={{ fill: "white", width: "80px", height: "80px" }} />
@@ -108,7 +142,7 @@ export default function Booking() {
               maxWidth: "100%",
             }}
           >
-            <Card />
+            <Card isLoading={showSkeletons} />
           </div>
         )}
         <div
@@ -132,7 +166,7 @@ export default function Booking() {
                       className="Body-2"
                       style={{
                         display: "flex",
-                        flexDirection: "column", // Располагаем элементы по вертикали
+                        flexDirection: "column",
                         justifyContent: "center",
                         alignItems: "center",
                         width: "250px",
@@ -250,7 +284,7 @@ export default function Booking() {
                 minWidth: "45%",
               }}
             >
-              <Card />
+              <Card isLoading={showSkeletons} />
             </div>
           )}
         </div>

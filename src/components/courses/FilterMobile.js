@@ -336,10 +336,10 @@ export default function FilterMobile() {
               }}
             >
               • {!filterState.format && "Формат"}
-              {filterState.format === "Онлайн"
+              {/* {filterState.format === "Онлайн"
                 ? filterState.format
                 : filterState.city +
-                  (filterState.district ? `, ${filterState.district}` : "")}
+                  (filterState.district ? `, ${filterState.district}` : "")} */}
             </span>
             <span
               className="Body-2"
