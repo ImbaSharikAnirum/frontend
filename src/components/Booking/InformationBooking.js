@@ -62,7 +62,7 @@ export default function InformationBooking() {
         : null;
 
       const formattedStartDay = firstActiveDay
-        ? firstActiveDay.locale("ru").format("YYYY-MM-DD")
+        ? firstActiveDay.format("YYYY-MM-DD")
         : null;
 
       dispatch(
