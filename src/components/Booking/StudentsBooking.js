@@ -334,8 +334,8 @@ export default function StudentsBooking() {
 
       const response = await createTinkoffPayment(payload).unwrap();
 
-      if (response?.PaymentURL) {
-        window.location.href = response.PaymentURL;
+      if (response?.paymentUrl) {
+        window.location.href = response.paymentUrl;
       } else {
         toast.error("Не удалось получить ссылку на оплату");
       }
