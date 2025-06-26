@@ -23,7 +23,7 @@ import {
 import { toast } from "react-toastify";
 import { Box, CircularProgress, useMediaQuery, useTheme } from "@mui/material";
 import { ReactComponent as More } from "../../images/more.svg";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   selectCurrentInvoice,
   setInvoice,
@@ -31,10 +31,12 @@ import {
 import {
   useCreateInvoiceMutation,
   useCreateTinkoffPaymentMutation,
+  useFetchInvoiceByIdQuery,
 } from "../../redux/services/invoiceAPI";
 import { selectCurrencyCode } from "../../redux/reducers/currencyReducer";
 import { selectCurrentCourse } from "../../redux/reducers/courseReducer";
 import moment from "moment";
+import { Skeleton } from "@mui/material";
 
 export default function StudentsBooking() {
   const theme = useTheme();
@@ -287,6 +289,8 @@ export default function StudentsBooking() {
   const currentInvoice = useSelector(selectCurrentInvoice);
   const totalCost = currentInvoice?.sum || 0;
 
+  const { id: courseId, date, invoiceId } = useParams();
+
   const handleConfirmAndPay = () => {
     if (!selectedStudent) {
       toast.error("Пожалуйста, выберите студента перед подтверждением.");
@@ -297,9 +301,17 @@ export default function StudentsBooking() {
       createInvoice(currentInvoice)
         .unwrap()
         .then((response) => {
-          const invoiceId = response.data.id; // Извлечение id счета
-          console.log("Созданный счет ID:", invoiceId); // Вывод ID счета в консоль
-          toast.success("Счет создан");
+          const invoiceId = response.data.id;
+          // Формируем ссылку для клиента
+          const url = `${window.location.origin}/booking/${courseId}/${date}/${invoiceId}`;
+          navigator.clipboard
+            .writeText(url)
+            .then(() => {
+              toast.success("Ссылка на оплату скопирована!");
+            })
+            .catch(() => {
+              toast.success("Счет создан, но не удалось скопировать ссылку");
+            });
         })
         .catch((error) => {
           console.error("Ошибка при создании счета:", error);
@@ -353,18 +365,31 @@ export default function StudentsBooking() {
     }
   };
 
+  const { data: invoiceData, isLoading: isInvoiceLoading } =
+    useFetchInvoiceByIdQuery(invoiceId, { skip: !invoiceId });
+
   return (
     <div style={{ marginTop: "24px" }}>
-      {status === "loading" ? (
-        <Box sx={{ display: "flex", marginTop: "32px", marginLeft: "32px" }}>
-          <CircularProgress />
-        </Box>
-      ) : (
+      {/* Во время загрузки не показываем ничего */}
+      {isLoading && !invoiceId ? null : (
         <div>
-          {status === "succeeded" && students.length > 0 && (
+          {/* Loader для поиска студентов */}
+          {status === "loading" && !isLoading && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                margin: "32px 0",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
+
+          {/* Список студентов после загрузки */}
+          {status === "succeeded" && students.length > 0 && !invoiceId && (
             <div>
               <div className="h5">Выберите ученика</div>
-
               <ul style={{ marginTop: "12px" }}>
                 {students.map((student) => (
                   <div
@@ -491,190 +516,251 @@ export default function StudentsBooking() {
             </div>
           )}
 
-          <div className="Body-3" style={{ marginTop: "20px" }}></div>
-          {!isLoading && user && (
-            <button
-              className="button_filter_clear Body-2"
-              onClick={handleCreateStudent}
-            >
-              Добавить ученика
-            </button>
-          )}
-          {!isLoading && createStudentForm && user && (
-            <div>
-              {isCreatingStudent || isUpdatingStudent ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    marginTop: "32px",
-                    marginLeft: "32px",
-                  }}
+          {/* Всё, что ниже списка студентов, показываем только после загрузки */}
+          {!isLoading && (
+            <>
+              <div className="Body-3" style={{ marginTop: "20px" }}></div>
+              {user && !invoiceId && (
+                <button
+                  className="button_filter_clear Body-2"
+                  onClick={handleCreateStudent}
                 >
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <form
-                  onSubmit={onSubmit}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "250px",
-                    textAlign: "center",
-                  }}
-                >
-                  <div
-                    className="input_default_border"
-                    style={{ width: "100%" }}
-                  >
-                    <input
-                      className="input_default"
-                      placeholder="Имя"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      name="name"
-                      required
-                    />
-                  </div>
-                  <div
-                    className="input_default_border"
-                    style={{ width: "100%" }}
-                  >
-                    <input
-                      className="input_default"
-                      placeholder="Фамилия"
-                      type="text"
-                      value={family}
-                      onChange={(e) => setFamily(e.target.value)}
-                      name="family"
-                      required
-                    />
-                  </div>
-                  <div
-                    className="input_default_border"
-                    style={{ width: "100%" }}
-                  >
-                    <input
-                      className="input_default"
-                      placeholder="Телефон для связи"
-                      type="phone"
-                      name="phone"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="button_save Body-2 button-animate-filter"
-                    style={{ width: "100%", marginTop: "16px" }}
-                    disabled={isCreatingStudent || isUpdatingStudent}
-                  >
-                    {isCreatingStudent || isUpdatingStudent
-                      ? "Загрузка..."
-                      : isEditing
-                      ? "Сохранить изменения"
-                      : "Добавить"}
-                  </button>
-                </form>
+                  Добавить ученика
+                </button>
               )}
-            </div>
-          )}
-          {!isLoading && user && (
-            <div>
-              <div
-                style={{
-                  borderBottom: "1px solid #CDCDCD",
-                  marginTop: "24px",
-                }}
-              ></div>
-              <div style={{ marginTop: "24px" }}>
-                <div className="h5">Правила отмены</div>
-                <div className="Body-2" style={{ marginTop: "16px" }}>
-                  Отмена и полный возврат возможны за 2 дня до начала курса.
-                  После этого срока отмена участия и возврат средств не
-                  предусмотрены.
+              {createStudentForm && user && !invoiceId && !isLoading && (
+                <div>
+                  {isCreatingStudent || isUpdatingStudent ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "250px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <Skeleton
+                        variant="rectangular"
+                        style={{
+                          width: "100%",
+                          height: "40px",
+                          marginBottom: "12px",
+                        }}
+                      />
+                      <Skeleton
+                        variant="rectangular"
+                        style={{
+                          width: "100%",
+                          height: "40px",
+                          marginBottom: "12px",
+                        }}
+                      />
+                      <Skeleton
+                        variant="rectangular"
+                        style={{
+                          width: "100%",
+                          height: "40px",
+                          marginBottom: "16px",
+                        }}
+                      />
+                      <Skeleton
+                        variant="rectangular"
+                        style={{
+                          width: "100%",
+                          height: "40px",
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={onSubmit}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "250px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <div
+                        className="input_default_border"
+                        style={{ width: "100%" }}
+                      >
+                        <input
+                          className="input_default"
+                          placeholder="Имя"
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          name="name"
+                          required
+                        />
+                      </div>
+                      <div
+                        className="input_default_border"
+                        style={{ width: "100%" }}
+                      >
+                        <input
+                          className="input_default"
+                          placeholder="Фамилия"
+                          type="text"
+                          value={family}
+                          onChange={(e) => setFamily(e.target.value)}
+                          name="family"
+                          required
+                        />
+                      </div>
+                      <div
+                        className="input_default_border"
+                        style={{ width: "100%" }}
+                      >
+                        <input
+                          className="input_default"
+                          placeholder="Телефон для связи"
+                          type="phone"
+                          name="phone"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        className="button_save Body-2 button-animate-filter"
+                        style={{ width: "100%", marginTop: "16px" }}
+                        disabled={isCreatingStudent || isUpdatingStudent}
+                      >
+                        {isCreatingStudent || isUpdatingStudent
+                          ? "Загрузка..."
+                          : isEditing
+                          ? "Сохранить изменения"
+                          : "Добавить"}
+                      </button>
+                    </form>
+                  )}
                 </div>
-                <div className="Body-2" style={{ marginTop: "16px" }}>
-                  Компания не осуществляет перерасчеты и переносы в случае
-                  пропуска занятия, включая случаи со справкой.
-                </div>
-                <div className="Body-2" style={{ marginTop: "16px" }}>
-                  При недоборе участников или других препятствиях курсы
-                  отменяются с возвратом оплаты за несостоявшиеся занятия.
-                </div>
-              </div>
-              <div
-                style={{
-                  borderBottom: "1px solid #CDCDCD",
-                  marginTop: "24px",
-                }}
-              ></div>
-              <div
-                className="Body-2"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "start",
-                  alignItems: "start",
-                  // width: "250px",
-                  marginTop: "16px",
-                  fontSize: "12px",
-                  // textAlign: "center",
-                }}
-              >
-                <p style={{ margin: "0", lineHeight: "1.5" }}>
-                  Продолжая, вы соглашаетесь с положениями основных документов{" "}
-                  <Link
-                    to="/signup"
+              )}
+              {user && (
+                <div>
+                  <div
                     style={{
-                      color: "black",
-                      textDecoration: "underline",
+                      borderBottom: "1px solid #CDCDCD",
+                      marginTop: "24px",
+                    }}
+                  ></div>
+                  <div style={{ marginTop: "24px" }}>
+                    <div className="h5">Правила отмены</div>
+                    <div className="Body-2" style={{ marginTop: "16px" }}>
+                      Отмена и полный возврат возможны за 2 дня до начала курса.
+                      После этого срока отмена участия и возврат средств не
+                      предусмотрены.
+                    </div>
+                    <div className="Body-2" style={{ marginTop: "16px" }}>
+                      Компания не осуществляет перерасчеты и переносы в случае
+                      пропуска занятия, включая случаи со справкой.
+                    </div>
+                    <div className="Body-2" style={{ marginTop: "16px" }}>
+                      При недоборе участников или других препятствиях курсы
+                      отменяются с возвратом оплаты за несостоявшиеся занятия.
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      borderBottom: "1px solid #CDCDCD",
+                      marginTop: "24px",
+                    }}
+                  ></div>
+                  <div
+                    className="Body-2"
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "start",
+                      alignItems: "start",
+                      marginTop: "16px",
+                      fontSize: "12px",
                     }}
                   >
-                    Условия предоставления услуг
-                  </Link>{" "}
-                  и{" "}
-                  <Link
-                    to="/confidentiality"
-                    style={{
-                      color: "black",
-                      textDecoration: "underline",
-                    }}
-                  >
-                    Политика конфиденциальности
-                  </Link>{" "}
-                  — и подтверждаете, что прочли их.
-                </p>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                {userCurrency === "RUB" ? (
-                  <button
-                    className="button Body-3 button-animate-filter"
-                    style={{ marginTop: "20px", maxWidth: "240px" }}
-                    onClick={createPaymentLink}
-                  >
-                    Подтвердить и оплатить
-                  </button>
-                ) : (
-                  <div className="Body-2" style={{ marginTop: "20px" }}>
-                    На текущий момент оплата только в рублях. Поменяйте валюту в
-                    настройках.
+                    <p style={{ margin: "0", lineHeight: "1.5" }}>
+                      Продолжая, вы соглашаетесь с положениями основных
+                      документов{" "}
+                      <Link
+                        to="/signup"
+                        style={{ color: "black", textDecoration: "underline" }}
+                      >
+                        Условия предоставления услуг
+                      </Link>{" "}
+                      и{" "}
+                      <Link
+                        to="/confidentiality"
+                        style={{ color: "black", textDecoration: "underline" }}
+                      >
+                        Политика конфиденциальности
+                      </Link>{" "}
+                      — и подтверждаете, что прочли их.
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    {userCurrency === "RUB" && !invoiceId ? (
+                      <button
+                        className="button Body-3 button-animate-filter"
+                        style={{ marginTop: "20px", maxWidth: "240px" }}
+                        onClick={createPaymentLink}
+                      >
+                        Подтвердить и оплатить
+                      </button>
+                    ) : !invoiceId ? (
+                      <div className="Body-2" style={{ marginTop: "20px" }}>
+                        На текущий момент оплата только в рублях. Поменяйте
+                        валюту в настройках.
+                      </div>
+                    ) : null}
+                    {user?.role?.id === Number(ManagerId) && !invoiceId && (
+                      <button
+                        className="button Body-3 button-animate-filter"
+                        style={{ marginTop: "20px", maxWidth: "240px" }}
+                        onClick={handleConfirmAndPay}
+                      >
+                        Добавить счет
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+              {invoiceId &&
+                invoiceData &&
+                invoiceData.data?.attributes?.status_payment === false &&
+                !isInvoiceLoading && (
+                  <div style={{ margin: "24px 0" }}>
+                    <button
+                      className="button Body-3 button-animate-filter"
+                      style={{ marginTop: "20px", maxWidth: "240px" }}
+                      onClick={async () => {
+                        try {
+                          const response = await createTinkoffPayment({
+                            users_permissions_user: user?.id,
+                            amount: invoiceData.data.attributes.sum,
+                            currency:
+                              invoiceData.data.attributes.currency ||
+                              userCurrency,
+                            invoiceId: invoiceId,
+                          });
+                          if (response.data?.paymentUrl) {
+                            window.location.href = response.data.paymentUrl;
+                          }
+                        } catch (error) {
+                          console.error("Ошибка при создании платежа:", error);
+                        }
+                      }}
+                    >
+                      Подтвердить и оплатить
+                    </button>
                   </div>
                 )}
-                {user?.role?.id === Number(ManagerId) && (
-                  <button
-                    className="button Body-3 button-animate-filter"
-                    style={{ marginTop: "20px", maxWidth: "240px" }}
-                    onClick={handleConfirmAndPay}
-                  >
-                    Добавить счет
-                  </button>
-                )}
-              </div>
-            </div>
+            </>
           )}
         </div>
       )}

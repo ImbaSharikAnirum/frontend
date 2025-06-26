@@ -85,6 +85,12 @@ export const invoiceAPI = createApi({
         body,
       }),
     }),
+    fetchInvoiceById: builder.query({
+      query: (id) => ({
+        url: `/invoices/${id}?populate=*`,
+      }),
+      providesTags: ["Invoice"],
+    }),
   }),
 });
 
@@ -96,4 +102,5 @@ export const {
   useUpdateInvoiceSumMutation,
   useDeleteInvoiceMutation,
   useCreateTinkoffPaymentMutation,
+  useFetchInvoiceByIdQuery,
 } = invoiceAPI;

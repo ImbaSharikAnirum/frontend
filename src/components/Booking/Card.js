@@ -13,6 +13,7 @@ import {
   selectCurrency,
   selectCurrencyCode,
 } from "../../redux/reducers/currencyReducer";
+import { useFetchInvoiceByIdQuery } from "../../redux/services/invoiceAPI";
 
 export default function Card({ isLoading }) {
   const theme = useTheme();
@@ -57,7 +58,7 @@ export default function Card({ isLoading }) {
       ? `${course.city}, ${course.district}`
       : "Онлайн";
 
-  const { id, date } = useParams();
+  const { id, date, invoiceId } = useParams();
   const monthName = moment(date, "YYYY-MM").locale("ru").format("MMMM");
 
   const getMonthInGenitive = (month) => {
@@ -160,6 +161,10 @@ export default function Card({ isLoading }) {
     course?.teacher?.photo?.small ||
     course?.teacher?.photo?.medium ||
     course?.teacher?.photo?.original;
+
+  const { data: invoiceData, isLoading: isInvoiceLoading } =
+    useFetchInvoiceByIdQuery(invoiceId, { skip: !invoiceId });
+
   return (
     <div
       style={{
@@ -448,12 +453,9 @@ export default function Card({ isLoading }) {
         />
       )}
       <div
-        style={{
-          borderBottom: "1px solid #CDCDCD",
-          marginTop: "16px",
-        }}
-      ></div>{" "}
-      {isLoading ? (
+        style={{ borderBottom: "1px solid #CDCDCD", marginTop: "16px" }}
+      ></div>
+      {isLoading || isInvoiceLoading ? (
         <Skeleton
           variant="rectangular"
           style={{
@@ -461,7 +463,7 @@ export default function Card({ isLoading }) {
             marginTop: "16px",
           }}
         />
-      ) : course.price_lesson ? (
+      ) : (
         <div
           style={{
             display: "flex",
@@ -476,26 +478,49 @@ export default function Card({ isLoading }) {
             {totalCost} {currency.symbol}
           </div>
         </div>
-      ) : (
-        <Skeleton
-          variant="rectangular"
-          style={{
-            width: "100%",
-            marginTop: "16px",
-          }}
-        />
-      )}{" "}
-      {Number(ManagerId) === user?.role?.id && (
-        <div>
-          {isLoading ? (
-            <Skeleton
-              variant="rectangular"
+      )}
+      {/* Если есть invoiceId, показываем итоговую сумму по счету и примечание */}
+      {invoiceId &&
+        invoiceData?.data?.attributes?.sum != null &&
+        !isInvoiceLoading && (
+          <>
+            <div
               style={{
-                width: "100%",
-                marginTop: "16px",
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "8px",
               }}
-            />
-          ) : course.price_lesson ? (
+            >
+              <div className="Body-3">Итоговая сумма по счету</div>
+              <div className="Body-3">
+                {invoiceData.data.attributes.sum} {currency.symbol}
+              </div>
+            </div>
+            <div
+              className="Body-2"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "start",
+                alignItems: "start",
+                // width: "250px",
+                marginTop: "16px",
+                fontSize: "13px",
+                // textAlign: "center",
+              }}
+            >
+              <p style={{ margin: "0", lineHeight: "1.5" }}>
+                Сумма счета может отличаться от стандартной из-за индивидуальных
+                условий, скидок или частичной оплаты.
+              </p>
+            </div>
+          </>
+        )}
+      {Number(ManagerId) === user?.role?.id &&
+        !invoiceId &&
+        !isLoading &&
+        course.price_lesson && (
+          <div>
             <div
               style={{
                 display: "flex",
@@ -519,17 +544,8 @@ export default function Card({ isLoading }) {
                 />
               </div>
             </div>
-          ) : (
-            <Skeleton
-              variant="rectangular"
-              style={{
-                width: "100%",
-                marginTop: "16px",
-              }}
-            />
-          )}
-        </div>
-      )}
+          </div>
+        )}
     </div>
   );
 }

@@ -61,7 +61,7 @@ function App() {
           <Route path="/guides" element={<Guides />} />
           <Route path="/guide/:id" element={<Guide />} />
           <Route path="/finance" element={<Finance />} />
-          <Route path="/booking/:id/:date" element={<Booking />} />
+          <Route path="/booking/:id/:date/:invoiceId?" element={<Booking />} />
           <Route path="/create/course" element={<CreateCourse />} />
           <Route path="/create/guide" element={<CreateGuide />} />
           <Route path="/conditions" element={<Conditions />} />
