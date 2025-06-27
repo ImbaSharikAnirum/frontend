@@ -644,7 +644,7 @@ export default function StudentsBooking() {
                 </div>
               )}
 
-              {invoiceId && invoiceData && (user || invoiceId) && (
+              {user && (
                 <div>
                   <div
                     style={{
