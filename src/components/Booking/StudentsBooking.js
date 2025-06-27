@@ -643,7 +643,7 @@ export default function StudentsBooking() {
                   )}
                 </div>
               )}
-              {user && (
+              {(user || invoiceId) && (
                 <div>
                   <div
                     style={{
@@ -734,7 +734,7 @@ export default function StudentsBooking() {
                 invoiceData &&
                 invoiceData.data?.attributes?.status_payment === false &&
                 !isInvoiceLoading && (
-                  <div style={{ margin: "24px 0" }}>
+                  <div>
                     <button
                       className="button Body-3 button-animate-filter"
                       style={{ marginTop: "20px", maxWidth: "240px" }}

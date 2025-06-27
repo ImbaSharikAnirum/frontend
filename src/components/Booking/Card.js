@@ -488,7 +488,7 @@ export default function Card({ isLoading }) {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: "8px",
+                marginTop: "12px",
               }}
             >
               <div className="Body-3">Итоговая сумма по счету</div>
@@ -504,7 +504,7 @@ export default function Card({ isLoading }) {
                 justifyContent: "start",
                 alignItems: "start",
                 // width: "250px",
-                marginTop: "16px",
+                marginTop: "12px",
                 fontSize: "13px",
                 // textAlign: "center",
               }}
