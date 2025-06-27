@@ -643,7 +643,8 @@ export default function StudentsBooking() {
                   )}
                 </div>
               )}
-              {(user || invoiceId) && (
+
+              {invoiceId && invoiceData && (user || invoiceId) && (
                 <div>
                   <div
                     style={{
@@ -689,14 +690,20 @@ export default function StudentsBooking() {
                       документов{" "}
                       <Link
                         to="/signup"
-                        style={{ color: "black", textDecoration: "underline" }}
+                        style={{
+                          color: "black",
+                          textDecoration: "underline",
+                        }}
                       >
                         Условия предоставления услуг
                       </Link>{" "}
                       и{" "}
                       <Link
                         to="/confidentiality"
-                        style={{ color: "black", textDecoration: "underline" }}
+                        style={{
+                          color: "black",
+                          textDecoration: "underline",
+                        }}
                       >
                         Политика конфиденциальности
                       </Link>{" "}
@@ -730,6 +737,7 @@ export default function StudentsBooking() {
                   </div>
                 </div>
               )}
+
               {invoiceId &&
                 invoiceData &&
                 invoiceData.data?.attributes?.status_payment === false &&
