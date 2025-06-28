@@ -743,6 +743,75 @@ export default function StudentsBooking() {
                 invoiceData.data?.attributes?.status_payment === false &&
                 !isInvoiceLoading && (
                   <div>
+                    {!user && (
+                      <div>
+                        <div
+                          style={{
+                            borderBottom: "1px solid #CDCDCD",
+                            marginTop: "24px",
+                          }}
+                        ></div>
+                        <div style={{ marginTop: "24px" }}>
+                          <div className="h5">Правила отмены</div>
+                          <div className="Body-2" style={{ marginTop: "16px" }}>
+                            Отмена и полный возврат возможны за 2 дня до начала
+                            курса. После этого срока отмена участия и возврат
+                            средств не предусмотрены.
+                          </div>
+                          <div className="Body-2" style={{ marginTop: "16px" }}>
+                            Компания не осуществляет перерасчеты и переносы в
+                            случае пропуска занятия, включая случаи со справкой.
+                          </div>
+                          <div className="Body-2" style={{ marginTop: "16px" }}>
+                            При недоборе участников или других препятствиях
+                            курсы отменяются с возвратом оплаты за
+                            несостоявшиеся занятия.
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            borderBottom: "1px solid #CDCDCD",
+                            marginTop: "24px",
+                          }}
+                        ></div>
+                        <div
+                          className="Body-2"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "start",
+                            alignItems: "start",
+                            marginTop: "16px",
+                            fontSize: "12px",
+                          }}
+                        >
+                          <p style={{ margin: "0", lineHeight: "1.5" }}>
+                            Продолжая, вы соглашаетесь с положениями основных
+                            документов{" "}
+                            <Link
+                              to="/signup"
+                              style={{
+                                color: "black",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              Условия предоставления услуг
+                            </Link>{" "}
+                            и{" "}
+                            <Link
+                              to="/confidentiality"
+                              style={{
+                                color: "black",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              Политика конфиденциальности
+                            </Link>{" "}
+                            — и подтверждаете, что прочли их.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     <button
                       className="button Body-3 button-animate-filter"
                       style={{ marginTop: "20px", maxWidth: "240px" }}
@@ -755,12 +824,13 @@ export default function StudentsBooking() {
                               invoiceData.data.attributes.currency ||
                               userCurrency,
                             invoiceId: invoiceId,
-                          });
-                          if (response.data?.paymentUrl) {
-                            window.location.href = response.data.paymentUrl;
+                          }).unwrap();
+                          if (response?.paymentUrl) {
+                            window.location.href = response.paymentUrl;
                           }
                         } catch (error) {
                           console.error("Ошибка при создании платежа:", error);
+                          toast.error("Ошибка при создании платежа");
                         }
                       }}
                     >

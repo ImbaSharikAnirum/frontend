@@ -195,9 +195,11 @@ export default function Location({ isLoading }) {
                   marginTop: "8px",
                 }}
               >
-                {t("course.online")}, {t("course.discord")}
+                {t("course.online")}, Google Meet
+                
+                {/* {t("course.discord")} */}
               </div>
-              <Link
+              {/* <Link
                 to={`https://discord.com/`}
                 style={{
                   textDecoration: "none",
@@ -219,7 +221,7 @@ export default function Location({ isLoading }) {
                 >
                   <DiscordIcon />
                 </div>
-              </Link>
+              </Link> */}
             </div>
           )}
         </div>
