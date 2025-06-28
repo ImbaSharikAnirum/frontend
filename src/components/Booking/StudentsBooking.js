@@ -46,6 +46,7 @@ export default function StudentsBooking() {
   const userCurrency = useSelector(selectCurrencyCode);
   const course = useSelector(selectCurrentCourse);
   const [createTinkoffPayment] = useCreateTinkoffPaymentMutation();
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
   const [createStudent, { isLoading: isCreatingStudent }] =
     useCreateStudentMutation();
@@ -327,6 +328,12 @@ export default function StudentsBooking() {
       return;
     }
 
+    if (isPaymentLoading) {
+      return; // Предотвращаем повторные клики
+    }
+
+    setIsPaymentLoading(true);
+
     try {
       // 1. Сначала создаём счет (invoice)
       const invoicePayload = {
@@ -362,6 +369,8 @@ export default function StudentsBooking() {
     } catch (err) {
       console.error("Ошибка при создании счета или платежа:", err);
       toast.error("Ошибка при создании счета или платежа");
+    } finally {
+      setIsPaymentLoading(false);
     }
   };
 
@@ -715,9 +724,12 @@ export default function StudentsBooking() {
                       <button
                         className="button Body-3 button-animate-filter"
                         style={{ marginTop: "20px", maxWidth: "240px" }}
+                        disabled={isPaymentLoading}
                         onClick={createPaymentLink}
                       >
-                        Подтвердить и оплатить
+                        {isPaymentLoading
+                          ? "Загрузка..."
+                          : "Подтвердить и оплатить"}
                       </button>
                     ) : !invoiceId ? (
                       <div className="Body-2" style={{ marginTop: "20px" }}>
@@ -815,7 +827,11 @@ export default function StudentsBooking() {
                     <button
                       className="button Body-3 button-animate-filter"
                       style={{ marginTop: "20px", maxWidth: "240px" }}
+                      disabled={isPaymentLoading}
                       onClick={async () => {
+                        if (isPaymentLoading) return;
+
+                        setIsPaymentLoading(true);
                         try {
                           const response = await createTinkoffPayment({
                             users_permissions_user: user?.id,
@@ -831,10 +847,14 @@ export default function StudentsBooking() {
                         } catch (error) {
                           console.error("Ошибка при создании платежа:", error);
                           toast.error("Ошибка при создании платежа");
+                        } finally {
+                          setIsPaymentLoading(false);
                         }
                       }}
                     >
-                      Подтвердить и оплатить
+                      {isPaymentLoading
+                        ? "Загрузка..."
+                        : "Подтвердить и оплатить"}
                     </button>
                   </div>
                 )}
