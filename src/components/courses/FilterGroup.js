@@ -24,6 +24,7 @@ import {
   setTime,
   setStatus,
 } from "../../redux/filterSlice";
+import { setLoading } from "../../redux/coursesSlice";
 import { setStatus as setStatusCount } from "../../redux/filterForCountSlice";
 import { fetchCoursesCountFromAPI } from "../../redux/coursesCountSlice";
 import { fetchCoursesFromAPI } from "../../redux/coursesSlice";
@@ -282,6 +283,7 @@ export default function FilterGroup({ loading }) {
       timeEnd,
     });
     dispatch(setFilterGroupMobile());
+    dispatch(setLoading(true)); // Показываем скелетон сразу
     dispatch(fetchCoursesFromAPI()); // ДОБАВЛЕНО: только по кнопке
   };
   const handleMaxPriceChange = (event) => {

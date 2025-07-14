@@ -22,6 +22,7 @@ import "../../styles/dropdown.css";
 import "../../styles/dropdown.css";
 import "../../styles/inputs.css";
 import { ReactComponent as MapIcon } from "../../images/map.svg";
+import { setLoading } from "../../redux/coursesSlice";
 const directionsList = [
   {
     name: "Скетчинг",
@@ -225,6 +226,7 @@ export default function FilterMobile() {
   });
 
   const handleSearch = () => {
+    dispatch(setLoading(true)); // Показываем скелетон сразу
     // Логика обработки поиска
     dispatch(setDirection(selectedDirection));
     dispatch(setAge(ageFilter));
@@ -246,8 +248,8 @@ export default function FilterMobile() {
     setIsModalOpen(true);
     setSelectedDirection(filterState.direction);
     setFormatFilter(filterState.format);
-    setSelectedCity(filterState.city);
-    setSelectedDistrict(filterState.district);
+    setSelectedCity(getCityString(filterState.city));
+    setSelectedDistrict(getDistrictString(filterState.district));
     setAgeFilter(filterState.age);
     dispatch(setFilterMobile());
   };
@@ -258,6 +260,25 @@ export default function FilterMobile() {
     filterState.district ||
     filterState.direction ||
     filterState.age;
+
+  // Функция для получения строки из города
+  function getCityString(city) {
+    if (!city) return "";
+    if (typeof city === "string") return city;
+    if (typeof city === "object") {
+      return city.city_en || city.city_original_language || "";
+    }
+    return "";
+  }
+  // Функция для получения строки из района
+  function getDistrictString(district) {
+    if (!district) return "";
+    if (typeof district === "string") return district;
+    if (typeof district === "object") {
+      return district.district_en || district.district_original_language || "";
+    }
+    return "";
+  }
 
   return (
     <div style={{ width: "100vw", padding: "16px 24px" }}>
@@ -366,7 +387,7 @@ export default function FilterMobile() {
               marginLeft: "8px",
             }}
             onClick={() => {
-              dispatch(setFilterGroupMobile());
+              openFilterModal();
               dispatch(hideFooterMenu());
             }}
           >
@@ -639,8 +660,12 @@ export default function FilterMobile() {
                         <input
                           type="text"
                           value={
-                            selectedCity +
-                            (selectedDistrict ? `, ${selectedDistrict}` : "")
+                            getCityString(selectedCity)
+                              ? getCityString(selectedCity) +
+                                (getDistrictString(selectedDistrict)
+                                  ? `, ${getDistrictString(selectedDistrict)}`
+                                  : "")
+                              : ""
                           }
                           onChange={handleInputChange}
                           placeholder="Оффлайн - Выбрать локацию"

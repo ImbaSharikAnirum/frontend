@@ -9,7 +9,7 @@ export default function DirectionSelect({ onSelect, selectedDirection }) {
   const modalRef = useRef(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  const directions = ["Скетчинг", "2D рисование"];
+  const directions = ["Скетчинг", "2D Рисование"];
 
   const closeFilterModal = () => {
     setIsModalOpen(false);
