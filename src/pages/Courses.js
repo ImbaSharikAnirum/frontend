@@ -27,6 +27,7 @@ export default function Courses() {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const user = useSelector(selectCurrentUser);
   const ManagerId = process.env.REACT_APP_MANAGER;
+  const TeacherId = process.env.REACT_APP_TEACHER;
   useEffect(() => {
     if (fetching) {
       dispatch(fetchCoursesFromAPI(currentPage))
@@ -81,7 +82,7 @@ export default function Courses() {
             <FilterGroup loading={loading || isLoading} />
           </div>
         )}
-        {user?.role?.id === Number(ManagerId) && (
+        {(user?.role?.id === Number(ManagerId) || user?.role?.id === Number(TeacherId)) && (
           <Link
             to="/create/course"
             className="button_only_icon"

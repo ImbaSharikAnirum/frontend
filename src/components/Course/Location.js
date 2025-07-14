@@ -196,7 +196,6 @@ export default function Location({ isLoading }) {
                 }}
               >
                 {t("course.online")}, Google Meet
-                
                 {/* {t("course.discord")} */}
               </div>
               {/* <Link

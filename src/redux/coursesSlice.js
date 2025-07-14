@@ -35,6 +35,7 @@ const transformDataFromAPI = (data) => {
       start_day: attributes.start_day,
       end_day: attributes.end_day,
       price_lesson: attributes.price_lesson,
+      status: attributes.status,
       teacher: teacherData,
       image_url: attributes.images.data.map((image) => image.attributes.url),
       time_zone: attributes.time_zone,
@@ -131,6 +132,7 @@ export const fetchCoursesFromAPI =
   async (dispatch, getState) => {
     const state = getState();
     const userCurrency = selectCurrencyCode(state);
+    const { filter } = state; // Перемещаем получение filter выше
 
     let query =
       `populate[district]=*` +
@@ -142,6 +144,9 @@ export const fetchCoursesFromAPI =
       `&pagination[pageSize]=15` +
       `&currency=${userCurrency}`;
 
+    // Фильтрация по статусу из состояния фильтра
+    query += `&filters[status][$eq]=${filter.status}`;
+
     // Добавляем фильтр по дате окончания курса
     const now = moment();
     const endOfNextMonth = now.clone().add(1, "months").endOf("month");
@@ -149,16 +154,7 @@ export const fetchCoursesFromAPI =
     query += `&filters[start_day][$lte]=${endOfNextMonth.format("YYYY-MM-DD")}`;
 
     // Добавляем фильтр по наличию активных дней недели
-    query += `&filters[$or][0][monday][$eq]=true`;
-    query += `&filters[$or][1][tuesday][$eq]=true`;
-    query += `&filters[$or][2][wednesday][$eq]=true`;
-    query += `&filters[$or][3][thursday][$eq]=true`;
-    query += `&filters[$or][4][friday][$eq]=true`;
-    query += `&filters[$or][5][saturday][$eq]=true`;
-    query += `&filters[$or][6][sunday][$eq]=true`;
-
     // Применение фильтров, если они установлены
-    const { filter } = getState();
     if (filter.start_time && filter.end_time) {
       if (filter.start_time > filter.end_time) {
         query += `&filters[start_time_moscow][$gte]=00:00:00`;
@@ -204,6 +200,7 @@ export const fetchCoursesFromAPI =
       query += `&filters[age_start][$lte]=${filter.age}&filters[age_end][$gte]=${filter.age}`;
     }
 
+    // Дни недели (логика ИЛИ)
     const daysMapping = {
       Понедельник: "monday",
       Вторник: "tuesday",
@@ -213,12 +210,13 @@ export const fetchCoursesFromAPI =
       Суббота: "saturday",
       Воскресенье: "sunday",
     };
-    filter.daysOfWeek.forEach((day) => {
-      if (day !== "Неважно") {
+    const selectedDays = filter.daysOfWeek.filter((day) => day !== "Неважно");
+    if (selectedDays.length > 0) {
+      selectedDays.forEach((day, idx) => {
         const apiDayKey = daysMapping[day];
-        query += `&filters[${apiDayKey}][$eq]=true`;
-      }
-    });
+        query += `&filters[$or][${idx}][${apiDayKey}][$eq]=true`;
+      });
+    }
 
     try {
       const response = await fetch(`${API}/groups?${query}`);

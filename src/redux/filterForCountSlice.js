@@ -15,6 +15,7 @@ const initialState = {
   time_zone: "",
   start_time: "",
   end_time: "",
+  status: "published", // Новый фильтр статуса по умолчанию
 };
 
 const filterForCountSlice = createSlice({
@@ -74,6 +75,12 @@ const filterForCountSlice = createSlice({
     setTeacher(state, action) {
       state.teacher = action.payload;
     },
+    setStatus(state, action) {
+      state.status = action.payload;
+    },
+    clearStatus(state) {
+      state.status = "published";
+    },
     resetFilterForCountState(state) {
       return initialState;
     },
@@ -98,6 +105,8 @@ export const {
   setTimeOfDay,
   setTeacher,
   resetFilterForCountState,
+  setStatus,
+  clearStatus,
 } = filterForCountSlice.actions;
 
 export default filterForCountSlice.reducer;

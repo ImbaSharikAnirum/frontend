@@ -56,7 +56,7 @@ const GoogleAddressInput = ({ value, onSelect, required = false }) => {
   };
 
   const onPlaceChanged = () => {
-    if (!autocomplete) return;
+    if (!autocomplete || !window.google || !window.google.maps) return;
 
     const place = autocomplete.getPlace();
     console.log("🌐 Получены данные из Autocomplete (RU):", place);

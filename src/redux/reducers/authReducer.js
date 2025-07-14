@@ -30,12 +30,23 @@ const authReducer = createSlice({
       state.isInitialized = true; // Обеспечьте, что флаг устанавливается также при выходе
       state.pinterestToken = null; // Сбрасываем Pinterest токен при выходе
     },
+    updateTeacherRoleRequest: (state) => {
+      if (state.user) {
+        state.user.requestedTeacherRole = true;
+        state.user.rejectedAt = null; // Сбрасываем дату отклонения при новой заявке
+      }
+    },
   },
 });
 
 // Экспортируем действия и редуктор
-export const { setUser, logout, setInitialized, setPinterestToken } =
-  authReducer.actions;
+export const {
+  setUser,
+  logout,
+  setInitialized,
+  setPinterestToken,
+  updateTeacherRoleRequest,
+} = authReducer.actions;
 
 // Селекторы для извлечения данных из состояния
 export const selectCurrentUser = (state) => state.auth.user;

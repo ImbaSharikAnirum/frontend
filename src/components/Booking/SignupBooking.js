@@ -144,6 +144,7 @@ export default function SignupBooking() {
         >
           {isLoading ? "Загрузка..." : "Зарегестрироваться"}
         </button>
+        
       </form>
     </div>
   );

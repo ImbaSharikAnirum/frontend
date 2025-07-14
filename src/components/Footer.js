@@ -23,6 +23,11 @@ export default function Footer() {
           Реквизиты компании
         </div>
       </Link>
+      <Link to="/apply/teacher" className="link">
+        <div className="Body-2" style={{ marginTop: "4px" }}>
+          Стать преподавателем
+        </div>
+      </Link>
     </div>
   );
 }

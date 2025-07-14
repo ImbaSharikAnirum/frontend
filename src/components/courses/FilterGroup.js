@@ -22,9 +22,23 @@ import {
   setTimeOfDay,
   setTeacher,
   setTime,
-  // resetFilterState,
+  setStatus,
 } from "../../redux/filterSlice";
+import { setStatus as setStatusCount } from "../../redux/filterForCountSlice";
 import { fetchCoursesCountFromAPI } from "../../redux/coursesCountSlice";
+import { fetchCoursesFromAPI } from "../../redux/coursesSlice";
+import { selectCurrentUser } from "../../redux/reducers/authReducer";
+
+const AnimatedDots = () => (
+  <span
+    className="animated-dots"
+    style={{ display: "inline-block", verticalAlign: "middle" }}
+  >
+    <span className="dot dot1"></span>
+    <span className="dot dot2"></span>
+    <span className="dot dot3"></span>
+  </span>
+);
 
 export default function FilterGroup({ loading }) {
   const dispatch = useDispatch();
@@ -32,6 +46,8 @@ export default function FilterGroup({ loading }) {
   const filterGroupMobile = useSelector(
     (state) => state.footerMenu.isFilterGroupMobile
   );
+  const user = useSelector(selectCurrentUser);
+  const ManagerId = process.env.REACT_APP_MANAGER;
   // const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [minPrice, setMinPrice] = useState(500);
   const [maxPrice, setMaxPrice] = useState(5000);
@@ -43,6 +59,7 @@ export default function FilterGroup({ loading }) {
   const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const [filteredTeachers, setFilteredTeachers] = useState([]);
   const [hoveredTeacherIndex, setHoveredTeacherIndex] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("published");
 
   const teachers = [
     { id: 3, name: "Виктория", family: "Поезд" },
@@ -199,6 +216,12 @@ export default function FilterGroup({ loading }) {
     dispatch(fetchCoursesCountFromAPI());
   };
 
+  const handleStatusClick = (status) => {
+    setSelectedStatus(status);
+    dispatch(setStatusCount(status)); // только для count
+    dispatch(fetchCoursesCountFromAPI());
+  };
+
   const handleClearFilters = () => {
     setMinPrice(500);
     setMaxPrice(5000);
@@ -236,6 +259,9 @@ export default function FilterGroup({ loading }) {
     const count = state.coursesCount.count;
     return count;
   });
+  const coursesCountLoading = useSelector(
+    (state) => state.coursesCount.loading
+  );
 
   const handleApplyFilters = () => {
     // Обновление состояния фильтров
@@ -244,6 +270,7 @@ export default function FilterGroup({ loading }) {
     dispatch(setDaysOfWeek(selectedDays));
     dispatch(setTimeOfDay(selectedTime));
     dispatch(setTeacher(selectedTeacherId));
+    dispatch(setStatus(selectedStatus)); // теперь статус тоже только по кнопке!
     setLastFilterState({
       minPrice,
       maxPrice,
@@ -255,6 +282,7 @@ export default function FilterGroup({ loading }) {
       timeEnd,
     });
     dispatch(setFilterGroupMobile());
+    dispatch(fetchCoursesFromAPI()); // ДОБАВЛЕНО: только по кнопке
   };
   const handleMaxPriceChange = (event) => {
     const value = Number(event.target.value);
@@ -524,6 +552,27 @@ export default function FilterGroup({ loading }) {
                   )}
                 </div>
               </div>
+              {/* Фильтр статуса только для менеджеров */}
+              {user?.role?.id === Number(ManagerId) && (
+                <div className="modal-body" style={{ marginTop: "36px" }}>
+                  <div className="Body-1">Статус</div>
+                  <div className="button-group">
+                    {["published", "pending"].map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => handleStatusClick(status)}
+                        className={
+                          selectedStatus === status
+                            ? "selected button-animate"
+                            : "button-animate"
+                        }
+                      >
+                        {status === "published" ? "Опубликовано" : "В ожидании"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div
                 className="modal-body"
                 style={{
@@ -591,8 +640,18 @@ export default function FilterGroup({ loading }) {
               <button
                 className="button_filter_group Body-2"
                 onClick={handleApplyFilters}
+                disabled={coursesCountLoading}
+                style={{
+                  position: "relative",
+                  color: "#fff",
+                  background: "#000",
+                }}
               >
-                Показать {coursesCount} вариантов
+                {coursesCountLoading ? (
+                  <AnimatedDots />
+                ) : (
+                  `Показать ${coursesCount} вариантов`
+                )}
               </button>
             </div>
           </div>

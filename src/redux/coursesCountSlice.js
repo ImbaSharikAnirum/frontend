@@ -36,6 +36,9 @@ export const fetchCoursesCountFromAPI = () => async (dispatch, getState) => {
 
   let query = `pagination[page]=1&pagination[pageSize]=1&populate=0`;
 
+  // Фильтрация по статусу из состояния фильтра
+  query += `&filters[status][$eq]=${filter.status}`;
+
   if (filter.start_time && filter.end_time) {
     if (filter.start_time > filter.end_time) {
       query += `&filters[start_time_moscow][$gte]=00:00:00`;
@@ -71,6 +74,7 @@ export const fetchCoursesCountFromAPI = () => async (dispatch, getState) => {
     query += `&filters[age_start][$lte]=${filter.age}&filters[age_end][$gte]=${filter.age}`;
   }
 
+  // Дни недели (логика ИЛИ)
   const daysMapping = {
     Понедельник: "monday",
     Вторник: "tuesday",
@@ -80,13 +84,13 @@ export const fetchCoursesCountFromAPI = () => async (dispatch, getState) => {
     Суббота: "saturday",
     Воскресенье: "sunday",
   };
-
-  filter.daysOfWeek.forEach((day) => {
-    if (day !== "Неважно") {
+  const selectedDays = filter.daysOfWeek.filter((day) => day !== "Неважно");
+  if (selectedDays.length > 0) {
+    selectedDays.forEach((day, idx) => {
       const apiDayKey = daysMapping[day];
-      query += `&filters[${apiDayKey}][$eq]=true`;
-    }
-  });
+      query += `&filters[$or][${idx}][${apiDayKey}][$eq]=true`;
+    });
+  }
 
   dispatch(setLoading(true));
 

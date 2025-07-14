@@ -674,6 +674,9 @@ export default function CreateCourse() {
               googleMapsApiKey="AIzaSyBG3-McnhGanJsLu8AzA2TyXmdA4Ea6sSc"
               libraries={["places"]}
               language={languageCode}
+              onError={(error) => {
+                console.error("Ошибка загрузки Google Maps API:", error);
+              }}
             >
               <div style={{ marginTop: "16px" }}>
                 {format === "Оффлайн" && (

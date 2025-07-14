@@ -5,15 +5,27 @@ import { useTranslation } from "react-i18next";
 import Slider from "../Slider";
 import "../../styles/courses.css";
 import moment from "moment-timezone";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectLanguageCode } from "../../redux/reducers/languageReducer";
 import { selectCurrency } from "../../redux/reducers/currencyReducer";
+import { useMediaQuery } from "react-responsive";
+import { selectCurrentUser } from "../../redux/reducers/authReducer";
+import { useUpdateCourseStatusMutation } from "../../redux/services/courseAPI";
+import { fetchCoursesFromAPI } from "../../redux/coursesSlice";
+import { fetchCoursesCountFromAPI } from "../../redux/coursesCountSlice";
+import { toast } from "react-toastify";
 
 const CardCourse = ({ course }) => {
   console.log("CardCourse received course:", course);
   const { t } = useTranslation();
   const languageCode = useSelector(selectLanguageCode);
   const currency = useSelector(selectCurrency);
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
+  const user = useSelector(selectCurrentUser);
+  const ManagerId = process.env.REACT_APP_MANAGER;
+  const [updateCourseStatus] = useUpdateCourseStatusMutation();
+  const [isStatusChanging, setIsStatusChanging] = React.useState(false);
+  const dispatch = useDispatch();
 
   const dayOfWeek = [
     {
@@ -52,6 +64,25 @@ const CardCourse = ({ course }) => {
       value: course.sunday,
     },
   ];
+
+  const handleStatusChange = async () => {
+    setIsStatusChanging(true);
+    try {
+      await updateCourseStatus({
+        courseId: course.id,
+        status: "published",
+      }).unwrap();
+
+      toast.success("Статус курса успешно изменен на 'Опубликован'");
+      dispatch(fetchCoursesFromAPI());
+      dispatch(fetchCoursesCountFromAPI());
+    } catch (error) {
+      console.error("Ошибка при изменении статуса курса:", error);
+      toast.error("Ошибка при изменении статуса курса");
+    } finally {
+      setIsStatusChanging(false);
+    }
+  };
 
   const activeDays = dayOfWeek.filter((day) => day.value);
 
@@ -161,8 +192,33 @@ const CardCourse = ({ course }) => {
   };
   // console.log(course, "course");
   return (
-    <div className="card">
-      <Slider images={course.image_url} course={course} />
+    <div
+      className="card"
+      style={{
+        position: "relative",
+      }}
+    >
+      <div style={{ position: "relative" }}>
+        <Slider images={course.image_url} course={course} />
+        {course.status === "pending" &&
+          user?.role?.id === Number(ManagerId) && (
+            <button
+              className="save-button button Body-3 button-animate-filter"
+              style={{
+                opacity: 1,
+                cursor: isStatusChanging ? "not-allowed" : "pointer",
+              }}
+              disabled={isStatusChanging}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleStatusChange();
+              }}
+            >
+              {isStatusChanging ? "Изменение..." : "В ожидании"}
+            </button>
+          )}
+      </div>
       <Link
         to={`/course/${course.id}`}
         style={{

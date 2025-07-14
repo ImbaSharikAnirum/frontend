@@ -21,6 +21,7 @@ const initialState = {
   time_zone: "",
   start_time: "",
   end_time: "",
+  status: "published", // Новый фильтр статуса по умолчанию
 };
 
 const filterSlice = createSlice({
@@ -112,6 +113,12 @@ const filterSlice = createSlice({
     clearTeacher(state) {
       state.teacher = "";
     },
+    setStatus(state, action) {
+      state.status = action.payload;
+    },
+    clearStatus(state) {
+      state.status = "published";
+    },
     resetFilterState(state) {
       return initialState;
     },
@@ -143,6 +150,8 @@ export const {
   clearTeacher,
   setDistrict,
   resetFilterState,
+  setStatus,
+  clearStatus,
 } = filterSlice.actions;
 
 export default filterSlice.reducer;

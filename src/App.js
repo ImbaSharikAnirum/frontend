@@ -34,6 +34,7 @@ import Portfolio from "./pages/Portfolio";
 import Chat from "./pages/Chat";
 import PrivateRoute from "./routes/PrivateRoute";
 import useChatSocket from "./hooks/useChatSocket";
+import ApplyTeacher from "./pages/ApplyTeacher";
 
 function App() {
   useInitializeUser();
@@ -65,6 +66,7 @@ function App() {
           <Route path="/create/course" element={<CreateCourse />} />
           <Route path="/create/guide" element={<CreateGuide />} />
           <Route path="/conditions" element={<Conditions />} />
+          <Route path="/apply/teacher" element={<ApplyTeacher />} />
           <Route path="/skill-tree" element={<SkillTree />} />
           <Route path="/skill-tree/:branchId" element={<SkillTree />} />
           <Route path="/requisites" element={<Requisites />} />

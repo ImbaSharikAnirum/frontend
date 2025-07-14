@@ -49,6 +49,22 @@ export const courseAPI = createApi({
         }
       },
     }),
+
+    updateCourseStatus: builder.mutation({
+      query: ({ courseId, status }) => ({
+        url: `/groups/${courseId}`,
+        method: "PUT",
+        body: {
+          data: {
+            status: status,
+            ...(status === "published" && {
+              publishedAt: new Date().toISOString(),
+            }),
+          },
+        },
+      }),
+      invalidatesTags: ["Course"],
+    }),
   }),
 });
 
@@ -64,4 +80,8 @@ export const currencyMiddleware = (store) => (next) => (action) => {
   return result;
 };
 
-export const { useFetchCourseByIdQuery, useCreateGroupMutation } = courseAPI;
+export const {
+  useFetchCourseByIdQuery,
+  useCreateGroupMutation,
+  useUpdateCourseStatusMutation,
+} = courseAPI;

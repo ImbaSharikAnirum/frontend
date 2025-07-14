@@ -34,6 +34,11 @@ export default function GoogleMap({ position, onPositionChange }) {
   }, []);
 
   const handleClick = async (e) => {
+    if (!window.google || !window.google.maps) {
+      console.error("Google Maps API не загружен");
+      return;
+    }
+
     const lat = e.latLng.lat();
     const lng = e.latLng.lng();
 
