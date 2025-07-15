@@ -7,7 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { CircularProgress, Switch, Slider } from "@mui/material";
 import { ReactComponent as Download } from "../images/Download.svg";
 import { useCreateGroupMutation } from "../redux/services/courseAPI";
-import { selectIsInitialized } from "../redux/reducers/authReducer";
+import {
+  selectIsInitialized,
+  selectCurrentUser,
+} from "../redux/reducers/authReducer";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -72,6 +75,474 @@ const ageMarks = [
   { value: 18, label: "18+" },
 ];
 
+// === Блок расчёта дохода преподавателя ===
+function IncomeCalculationBlock({
+  priceLesson,
+  minStudents,
+  capacity,
+  days,
+  currencySymbol,
+  startDay,
+  endDay,
+  rentPerLesson,
+  format,
+}) {
+  const [showDetails, setShowDetails] = useState(false);
+  // Подсчёт количества занятий за месяц (ближайший месяц от startDay)
+  const getLessonsCountForMonth = (month, year) => {
+    let count = 0;
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0);
+    for (
+      let d = new Date(startDate);
+      d <= endDate;
+      d.setDate(d.getDate() + 1)
+    ) {
+      const dayName = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ][d.getDay()];
+      if (days[dayName]) count++;
+    }
+    return count;
+  };
+  // Получить список месяцев между startDay и endDay
+  const getMonthsInRange = () => {
+    if (!startDay || !endDay) return [];
+    const start = new Date(startDay);
+    const end = new Date(endDay);
+    const months = [];
+    let current = new Date(start.getFullYear(), start.getMonth(), 1);
+    while (current <= end) {
+      months.push({ month: current.getMonth(), year: current.getFullYear() });
+      current.setMonth(current.getMonth() + 1);
+    }
+    return months;
+  };
+  const months = getMonthsInRange();
+  const price = Number(priceLesson) || 0;
+  const rent = format === "Оффлайн" ? Number(rentPerLesson) || 0 : 0;
+  // Новый расчет: сначала вычесть аренду, потом 70%
+  const calcIncome = (lessons, students) => {
+    const gross = price * lessons * students;
+    const rentTotal = rent * lessons;
+    const net = gross - rentTotal;
+    return Math.round(net * 0.7);
+  };
+  const formatSum = (sum) => sum.toLocaleString("ru-RU");
+  // Найти ближайший месяц (первый в списке)
+  const nearestMonth = months[0];
+  let nearestLessons = 0;
+  if (nearestMonth) {
+    nearestLessons = getLessonsCountForMonth(
+      nearestMonth.month,
+      nearestMonth.year
+    );
+  }
+  if (!price || !nearestLessons || !minStudents || !capacity) return null;
+  // Для подробной таблицы
+  const monthNames = [
+    "Январь",
+    "Февраль",
+    "Март",
+    "Апрель",
+    "Май",
+    "Июнь",
+    "Июль",
+    "Август",
+    "Сентябрь",
+    "Октябрь",
+    "Ноябрь",
+    "Декабрь",
+  ];
+  return (
+    <div
+      style={{
+        background: "#F7F7F7",
+        borderRadius: 16,
+        padding: "20px 24px",
+        marginTop: 16,
+        marginBottom: 0,
+        fontSize: 16,
+        color: "#222",
+        lineHeight: 1.7,
+        fontFamily: "Nunito Sans",
+      }}
+    >
+      <div style={{ fontWeight: 600, marginBottom: 4 }}>
+        Ваши выплаты
+        {nearestMonth
+          ? ` (${monthNames[nearestMonth.month]} ${nearestMonth.year})`
+          : ""}
+        :
+      </div>
+      <div>
+        — минимум (при {minStudents} учениках):{" "}
+        <b>
+          {formatSum(calcIncome(nearestLessons, minStudents))} {currencySymbol}
+        </b>
+        <br />— максимум (при {capacity} учениках):{" "}
+        <b>
+          {formatSum(calcIncome(nearestLessons, capacity))} {currencySymbol}
+        </b>
+      </div>
+      <div style={{ fontSize: 14, color: "#888", marginTop: 8 }}>
+        📎 С учётом комиссии платформы и банка (30%)
+        {rent > 0 && (
+          <>
+            <br />
+            Аренда уже учтена в расчёте
+          </>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => setShowDetails((v) => !v)}
+        style={{
+          marginTop: 12,
+          background: "none",
+          border: "none",
+          color: "#1976d2",
+          cursor: "pointer",
+          fontSize: 15,
+          textDecoration: "underline",
+          padding: 0,
+        }}
+      >
+        {showDetails ? "Скрыть подробности" : "Показать выплаты по месяцам"}
+      </button>
+      {showDetails && (
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontWeight: 500, marginBottom: 8 }}>
+            Выплаты по месяцам:
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                borderCollapse: "collapse",
+                width: "100%",
+                fontSize: 15,
+              }}
+            >
+              <thead>
+                <tr style={{ background: "#f0f0f0" }}>
+                  <th
+                    style={{
+                      padding: "6px 10px",
+                      border: "1px solid #e0e0e0",
+                      textAlign: "left",
+                    }}
+                  >
+                    Месяц
+                  </th>
+                  <th
+                    style={{ padding: "6px 10px", border: "1px solid #e0e0e0" }}
+                  >
+                    Занятий
+                  </th>
+                  <th
+                    style={{ padding: "6px 10px", border: "1px solid #e0e0e0" }}
+                  >
+                    Минимум
+                  </th>
+                  <th
+                    style={{ padding: "6px 10px", border: "1px solid #e0e0e0" }}
+                  >
+                    Максимум
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {months.map(({ month, year }) => {
+                  const lessons = getLessonsCountForMonth(month, year);
+                  return (
+                    <tr key={month + "-" + year}>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                        }}
+                      >
+                        {monthNames[month]} {year}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                          textAlign: "center",
+                        }}
+                      >
+                        {lessons}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                          textAlign: "center",
+                        }}
+                      >
+                        {formatSum(calcIncome(lessons, minStudents))}{" "}
+                        {currencySymbol}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                          textAlign: "center",
+                        }}
+                      >
+                        {formatSum(calcIncome(lessons, capacity))}{" "}
+                        {currencySymbol}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CompanyProfitBlock({
+  priceLesson,
+  minStudents,
+  capacity,
+  days,
+  currencySymbol,
+  startDay,
+  endDay,
+  rentPerLesson,
+  format,
+}) {
+  const [showDetails, setShowDetails] = useState(false);
+  // Подсчёт количества занятий за месяц (ближайший месяц от startDay)
+  const getLessonsCountForMonth = (month, year) => {
+    let count = 0;
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0);
+    for (
+      let d = new Date(startDate);
+      d <= endDate;
+      d.setDate(d.getDate() + 1)
+    ) {
+      const dayName = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ][d.getDay()];
+      if (days[dayName]) count++;
+    }
+    return count;
+  };
+  const getMonthsInRange = () => {
+    if (!startDay || !endDay) return [];
+    const start = new Date(startDay);
+    const end = new Date(endDay);
+    const months = [];
+    let current = new Date(start.getFullYear(), start.getMonth(), 1);
+    while (current <= end) {
+      months.push({ month: current.getMonth(), year: current.getFullYear() });
+      current.setMonth(current.getMonth() + 1);
+    }
+    return months;
+  };
+  const months = getMonthsInRange();
+  const price = Number(priceLesson) || 0;
+  const rent = format === "Оффлайн" ? Number(rentPerLesson) || 0 : 0;
+  // Новый расчет: сначала вычесть аренду, потом 30%
+  const calcProfit = (lessons, students) => {
+    const gross = price * lessons * students;
+    const rentTotal = rent * lessons;
+    const net = gross - rentTotal;
+    return Math.round(net * 0.3); // сумма может быть отрицательной
+  };
+  const formatSum = (sum) => sum.toLocaleString("ru-RU");
+  const monthNames = [
+    "Январь",
+    "Февраль",
+    "Март",
+    "Апрель",
+    "Май",
+    "Июнь",
+    "Июль",
+    "Август",
+    "Сентябрь",
+    "Октябрь",
+    "Ноябрь",
+    "Декабрь",
+  ];
+  const nearestMonth = months[0];
+  let nearestLessons = 0;
+  if (nearestMonth) {
+    nearestLessons = getLessonsCountForMonth(
+      nearestMonth.month,
+      nearestMonth.year
+    );
+  }
+  if (!price || !nearestLessons || !minStudents || !capacity) return null;
+  return (
+    <div
+      style={{
+        background: "#F7F7F7",
+        borderRadius: 16,
+        padding: "20px 24px",
+        marginTop: 24,
+        marginBottom: 0,
+        fontSize: 16,
+        color: "#222",
+        lineHeight: 1.7,
+        fontFamily: "Nunito Sans",
+      }}
+    >
+      <div style={{ fontWeight: 600, marginBottom: 4 }}>
+        Прибыль компании
+        {nearestMonth
+          ? ` (${monthNames[nearestMonth.month]} ${nearestMonth.year})`
+          : ""}
+        :
+      </div>
+      <div>
+        — минимум:{" "}
+        <b>
+          {formatSum(calcProfit(nearestLessons, minStudents))} {currencySymbol}
+        </b>
+        <br />— максимум:{" "}
+        <b>
+          {formatSum(calcProfit(nearestLessons, capacity))} {currencySymbol}
+        </b>
+      </div>
+      <div style={{ fontSize: 14, color: "#888", marginTop: 8 }}>
+        📎 С учётом комиссии платформы (30%)
+        {rent > 0 && (
+          <>
+            <br />
+            Аренда уже учтена в расчёте
+          </>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => setShowDetails((v) => !v)}
+        style={{
+          marginTop: 12,
+          background: "none",
+          border: "none",
+          color: "#1976d2",
+          cursor: "pointer",
+          fontSize: 15,
+          textDecoration: "underline",
+          padding: 0,
+        }}
+      >
+        {showDetails ? "Скрыть подробности" : "Показать прибыль по месяцам"}
+      </button>
+      {showDetails && (
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontWeight: 500, marginBottom: 8 }}>
+            Прибыль по месяцам:
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                borderCollapse: "collapse",
+                width: "100%",
+                fontSize: 15,
+              }}
+            >
+              <thead>
+                <tr style={{ background: "#f0f0f0" }}>
+                  <th
+                    style={{
+                      padding: "6px 10px",
+                      border: "1px solid #e0e0e0",
+                      textAlign: "left",
+                    }}
+                  >
+                    Месяц
+                  </th>
+                  <th
+                    style={{ padding: "6px 10px", border: "1px solid #e0e0e0" }}
+                  >
+                    Занятий
+                  </th>
+                  <th
+                    style={{ padding: "6px 10px", border: "1px solid #e0e0e0" }}
+                  >
+                    Минимум компании
+                  </th>
+                  <th
+                    style={{ padding: "6px 10px", border: "1px solid #e0e0e0" }}
+                  >
+                    Максимум компании
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {months.map(({ month, year }) => {
+                  const lessons = getLessonsCountForMonth(month, year);
+                  return (
+                    <tr key={month + "-" + year}>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                        }}
+                      >
+                        {monthNames[month]} {year}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                          textAlign: "center",
+                        }}
+                      >
+                        {lessons}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                          textAlign: "center",
+                        }}
+                      >
+                        {formatSum(calcProfit(lessons, minStudents))}{" "}
+                        {currencySymbol}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          border: "1px solid #e0e0e0",
+                          textAlign: "center",
+                        }}
+                      >
+                        {formatSum(calcProfit(lessons, capacity))}{" "}
+                        {currencySymbol}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CreateCourse() {
   const { t } = useTranslation();
   const currencySymbol = useSelector(selectCurrencySymbol);
@@ -82,6 +553,7 @@ export default function CreateCourse() {
   const [ageStart, setAgeStart] = useState(8);
   const [ageEnd, setAgeEnd] = useState(12);
   const [capacity, setCapacity] = useState(10);
+  const [minStudents, setMinStudents] = useState(3);
   const [level, setLevel] = useState([]);
   const [inventoryNeeded, setInventoryNeeded] = useState(false);
   const [inventoryItems, setInventoryItems] = useState("");
@@ -135,12 +607,16 @@ export default function CreateCourse() {
   const [currencyDialogOpen, setCurrencyDialogOpen] = useState(false);
   const [startDay, setStartDay] = useState("");
   const [endDay, setEndDay] = useState("");
+  const [rentPerLesson, setRentPerLesson] = useState("");
 
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const isInitialized = useSelector(selectIsInitialized);
   const navigate = useNavigate();
   const [createGroup] = useCreateGroupMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const user = useSelector(selectCurrentUser);
+  const ManagerId = process.env.REACT_APP_MANAGER;
+  const isManager = user?.role?.id === Number(ManagerId);
 
   // Установка часового пояса по умолчанию при первой загрузке
   useEffect(() => {
@@ -243,6 +719,14 @@ export default function CreateCourse() {
       return;
     }
 
+    if (!minStudents) {
+      toast.error(
+        "Пожалуйста, укажите минимальное количество учеников для старта"
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
     if (level.length === 0) {
       toast.error("Пожалуйста, выберите уровень сложности");
       setIsSubmitting(false);
@@ -311,6 +795,7 @@ export default function CreateCourse() {
         age_start: parseInt(ageStart),
         age_end: parseInt(ageEnd),
         capacity: parseInt(capacity),
+        min_students: parseInt(minStudents),
         level: level.join(", "),
         inventory: inventoryNeeded,
         items: inventoryItems,
@@ -965,45 +1450,6 @@ export default function CreateCourse() {
                 className="Body-3"
                 style={{ fontSize: "14px", marginBottom: "8px" }}
               >
-                Количество учеников в группе
-              </div>
-              <div
-                className="button-group"
-                style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => setCapacity(num)}
-                    className={`button-animate number-button ${
-                      capacity === num ? "selected" : ""
-                    }`}
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      padding: 0,
-                      borderRadius: "50%",
-                      border: "1px solid #DDDDDD",
-                      backgroundColor: capacity === num ? "black" : "white",
-                      color: capacity === num ? "white" : "black",
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    {num}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div style={{ marginTop: "24px" }}>
-              <div
-                className="Body-3"
-                style={{ fontSize: "14px", marginBottom: "8px" }}
-              >
                 Уровень сложности
               </div>
               <div
@@ -1336,51 +1782,301 @@ export default function CreateCourse() {
                 className="Body-3"
                 style={{ fontSize: "14px", marginBottom: "8px" }}
               >
-                Цена занятия
+                Минимальное количество учеников для старта
               </div>
               <div
-                style={{
-                  display: "flex",
-                  gap: "16px",
-                  alignItems: "center",
-                  flexDirection: isMobile ? "column" : "row",
-                }}
+                className="button-group"
+                style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
               >
-                <div
-                  className="input_default_border"
-                  style={{
-                    width: isMobile ? "100%" : "160px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <input
-                    type="number"
-                    value={priceLesson}
-                    onChange={(e) => setPriceLesson(e.target.value)}
-                    className="input_default"
-                    placeholder="0"
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setMinStudents(num)}
+                    className={`button-animate number-button ${
+                      minStudents === num ? "selected" : ""
+                    }`}
                     style={{
-                      width: "100px",
-                      marginLeft: "20px",
-                      fontSize: "16px",
-                      textAlign: "left",
-                      color: "#000000",
-                    }}
-                  />
-                  <span
-                    style={{
-                      marginRight: "12px",
+                      width: "40px",
+                      height: "40px",
+                      padding: 0,
+                      borderRadius: "50%",
+                      border: "1px solid #DDDDDD",
+                      backgroundColor: minStudents === num ? "black" : "white",
+                      color: minStudents === num ? "white" : "black",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       cursor: "pointer",
+                      transition: "all 0.3s ease",
                     }}
-                    onClick={() => setCurrencyDialogOpen(true)}
                   >
-                    {currencySymbol}
-                  </span>
-                </div>
+                    {num}
+                  </button>
+                ))}
               </div>
             </div>
+            <div style={{ marginTop: "24px" }}>
+              <div
+                className="Body-3"
+                style={{ fontSize: "14px", marginBottom: "8px" }}
+              >
+                Количество учеников в группе
+              </div>
+              <div
+                className="button-group"
+                style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setCapacity(num)}
+                    className={`button-animate number-button ${
+                      capacity === num ? "selected" : ""
+                    }`}
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      padding: 0,
+                      borderRadius: "50%",
+                      border: "1px solid #DDDDDD",
+                      backgroundColor: capacity === num ? "black" : "white",
+                      color: capacity === num ? "white" : "black",
+                      fontSize: "14px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex" }}>
+              <div style={{ marginTop: "24px" }}>
+                <div
+                  className="Body-3"
+                  style={{ fontSize: "14px", marginBottom: "8px" }}
+                >
+                  Цена занятия
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "16px",
+                    alignItems: "center",
+                    flexDirection: isMobile ? "column" : "row",
+                  }}
+                >
+                  <div
+                    className="input_default_border"
+                    style={{
+                      width: isMobile ? "100%" : "160px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      value={priceLesson}
+                      onChange={(e) => setPriceLesson(e.target.value)}
+                      className="input_default"
+                      placeholder="0"
+                      style={{
+                        width: "100px",
+                        marginLeft: "20px",
+                        fontSize: "16px",
+                        textAlign: "left",
+                        color: "#000000",
+                      }}
+                    />
+                    <span
+                      style={{
+                        marginRight: "12px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setCurrencyDialogOpen(true)}
+                    >
+                      {currencySymbol}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {format === "Оффлайн" && (
+                <div style={{ marginTop: "24px", marginLeft: "20px" }}>
+                  <div
+                    className="Body-3"
+                    style={{ fontSize: "14px", marginBottom: "8px" }}
+                  >
+                    Цена аренды за 1 занятие
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "16px",
+                      alignItems: "center",
+                      flexDirection: isMobile ? "column" : "row",
+                    }}
+                  >
+                    <div
+                      className="input_default_border"
+                      style={{
+                        width: isMobile ? "100%" : "160px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <input
+                        type="number"
+                        value={rentPerLesson}
+                        onChange={(e) => setRentPerLesson(e.target.value)}
+                        className="input_default"
+                        placeholder="0"
+                        style={{
+                          width: "100px",
+                          marginLeft: "20px",
+                          fontSize: "16px",
+                          textAlign: "left",
+                          color: "#000000",
+                        }}
+                      />
+                      <span
+                        style={{ marginRight: "12px", cursor: "pointer" }}
+                        onClick={() => setCurrencyDialogOpen(true)}
+                      >
+                        {currencySymbol}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            {(() => {
+              // nearestLessons аналогично расчётам ниже
+              const getLessonsCountForMonth = (month, year) => {
+                let count = 0;
+                const startDate = new Date(year, month, 1);
+                const endDate = new Date(year, month + 1, 0);
+                for (
+                  let d = new Date(startDate);
+                  d <= endDate;
+                  d.setDate(d.getDate() + 1)
+                ) {
+                  const dayName = [
+                    "sunday",
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday",
+                  ][d.getDay()];
+                  if (days[dayName]) count++;
+                }
+                return count;
+              };
+              const getMonthsInRange = () => {
+                if (!startDay || !endDay) return [];
+                const start = new Date(startDay);
+                const end = new Date(endDay);
+                const months = [];
+                let current = new Date(
+                  start.getFullYear(),
+                  start.getMonth(),
+                  1
+                );
+                while (current <= end) {
+                  months.push({
+                    month: current.getMonth(),
+                    year: current.getFullYear(),
+                  });
+                  current.setMonth(current.getMonth() + 1);
+                }
+                return months;
+              };
+              const months = getMonthsInRange();
+              const price = Number(priceLesson) || 0;
+              const rent = Number(rentPerLesson) || 0;
+              const formatSum = (sum) => sum.toLocaleString("ru-RU");
+              const nearestMonth = months[0];
+              let nearestLessons = 0;
+              if (nearestMonth) {
+                nearestLessons = getLessonsCountForMonth(
+                  nearestMonth.month,
+                  nearestMonth.year
+                );
+              }
+              return (
+                <>
+                  <div
+                    className="Body-2"
+                    style={{
+                      margin: "18px 0 8px 0",
+                      fontSize: 15,
+                      color: "#444",
+                    }}
+                  >
+                    При такой цене за занятие, ваш курс для ученика будет стоить
+                    примерно{" "}
+                    <b>
+                      {formatSum(price * nearestLessons)} {currencySymbol}
+                    </b>{" "}
+                    за месяц (при {nearestLessons} занятиях)
+                  </div>
+                  {rent > 0 && (
+                    <div
+                      className="Body-2"
+                      style={{
+                        margin: "16px 0 8px 0",
+                        fontSize: 15,
+                        color: "#444",
+                      }}
+                    >
+                      Вы указали аренду{" "}
+                      <b>
+                        {formatSum(rent)} {currencySymbol}
+                      </b>{" "}
+                      за занятие. При {nearestLessons} занятиях в ближайшем
+                      месяце это составит{" "}
+                      <b>
+                        {formatSum(rent * nearestLessons)} {currencySymbol}
+                      </b>
+                      .
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+            <IncomeCalculationBlock
+              priceLesson={priceLesson}
+              minStudents={minStudents}
+              capacity={capacity}
+              days={days}
+              currencySymbol={currencySymbol}
+              startDay={startDay}
+              endDay={endDay}
+              rentPerLesson={rentPerLesson}
+              format={format}
+            />
+            {isManager && (
+              <CompanyProfitBlock
+                priceLesson={priceLesson}
+                minStudents={minStudents}
+                capacity={capacity}
+                days={days}
+                currencySymbol={currencySymbol}
+                startDay={startDay}
+                endDay={endDay}
+                rentPerLesson={rentPerLesson}
+                format={format}
+              />
+            )}
             <LanguageCurrencySelector
               open={currencyDialogOpen}
               onClose={() => setCurrencyDialogOpen(false)}

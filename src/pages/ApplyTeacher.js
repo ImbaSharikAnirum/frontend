@@ -17,6 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import TeacherApplicationsTable from "../components/ApplyTeacher/TeacherApplicationsTable";
 import TeacherWelcome from "../components/ApplyTeacher/TeacherWelcome";
 import moment from "moment";
+import TeacherProfitCalculator from "../components/ApplyTeacher/TeacherProfitCalculator";
 
 export default function ApplyTeacher() {
   const user = useSelector(selectCurrentUser);
@@ -92,47 +93,57 @@ export default function ApplyTeacher() {
     }
   }, [userData]); // Убираем user и dispatch из зависимостей
 
+  // Калькулятор всегда сверху
+  const calculator = <TeacherProfitCalculator />;
+
   // Если пользователь не авторизован, показываем приглашение зарегистрироваться/войти
   if (!currentUser) {
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "600px", width: "100%", margin: "0 auto" }}>
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              borderRadius: "20px",
-            }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h4" component="h1" gutterBottom>
-                Войдите или зарегистрируйтесь
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Чтобы подать заявку на роль преподавателя, пожалуйста, войдите в
-                свой аккаунт или зарегистрируйтесь на платформе.
-              </Typography>
-              <button
-                className="button Body-3 button-animate"
-                onClick={() => navigate("/login")}
-                style={{ marginRight: "16px" }}
-              >
-                Войти
-              </button>
-              <button
-                className="button_secondary Body-3 button-animate-filter"
-                onClick={() => navigate("/signup")}
-              >
-                Регистрация
-              </button>
-            </Box>
-          </Paper>
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "600px", width: "100%", margin: "0 auto" }}>
+            <Paper
+              elevation={3}
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                borderRadius: "20px",
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                  Войдите или зарегистрируйтесь
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  Чтобы подать заявку на роль преподавателя, пожалуйста, войдите
+                  в свой аккаунт или зарегистрируйтесь на платформе.
+                </Typography>
+                <button
+                  className="button Body-3 button-animate"
+                  onClick={() => navigate("/login")}
+                  style={{ marginRight: "16px" }}
+                >
+                  Войти
+                </button>
+                <button
+                  className="button_secondary Body-3 button-animate-filter"
+                  onClick={() => navigate("/signup")}
+                >
+                  Регистрация
+                </button>
+              </Box>
+            </Paper>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -157,72 +168,56 @@ export default function ApplyTeacher() {
     (user && !userData) ||
     (hasRequestedData && isFetchingUser)
   ) {
-    // Определяем роль пользователя для показа соответствующего сообщения
-    const isManager = user?.role?.id === Number(ManagerId);
-    const isTeacher = user?.role?.id === Number(TeacherId);
-
-    console.log("ApplyTeacher - Определение роли для loading:", {
-      userRoleId: user?.role?.id,
-      ManagerId: ManagerId,
-      TeacherId: TeacherId,
-      isManager,
-      isTeacher,
-    });
-
-    let loadingTitle = "Загружаем данные...";
-    let loadingDescription = "Получаем актуальную информацию";
-
-    if (isManager) {
-      loadingTitle = "Загружаем данные...";
-      loadingDescription = "Получаем актуальные данные для управления заявками";
-    } else if (isTeacher) {
-      loadingTitle = "Загружаем данные...";
-      loadingDescription = "Получаем информацию о вашем профиле преподавателя";
-    } else {
-      loadingTitle = "Проверяем статус заявки...";
-      loadingDescription =
-        "Загружаем актуальные данные о вашей заявке на роль преподавателя";
-    }
-
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              borderRadius: "20px",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <CircularProgress size={40} />
-              <Typography
-                variant="h5"
-                component="h1"
-                gutterBottom
-                sx={{ mt: 2 }}
-              >
-                {loadingTitle}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {loadingDescription}
-              </Typography>
-              <button
-                className="button_white Body-3 button-animate"
-                onClick={() => refetch()}
-                style={{ marginTop: "16px" }}
-              >
-                Обновить данные
-              </button>
-            </Box>
-          </Paper>
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+            <Paper
+              elevation={3}
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                borderRadius: "20px",
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <CircularProgress size={40} />
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  gutterBottom
+                  sx={{ mt: 2 }}
+                >
+                  {isLoadingUser
+                    ? "Загружаем данные..."
+                    : "Проверяем статус заявки..."}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  {isLoadingUser
+                    ? "Получаем актуальную информацию"
+                    : "Загружаем актуальные данные о вашей заявке на роль преподавателя"}
+                </Typography>
+                <button
+                  className="button_white Body-3 button-animate"
+                  onClick={() => refetch()}
+                  style={{ marginTop: "16px" }}
+                >
+                  Обновить данные
+                </button>
+              </Box>
+            </Paper>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -256,49 +251,56 @@ export default function ApplyTeacher() {
     }
 
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              borderRadius: "20px",
-              backgroundColor: "#fff3f3",
-            }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="h5"
-                component="h1"
-                gutterBottom
-                color="error"
-              >
-                {errorTitle}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {errorDescription}
-              </Typography>
-              <button
-                className="button Body-3 button-animate"
-                onClick={() => refetch()}
-                style={{ marginRight: "16px" }}
-              >
-                Попробовать снова
-              </button>
-              <button
-                className="button_secondary Body-3 button-animate-filter"
-                onClick={() => navigate("/profile/" + currentUser.id)}
-              >
-                Вернуться в профиль
-              </button>
-            </Box>
-          </Paper>
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+            <Paper
+              elevation={3}
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                borderRadius: "20px",
+                backgroundColor: "#fff3f3",
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  gutterBottom
+                  color="error"
+                >
+                  {errorTitle}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  {errorDescription}
+                </Typography>
+                <button
+                  className="button Body-3 button-animate"
+                  onClick={() => refetch()}
+                  style={{ marginRight: "16px" }}
+                >
+                  Попробовать снова
+                </button>
+                <button
+                  className="button_secondary Body-3 button-animate-filter"
+                  onClick={() => navigate("/profile/" + currentUser.id)}
+                >
+                  Вернуться в профиль
+                </button>
+              </Box>
+            </Paper>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -316,20 +318,23 @@ export default function ApplyTeacher() {
       isManager: currentUser?.role?.id === Number(ManagerId),
     });
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "1200px", width: "100%", margin: "0 auto" }}>
-          <div
-            className="h4"
-            style={{ marginTop: "12px", marginBottom: "32px" }}
-          >
-            Заявки на роль преподавателя
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "1200px", width: "100%", margin: "0 auto" }}>
+            <div
+              className="h4"
+              style={{ marginTop: "12px", marginBottom: "32px" }}
+            >
+              Заявки на роль преподавателя
+            </div>
+            <TeacherApplicationsTable />
           </div>
-          <TeacherApplicationsTable />
         </div>
-      </div>
+      </>
     );
   }
 
@@ -347,7 +352,12 @@ export default function ApplyTeacher() {
       isTeacher: currentUser?.role?.id === Number(TeacherId),
     });
     console.log("ApplyTeacher - Показываем TeacherWelcome");
-    return <TeacherWelcome user={currentUser} />;
+    return (
+      <>
+        {calculator}
+        <TeacherWelcome user={currentUser} />
+      </>
+    );
   }
 
   // Если пользователь уже подал заявку, показываем соответствующее сообщение
@@ -359,59 +369,8 @@ export default function ApplyTeacher() {
     currentUser.requestedTeacherRole
   ) {
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              borderRadius: "20px",
-              backgroundColor: "#f8f9fa",
-            }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h4" component="h1" gutterBottom>
-                Заявка уже подана
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Вы уже подали заявку на роль преподавателя. Мы рассмотрим вашу
-                заявку и свяжемся с вами в ближайшее время.
-              </Typography>
-              <button
-                className="button Body-3 button-animate"
-                onClick={() => navigate("/profile/" + currentUser.id)}
-                style={{ marginRight: "16px" }}
-              >
-                Вернуться в профиль
-              </button>
-              <button
-                className="button_secondary Body-3 button-animate-filter"
-                onClick={() => navigate("/courses")}
-              >
-                Посмотреть курсы
-              </button>
-            </Box>
-          </Paper>
-        </div>
-      </div>
-    );
-  }
-
-  // Если заявка была отклонена, проверяем время ожидания
-  // Проверяем только после завершения загрузки данных и получения данных с сервера
-  if (!isLoadingUser && !isFetchingUser && userData && currentUser.rejectedAt) {
-    const daysSinceRejection = moment().diff(
-      moment(currentUser.rejectedAt),
-      "days"
-    );
-    const daysToWait = 30 - daysSinceRejection; // Оригинальная логика
-
-    if (daysToWait > 0) {
-      return (
+      <>
+        {calculator}
         <div
           className="padding"
           style={{ display: "flex", justifyContent: "center" }}
@@ -423,28 +382,20 @@ export default function ApplyTeacher() {
                 padding: "40px",
                 textAlign: "center",
                 borderRadius: "20px",
+                backgroundColor: "#f8f9fa",
               }}
             >
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h4" component="h1" gutterBottom>
-                  Заявка была отклонена
+                  Заявка уже подана
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mb: 3 }}
                 >
-                  К сожалению, ваша предыдущая заявка на роль преподавателя была
-                  отклонена. Вы можете подать новую заявку через {daysToWait}{" "}
-                  дней.
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 3 }}
-                >
-                  Дата отклонения:{" "}
-                  {moment(currentUser.rejectedAt).format("DD.MM.YYYY")}
+                  Вы уже подали заявку на роль преподавателя. Мы рассмотрим вашу
+                  заявку и свяжемся с вами в ближайшее время.
                 </Typography>
                 <button
                   className="button Body-3 button-animate"
@@ -459,71 +410,140 @@ export default function ApplyTeacher() {
                 >
                   Посмотреть курсы
                 </button>
-                {/* Временная кнопка для тестирования - удалить после тестирования */}
-                {process.env.NODE_ENV === "development" && (
-                  <>
-                    {/* <button
-                      className="button_white Body-3 button-animate"
-                      onClick={async () => {
-                        try {
-                          // Устанавливаем дату 31 день назад (больше 30 дней)
-                          const thirtyOneDaysAgo = moment()
-                            .subtract(31, "days")
-                            .toISOString();
-
-                          // Обновляем данные на сервере
-                          await updateUser({
-                            id: currentUser.id,
-                            rejectedAt: thirtyOneDaysAgo,
-                          }).unwrap();
-
-                          // Обновляем локальные данные
-                          const testUser = {
-                            ...currentUser,
-                            rejectedAt: thirtyOneDaysAgo,
-                          };
-                          localStorage.setItem(
-                            "user",
-                            JSON.stringify(testUser)
-                          );
-                          dispatch(
-                            setUser({
-                              user: testUser,
-                              jwt: localStorage.getItem("token"),
-                            })
-                          );
-
-                          toast.success(
-                            "Тест: установлена дата 31 день назад!"
-                          );
-                        } catch (error) {
-                          console.error(
-                            "Ошибка при установке тестовой даты:",
-                            error
-                          );
-                          toast.error("Ошибка при установке тестовой даты");
-                        }
-                      }}
-                      style={{ marginTop: "16px", marginRight: "8px" }}
-                    >
-                      Тест: Установить дату 31 день назад
-                    </button> */}
-                    <button
-                      className="button_white Body-3 button-animate"
-                      onClick={() => {
-                        refetch();
-                        toast.success("Данные обновлены!");
-                      }}
-                      style={{ marginTop: "16px" }}
-                    >
-                      Обновить данные
-                    </button>
-                  </>
-                )}
               </Box>
             </Paper>
           </div>
         </div>
+      </>
+    );
+  }
+
+  // Если заявка была отклонена, проверяем время ожидания
+  // Проверяем только после завершения загрузки данных и получения данных с сервера
+  if (!isLoadingUser && !isFetchingUser && userData && currentUser.rejectedAt) {
+    const daysSinceRejection = moment().diff(
+      moment(currentUser.rejectedAt),
+      "days"
+    );
+    const daysToWait = 30 - daysSinceRejection; // Оригинальная логика
+
+    if (daysToWait > 0) {
+      return (
+        <>
+          {calculator}
+          <div
+            className="padding"
+            style={{ display: "flex", justifyContent: "center" }}
+          >
+            <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+              <Paper
+                elevation={3}
+                style={{
+                  padding: "40px",
+                  textAlign: "center",
+                  borderRadius: "20px",
+                }}
+              >
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="h4" component="h1" gutterBottom>
+                    Заявка была отклонена
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ mb: 3 }}
+                  >
+                    К сожалению, ваша предыдущая заявка на роль преподавателя
+                    была отклонена. Вы можете подать новую заявку через{" "}
+                    {daysToWait} дней.
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 3 }}
+                  >
+                    Дата отклонения:{" "}
+                    {moment(currentUser.rejectedAt).format("DD.MM.YYYY")}
+                  </Typography>
+                  <button
+                    className="button Body-3 button-animate"
+                    onClick={() => navigate("/profile/" + currentUser.id)}
+                    style={{ marginRight: "16px" }}
+                  >
+                    Вернуться в профиль
+                  </button>
+                  <button
+                    className="button_secondary Body-3 button-animate-filter"
+                    onClick={() => navigate("/courses")}
+                  >
+                    Посмотреть курсы
+                  </button>
+                  {/* Временная кнопка для тестирования - удалить после тестирования */}
+                  {process.env.NODE_ENV === "development" && (
+                    <>
+                      {/* <button
+                        className="button_white Body-3 button-animate"
+                        onClick={async () => {
+                          try {
+                            // Устанавливаем дату 31 день назад (больше 30 дней)
+                            const thirtyOneDaysAgo = moment()
+                              .subtract(31, "days")
+                              .toISOString();
+
+                            // Обновляем данные на сервере
+                            await updateUser({
+                              id: currentUser.id,
+                              rejectedAt: thirtyOneDaysAgo,
+                            }).unwrap();
+
+                            // Обновляем локальные данные
+                            const testUser = {
+                              ...currentUser,
+                              rejectedAt: thirtyOneDaysAgo,
+                            };
+                            localStorage.setItem(
+                              "user",
+                              JSON.stringify(testUser)
+                            );
+                            dispatch(
+                              setUser({
+                                user: testUser,
+                                jwt: localStorage.getItem("token"),
+                              })
+                            );
+
+                            toast.success(
+                              "Тест: установлена дата 31 день назад!"
+                            );
+                          } catch (error) {
+                            console.error(
+                              "Ошибка при установке тестовой даты:",
+                              error
+                            );
+                            toast.error("Ошибка при установке тестовой даты");
+                          }
+                        }}
+                        style={{ marginTop: "16px", marginRight: "8px" }}
+                      >
+                        Тест: Установить дату 31 день назад
+                      </button> */}
+                      <button
+                        className="button_white Body-3 button-animate"
+                        onClick={() => {
+                          refetch();
+                          toast.success("Данные обновлены!");
+                        }}
+                        style={{ marginTop: "16px" }}
+                      >
+                        Обновить данные
+                      </button>
+                    </>
+                  )}
+                </Box>
+              </Paper>
+            </div>
+          </div>
+        </>
       );
     }
   }
@@ -565,209 +585,228 @@ export default function ApplyTeacher() {
   // Показываем loading во время подачи заявки
   if (isSubmitting) {
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              borderRadius: "20px",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <CircularProgress size={40} />
-              <Typography
-                variant="h5"
-                component="h1"
-                gutterBottom
-                sx={{ mt: 2 }}
-              >
-                Отправляем заявку...
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Пожалуйста, подождите, мы обрабатываем вашу заявку на роль
-                преподавателя
-              </Typography>
-            </Box>
-          </Paper>
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+            <Paper
+              elevation={3}
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                borderRadius: "20px",
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <CircularProgress size={40} />
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  gutterBottom
+                  sx={{ mt: 2 }}
+                >
+                  Отправляем заявку...
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Пожалуйста, подождите, мы обрабатываем вашу заявку на роль
+                  преподавателя
+                </Typography>
+              </Box>
+            </Paper>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (isSubmitted) {
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              textAlign: "center",
-              borderRadius: "20px",
-              backgroundColor: "#f0f8f0",
-            }}
-          >
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="h4"
-                component="h1"
-                gutterBottom
-                color="success.main"
-              >
-                Заявка подана успешно!
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Спасибо за ваш интерес к преподавательской деятельности! Мы
-                рассмотрим вашу заявку и свяжемся с вами в ближайшее время для
-                обсуждения дальнейших шагов.
-              </Typography>
-              <button
-                className="button Body-3 button-animate"
-                onClick={() => navigate("/profile/" + currentUser.id)}
-                style={{ marginRight: "16px" }}
-              >
-                Вернуться в профиль
-              </button>
-              <button
-                className="button_secondary Body-3 button-animate-filter"
-                onClick={() => navigate("/courses")}
-              >
-                Посмотреть курсы
-              </button>
-            </Box>
-          </Paper>
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+            <Paper
+              elevation={3}
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                borderRadius: "20px",
+                backgroundColor: "#f0f8f0",
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  gutterBottom
+                  color="success.main"
+                >
+                  Заявка подана успешно!
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  Спасибо за ваш интерес к преподавательской деятельности! Мы
+                  рассмотрим вашу заявку и свяжемся с вами в ближайшее время для
+                  обсуждения дальнейших шагов.
+                </Typography>
+                <button
+                  className="button Body-3 button-animate"
+                  onClick={() => navigate("/profile/" + currentUser.id)}
+                  style={{ marginRight: "16px" }}
+                >
+                  Вернуться в профиль
+                </button>
+                <button
+                  className="button_secondary Body-3 button-animate-filter"
+                  onClick={() => navigate("/courses")}
+                >
+                  Посмотреть курсы
+                </button>
+              </Box>
+            </Paper>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   // Показываем форму подачи заявки только после завершения загрузки данных и получения данных с сервера
   if (!isLoadingUser && !isFetchingUser && userData) {
     return (
-      <div
-        className="padding"
-        style={{ display: "flex", justifyContent: "center" }}
-      >
-        <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
-          <div
-            className="h4"
-            style={{
-              marginTop: "12px",
-              marginBottom: "32px",
-              textAlign: "center",
-            }}
-          >
-            Стать преподавателем
-          </div>
+      <>
+        {calculator}
+        <div
+          className="padding"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+            <div
+              className="h4"
+              style={{
+                marginTop: "12px",
+                marginBottom: "32px",
+                textAlign: "center",
+              }}
+            >
+              Стать преподавателем
+            </div>
 
-          <Paper
-            elevation={3}
-            style={{
-              padding: "40px",
-              borderRadius: "20px",
-              backgroundColor: "#ffffff",
-            }}
-          >
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h5" component="h2" gutterBottom>
-                Добро пожаловать в команду преподавателей!
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Мы рады, что вы хотите присоединиться к нашей команде
-                преподавателей. Подав заявку, вы получите возможность создавать
-                курсы и делиться своими знаниями с учениками.
-              </Typography>
-            </Box>
+            <Paper
+              elevation={3}
+              style={{
+                padding: "40px",
+                borderRadius: "20px",
+                backgroundColor: "#ffffff",
+              }}
+            >
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h5" component="h2" gutterBottom>
+                  Добро пожаловать в команду преподавателей!
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 3 }}
+                >
+                  Мы рады, что вы хотите присоединиться к нашей команде
+                  преподавателей. Подав заявку, вы получите возможность
+                  создавать курсы и делиться своими знаниями с учениками.
+                </Typography>
+              </Box>
 
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom>
-                Что вы получите:
-              </Typography>
-              <ul style={{ paddingLeft: "20px", color: "#666" }}>
-                <li className="Body-2">
-                  Возможность создавать собственные курсы
-                </li>
-                <li className="Body-2">
-                  Доступ к инструментам управления учениками
-                </li>
-                <li className="Body-2">
-                  Возможность загружать гайды и материалы
-                </li>
-                <li className="Body-2">Создание портфолио и древа навыков</li>
-                {/* <li className="Body-2">
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" gutterBottom>
+                  Что вы получите:
+                </Typography>
+                <ul style={{ paddingLeft: "20px", color: "#666" }}>
+                  <li className="Body-2">
+                    Возможность создавать собственные курсы
+                  </li>
+                  <li className="Body-2">
+                    Доступ к инструментам управления учениками
+                  </li>
+                  <li className="Body-2">
+                    Возможность загружать гайды и материалы
+                  </li>
+                  <li className="Body-2">Создание портфолио и древа навыков</li>
+                  {/* <li className="Body-2">
                 Доступ к системе чатов для общения с учениками
               </li> */}
-              </ul>
-            </Box>
+                </ul>
+              </Box>
 
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom>
-                Что от вас требуется:
-              </Typography>
-              <ul style={{ paddingLeft: "20px", color: "#666" }}>
-                <li className="Body-2">
-                  Заполненное портофлио на сайте anirum
-                </li>
-                <li className="Body-2">
-                  Опыт в преподавании или желание делиться знаниями
-                </li>
-                <li className="Body-2">
-                  Готовность создавать качественный контент
-                </li>
-                <li className="Body-2">Ответственность в работе с учениками</li>
-                <li className="Body-2">Соблюдение правил платформы</li>
-              </ul>
-            </Box>
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" gutterBottom>
+                  Что от вас требуется:
+                </Typography>
+                <ul style={{ paddingLeft: "20px", color: "#666" }}>
+                  <li className="Body-2">
+                    Заполненное портофлио на сайте anirum
+                  </li>
+                  <li className="Body-2">
+                    Опыт в преподавании или желание делиться знаниями
+                  </li>
+                  <li className="Body-2">
+                    Готовность создавать качественный контент
+                  </li>
+                  <li className="Body-2">
+                    Ответственность в работе с учениками
+                  </li>
+                  <li className="Body-2">Соблюдение правил платформы</li>
+                </ul>
+              </Box>
 
-            <Alert severity="info" sx={{ mb: 4 }}>
-              <Typography variant="body2">
-                После подачи заявки наша команда рассмотрит вашу кандидатуру и
-                свяжется с вами для обсуждения деталей сотрудничества.
-              </Typography>
-            </Alert>
+              <Alert severity="info" sx={{ mb: 4 }}>
+                <Typography variant="body2">
+                  После подачи заявки наша команда рассмотрит вашу кандидатуру и
+                  свяжется с вами для обсуждения деталей сотрудничества.
+                </Typography>
+              </Alert>
 
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
-              <button
-                className="button Body-3 button-animate"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                style={{
-                  minWidth: "200px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                }}
-              >
-                {isSubmitting ? (
-                  <>
-                    <CircularProgress size={20} color="inherit" />
-                    Отправка...
-                  </>
-                ) : (
-                  "Подать заявку"
-                )}
-              </button>
-              <button
-                className="button_white Body-3 button-animate"
-                onClick={() => navigate("/profile/" + currentUser.id)}
-                disabled={isSubmitting}
-              >
-                Отмена
-              </button>
-            </Box>
-          </Paper>
+              <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+                <button
+                  className="button Body-3 button-animate"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  style={{
+                    minWidth: "200px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                  }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <CircularProgress size={20} color="inherit" />
+                      Отправка...
+                    </>
+                  ) : (
+                    "Подать заявку"
+                  )}
+                </button>
+                <button
+                  className="button_white Body-3 button-animate"
+                  onClick={() => navigate("/profile/" + currentUser.id)}
+                  disabled={isSubmitting}
+                >
+                  Отмена
+                </button>
+              </Box>
+            </Paper>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 }
